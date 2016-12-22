@@ -62,10 +62,10 @@ release:
 	@for os in ${SUPPORTED_OS}; do \
 		echo "for $${os}"; \
 		mkdir -p ./bin/$${os}; \
-		SUPPORTED_OS=$${os} GOARCH=386 go build -o ./bin/$${os}/qscamel_v${VERSION}_$${os}_32 .; \
-	    tar -C ./bin/$${os}/ -czf ./release/qscamel_v${VERSION}_$${os}_32.tar.gz qscamel_v${VERSION}_$${os}_32; \
-	    SUPPORTED_OS=$${os} GOARCH=amd64 go build -o ./bin/$${os}/qscamel_v${VERSION}_$${os}_64 .; \
-	    tar -C ./bin/$${os}/ -czf ./release/qscamel_v${VERSION}_$${os}_64.tar.gz qscamel_v${VERSION}_$${os}_64; \
+		SUPPORTED_OS=$${os} GOARCH=386 go build -o ./bin/$${os}/qscamel_v${VERSION}_$${os}_i386 .; \
+	    tar -C ./bin/$${os}/ -czf ./release/qscamel_v${VERSION}_$${os}_i386.tar.gz qscamel_v${VERSION}_$${os}_i386; \
+	    SUPPORTED_OS=$${os} GOARCH=amd64 go build -o ./bin/$${os}/qscamel_v${VERSION}_$${os}_amd64 .; \
+	    tar -C ./bin/$${os}/ -czf ./release/qscamel_v${VERSION}_$${os}_amd64.tar.gz qscamel_v${VERSION}_$${os}_amd64; \
 	done
 	@echo "ok"
 
