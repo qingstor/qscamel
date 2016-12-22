@@ -10,8 +10,10 @@
 (https://github.com/yunify/qscamel/blob/master/LICENSE)
 </span>
 
-qscamel is a command line tool facilitating data migration to QingStor.
-It can read from local file or other object storage platform to get source object list, then does batch migration from source site to QingStor.
+qscamel is a command line tool to migrate data reachable by HTTP(s) to QingStor
+efficiently.  Its input can be either a file contains the source links, or a
+bucket of other object storage platform.
+
 
 ## Getting Started
 
@@ -36,26 +38,33 @@ can be specified by the option `-c /path/to/config`.
 
 ### Command-line Flags
 
-Command-line flags supported by qscamel are listed below.
+Command line options supported by qscamel are listed below.
 
 ##### General flags:
 
 | short | full | type | required | usage |
 | ----- |------|:------:|:----------:|------ |
-| -t | --src-type    | string | Y | Specify source type, support "file" and other object storage like "s3", "qiniu" and "aliyun".
-| -s | --src         | string | Y | Specify migration source. If --src-type is "file", --src specifies source list file. Otherwise, --src specifies source bucket name.
+| -t | --src-type    | string | Y | Specify source type, can be either "file" or other object storage platform like "s3", "qiniu", and "aliyun".
+| -s | --src         | string | Y | Specify migration source. If --src-type is "file", --src specifies the path to the source list file, otherwise, --src specifies the source bucket name.
 | -b | --bucket      | string | Y | Specify QingStor bucket
 | -d | --description | string | Y | Describe current migration task. This description will be used as record filename for task resuming.
 | -c | --config      | string | N | Specify QingStor YAML configuration file
-| -T | --threads     | int    | N | Specify the number of objects being migrated concurrently (default 10, max 100)
+| -T | --threads     | int    | N | Specify the number of objects being migrated concurrently (maximum number is 100, default to 10)
 | -l | --log-file    | string | N | Specify the path of log file
 | -v | --version     | bool   | N | Print the version number of qscamel and exit
 | -h | --help        | bool   | N | Print the usage of qscamel and exit
 
-##### Overwrite flags:
+##### Overwriting related options:
 
-By default, qscamel compares last modified time of source file with last modified time of object in QingStor.
-If the object doesn't exist in QingStor or object in QingStor isn't the latest, then do migration.
+Unless the object is not existing in the specified QingStor bucket or the
+object with the same name in QingStor is older the source file (qscamel
+compares the last modified time of source file with the last modified time of
+object in QingStor), qscamel ignore the source file by default.
+
+To overrite the existing object forcefully, you can use option "--overwrite";
+To ignore the existing object regardless of if it's newer than the source file
+or not, you can use option "--ignore-existing"; Option "--dry-run" allows you
+to examine what qscamel will do before the actual migration.
 
 | short | full | type | required | usage |
 | ----- |------|:------:|:----------:|------ |
@@ -63,31 +72,32 @@ If the object doesn't exist in QingStor or object in QingStor isn't the latest, 
 | -o | --overwrite       | bool   | N | Overwrite existing object
 | -n | --dry-run         | bool   | N | Perform a trial run with no actual migration
 
-##### Object storage source flags:
+##### Object storage source related options
 
 | short | full | type | required | usage |
 | ----- |------|:------:|:----------:|------ |
-| -z | --src-zone        | string | N | Specify source zone for object storage type source
-| -a | --src-access-key  | string | N | Specify source access_key_id for object storage type source
-| -S | --src-secret-key  | string | N | Specify source secret_access_key for object storage type source
+| -z | --src-zone        | string | N | Specify source zone for source of object storage type
+| -a | --src-access-key  | string | N | Specify source access_key_id for source of object storage type
+| -S | --src-secret-key  | string | N | Specify source secret_access_key for source of object storage type
 
 ### Source List File Format
 
-Use `--src-type=file` or `-t file` to enable reading from file. Then use `--src` or `-s` to specify source list file.
-Source list file defines http/https source site object for migration.
+Use `--src-type=file` or `-t file` to enable reading from file. Then use `--src` or `-s` to specify the source list file.
+Source list file defines HTTP(s) source links for migration.
+
 Each line of source site ends with `\n`. There are two format of one line:
 
-1.Just source site link. Object name will be parsed from url, for example:
+1.Just source link. Object name will be parsed from the URL, for example:
 
 ``` bash
-# Http url with path, object name: public/cat.png
+# HTTP URL with path, object name: public/cat.png
 http://image.example.com/public/cat.png
 
-# Http url with no path, object name: image.example.com
+# HTTP URL with no path, object name: image.example.com
 http://image.example.com
 ```
 
-2.Specify object name. Format: source site`[spacing]`object name, for example:
+2.Specify object name. Format: source link`[spacing]`object name, for example:
 
 ``` bash
 # Specify object name: archive/cat.png
@@ -96,11 +106,11 @@ http://image.example.com/public/cat.png archive/cat.png
 
 ### Supported Object Storage Source
 
-Use `--src-type=<platform>` or `-t <platform>` to enable migrating from other platform, for example `--src-type=s3`. Then use `--src` or `-s` to specify source bucket name.
+Use `--src-type=<platform>` or `-t <platform>` to enable migrating from otherobject storage platform (e.g. `--src-type=s3`), then use `--src` or `-s` to specify the source bucket name.
 
 | platform | require --src-zone | require --src-access | require --src-secret |
 | -------- |:------------------:|:--------------------:|:--------------------:|
-| s3       | Y                  | Y                    | Y                    | 
+| s3       | Y                  | Y                    | Y                    |
 | qiniu    | N                  | Y                    | Y                    |
 | aliyun   | Y                  | Y                    | Y                    |
 
@@ -110,13 +120,13 @@ Use `--src-type=<platform>` or `-t <platform>` to enable migrating from other pl
 # Read from source list file
 $ qscamel -t file -s ~/source-list -b QingStor-bucket-name -d "migrate 01"
 
-# Overwrite existing object
+# Overwrite existing object forcefully
 $ qscamel -t file -s ~/source-list -b QingStor-bucket-name -d "migrate 02" -o
 
 # Ignore existing object and dry-run
 $ qscamel -t file -s ~/source-list -b QingStor-bucket-name -d "migrate 03" -i -n
 
-# Specify threats and log-file
+# Specify threads and log-file
 $ qscamel -t file -s ~/source-list -b QingStor-bucket-name -d "migrate 04" -T 5 -l ~/logfile
 
 # Migrate from aws s3
