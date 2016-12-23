@@ -106,7 +106,7 @@ http://image.example.com/public/cat.png archive/cat.png
 
 ### Supported Object Storage Source
 
-Use `--src-type=<platform>` or `-t <platform>` to enable migrating from otherobject storage platform (e.g. `--src-type=s3`), then use `--src` or `-s` to specify the source bucket name.
+Use `--src-type=<platform>` or `-t <platform>` to enable migrating from other object storage platform (e.g. `--src-type=s3`), then use `--src` or `-s` to specify the source bucket name.
 
 | platform | require --src-zone | require --src-access | require --src-secret |
 | -------- |:------------------:|:--------------------:|:--------------------:|
