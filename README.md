@@ -1,14 +1,8 @@
 # qscamel
 
-
-<span style="display: inline-block">
-[![Build Status](https://travis-ci.org/yunify/qscamel.svg?branch=master)]
-(https://travis-ci.org/yunify/qscamel)
-[![Go Report Card](https://goreportcard.com/badge/github.com/yunify/qscamel)]
-(https://goreportcard.com/report/github.com/yunify/qscamel)
-[![License](http://img.shields.io/badge/license-apache%20v2-blue.svg)]
-(https://github.com/yunify/qscamel/blob/master/LICENSE)
-</span>
+[![Build Status](https://travis-ci.org/yunify/qscamel.svg?branch=master)](https://travis-ci.org/yunify/qscamel)
+[![Go Report Card](https://goreportcard.com/badge/github.com/yunify/qscamel)](https://goreportcard.com/report/github.com/yunify/qscamel)
+[![License](http://img.shields.io/badge/license-apache%20v2-blue.svg)](https://github.com/yunify/qscamel/blob/master/LICENSE)
 
 qscamel is a command line tool to migrate data reachable by HTTP(s) to QingStor
 efficiently.  Its input can be either a file contains the source links, or a
