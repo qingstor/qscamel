@@ -139,7 +139,7 @@ func defineFlags(cmd *cobra.Command) {
 		"Perform a trial run with no actual migration",
 	)
 	cmd.Flags().IntVarP(
-		&ctx.ThreadNum, "threads", "T", 0,
+		&ctx.ThreadNum, "threads", "T", DefaultThreadNum,
 		fmt.Sprintf(
 			"Specify the number of objects being migrated concurrently (default %d, max %d)", DefaultThreadNum, MaxThreadNum,
 		),

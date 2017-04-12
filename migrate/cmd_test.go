@@ -261,3 +261,32 @@ func Test_CheckFlags_ThreadNumOverLimit(t *testing.T) {
 		ctx.Recorder.Clear()
 	}
 }
+
+func Test_CheckFlags_ThreadNumSetToDefault(t *testing.T) {
+	sourceType := "file"
+	qsBucketName := "test-qs-bucket"
+	flags := []string{
+		"-b", qsBucketName,
+		"-s", testSrcListPath,
+		"-t", sourceType,
+		"-d", "thread num not set, use default instead",
+	}
+
+	setUpTestFiles(t, testConfigContent)
+	resetFlagVariables()
+	program := os.Args[0]
+	os.Args = []string{program}
+	os.Args = append(os.Args, flags...)
+	cmd := &cobra.Command{
+		PreRunE: checkFlags,
+		Run:     func(cmd *cobra.Command, args []string) {},
+	}
+	defineFlags(cmd)
+	err := cmd.Execute()
+	assert.Nil(t, err)
+	assert.Equal(t, ctx.ThreadNum, DefaultThreadNum)
+	tearDownTestFiles()
+	if ctx.Recorder != nil {
+		ctx.Recorder.Clear()
+	}
+}
