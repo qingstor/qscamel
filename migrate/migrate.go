@@ -17,7 +17,9 @@
 package migrate
 
 import (
+	"fmt"
 	"net/http"
+	"time"
 
 	log "github.com/frostyplanet/logrus"
 
@@ -117,21 +119,30 @@ func Migrate(context *Context) ([]string, []string, []string, error) {
 		}
 
 		// Wait for completion of this batch
-		for i := 0; i < fetchNum; i++ {
+		progressBarTimer := time.NewTimer(time.Second * 2)
+		for i := 0; i < fetchNum; {
 			select {
+			case <-progressBarTimer.C:
+				progressBarTimer.Reset(time.Second * 2)
+				fmt.Print(">>")
 			case result := <-resultChan:
 				if result.Completed {
 					completed = append(completed, result.Source)
 					context.Recorder.Put(result.Source)
+
 				} else {
 					failed = append(failed, result.Source)
 				}
+				i++
+				fmt.Printf("\n[ %d/%d of the download tasks in current batch is finished. ]\n", i, fetchNum)
 			}
 		}
 		if endOfSource {
 			break
 		}
+		fmt.Println("[ New batch of fiels begin to download. ]")
 	}
+	fmt.Println("[ All download taskes are finished. ]")
 	context.Recorder.Clear()
 	return completed, failed, skipped, nil
 }
