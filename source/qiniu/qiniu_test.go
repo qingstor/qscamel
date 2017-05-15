@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/qiniu/api.v6/auth/digest"
 	qnio "github.com/qiniu/api.v6/io"
@@ -69,6 +70,15 @@ var sourceQiniuTests = []testCase{
 		RecordObjects:       []string{"object1"},
 		ExpectedObjectNames: []string{"object2", "object3"},
 		ExpectedSkipped:     []string{"object1"},
+		ExpectedDone:        true,
+	},
+	// TreadNum < total number of objects and TreadNum > number of expected objects
+	{
+		SourceObjects:       []string{"object1", "object2", "object3"},
+		ThreadNum:           2,
+		RecordObjects:       []string{"object1", "object2"},
+		ExpectedObjectNames: []string{"object3"},
+		ExpectedSkipped:     []string{"object1", "object2"},
 		ExpectedDone:        true,
 	},
 }
@@ -124,6 +134,7 @@ func TestSourceQiniu_GetSourceSites(t *testing.T) {
 		assert.Equal(t, test.ExpectedDone, done)
 
 		clearBucket(&qnClient, bucketName)
+		clearSourceQiniu(source)
 		recorder.Clear()
 	}
 }
@@ -144,4 +155,9 @@ func clearBucket(client *rs.Client, bucketName string) {
 	for _, object := range objects {
 		client.Delete(nil, bucketName, object.Key)
 	}
+}
+
+func clearSourceQiniu(source *SourceQiniu) {
+	source.lastModifiedTimes = make(map[string]time.Time)
+	source.marker = ""
 }

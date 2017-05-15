@@ -41,12 +41,13 @@ type SourceFile struct {
 }
 
 // NewSourceFile creates an instance of SourceFile
-func NewSourceFile(listPath string) (SourceFile, error) {
+func NewSourceFile(listPath string) (*SourceFile, error) {
 	sourceListFile, err := os.Open(listPath)
 	if err != nil {
-		return SourceFile{}, fmt.Errorf("can't open source list %s (%s)", listPath, err.Error())
+		return &SourceFile{}, fmt.Errorf("can't open source list %s (%s)", listPath, err.Error())
 	}
-	source := SourceFile{
+
+	return &SourceFile{
 		SourceList: sourceListFile,
 		client: &http.Client{
 			Transport: &http.Transport{
@@ -54,12 +55,11 @@ func NewSourceFile(listPath string) (SourceFile, error) {
 			},
 			Timeout: time.Second * 10,
 		},
-	}
-	return source, nil
+	}, nil
 }
 
 // GetSourceSites implements MigrateSource.GetSourceSites
-func (source SourceFile) GetSourceSites(
+func (source *SourceFile) GetSourceSites(
 	threadNum int, logger *log.Logger, recorder *record.Recorder,
 ) (sourceSites []string, objectNames []string, skipped []string, done bool, err error) {
 	sourceSites, objectNames, skipped = []string{}, []string{}, []string{}
@@ -124,7 +124,7 @@ func (source SourceFile) GetSourceSites(
 }
 
 // GetSourceSiteInfo implements MigrateSource.GetSourceSites
-func (source SourceFile) GetSourceSiteInfo(sourceSite string) (lastModified time.Time, err error) {
+func (source *SourceFile) GetSourceSiteInfo(sourceSite string) (lastModified time.Time, err error) {
 	resp, err := source.client.Get(sourceSite)
 	if resp != nil && !resp.Close {
 		resp.Body.Close()

@@ -40,14 +40,15 @@ type SourceS3 struct {
 	service    *s3.S3
 	// Key:sourceSite Value:LastModifiedTime
 	lastModifiedTimes map[string]time.Time
+	marker            string
 }
 
 var errMissCredential = errors.New("Miss zone, accessKeyID or secretAccessKey for s3")
 
 // NewSourceS3 creates an instance of SourceS3
-func NewSourceS3(bucketName, zone, accessKeyID, secretAccessKey string) (SourceS3, error) {
+func NewSourceS3(bucketName, zone, accessKeyID, secretAccessKey string) (*SourceS3, error) {
 	if zone == "" || accessKeyID == "" || secretAccessKey == "" {
-		return SourceS3{}, errMissCredential
+		return &SourceS3{}, errMissCredential
 	}
 	cfg := &aws.Config{
 		Credentials: credentials.NewStaticCredentials(
@@ -57,23 +58,24 @@ func NewSourceS3(bucketName, zone, accessKeyID, secretAccessKey string) (SourceS
 	}
 	sess, err := session.NewSession(cfg)
 	if err != nil {
-		return SourceS3{}, fmt.Errorf("SourceS3 failed to create session, %v", err)
+		return &SourceS3{}, fmt.Errorf("SourceS3 failed to create session, %v", err)
 	}
 	service := s3.New(sess)
-	return SourceS3{
+	return &SourceS3{
 		BucketURL:         "http://" + bucketName + s3Endpoint,
 		bucketName:        bucketName,
 		service:           service,
 		lastModifiedTimes: make(map[string]time.Time),
+		marker:            "",
 	}, nil
 }
 
 // GetSourceSites implements MigrateSource.GetSourceSites
-func (source SourceS3) GetSourceSites(
+func (source *SourceS3) GetSourceSites(
 	threadNum int, logger *log.Logger, recorder *record.Recorder,
 ) (sourceSites []string, objectNames []string, skipped []string, done bool, err error) {
 	sourceSites, objectNames, skipped = []string{}, []string{}, []string{}
-	marker := ""
+
 	for i := 0; i < threadNum; {
 		if done {
 			return
@@ -82,7 +84,7 @@ func (source SourceS3) GetSourceSites(
 		input := &s3.ListObjectsV2Input{
 			Bucket:     &source.bucketName,
 			MaxKeys:    &maxKeys,
-			StartAfter: &marker,
+			StartAfter: &source.marker,
 		}
 		result, err := source.service.ListObjectsV2(input)
 		if err != nil {
@@ -93,7 +95,7 @@ func (source SourceS3) GetSourceSites(
 			done = true
 		}
 		if result.ContinuationToken != nil {
-			marker = *result.ContinuationToken
+			source.marker = *result.ContinuationToken
 		}
 
 		for _, object := range result.Contents {
@@ -115,7 +117,7 @@ func (source SourceS3) GetSourceSites(
 }
 
 // GetSourceSiteInfo implements MigrateSource.GetSourceSites
-func (source SourceS3) GetSourceSiteInfo(sourceSite string) (lastModified time.Time, err error) {
+func (source *SourceS3) GetSourceSiteInfo(sourceSite string) (lastModified time.Time, err error) {
 	if lastModified, ok := source.lastModifiedTimes[sourceSite]; ok {
 		return lastModified, nil
 	}

@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"strconv"
 	"testing"
 	"time"
 
@@ -32,9 +31,10 @@ import (
 )
 
 const (
-	envZone      = "QSCAMEL_TEST_SOURCEALIYUN_ZONE"
-	envAccessKey = "QSCAMEL_TEST_SOURCEALIYUN_ACCESS_KEY_ID"
-	envSecretKey = "QSCAMEL_TEST_SOURCEALIYUN_SECRET_ACCESS_KEY"
+	envBucketName = "QSCAMEL_TEST_SOURCEALIYUN_BUCKETNAME"
+	envZone       = "QSCAMEL_TEST_SOURCEALIYUN_ZONE"
+	envAccessKey  = "QSCAMEL_TEST_SOURCEALIYUN_ACCESS_KEY_ID"
+	envSecretKey  = "QSCAMEL_TEST_SOURCEALIYUN_SECRET_ACCESS_KEY"
 )
 
 type testCase struct {
@@ -71,22 +71,30 @@ var sourceAliyunTests = []testCase{
 		ExpectedSkipped:     []string{"object1"},
 		ExpectedDone:        true,
 	},
+	// TreadNum < total number of objects and TreadNum > number of expected objects
+	{
+		SourceObjects:       []string{"object1", "object2", "object3"},
+		ThreadNum:           2,
+		RecordObjects:       []string{"object1", "object2"},
+		ExpectedObjectNames: []string{"object3"},
+		ExpectedSkipped:     []string{"object1", "object2"},
+		ExpectedDone:        true,
+	},
 }
 
 func TestSourceAliyun_GetSourceSites(t *testing.T) {
+	bucketName := os.Getenv(envBucketName)
 	zone := os.Getenv(envZone)
 	accessKey := os.Getenv(envAccessKey)
 	secretKey := os.Getenv(envSecretKey)
-	if zone == "" || accessKey == "" || secretKey == "" {
+	if bucketName == "" || zone == "" || accessKey == "" || secretKey == "" {
 		fmt.Println("Miss environment variables for SourceAliyun test")
 		t.SkipNow()
 	}
-	bucketName := "test-aliyun-" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	source, err := NewSourceAliyun(bucketName, zone, accessKey, secretKey)
 	assert.Nil(t, err)
-	err = source.bucket.Client.CreateBucket(source.bucket.BucketName)
-	assert.Nil(t, err)
 	logger := utils.GetLogger()
+
 	for _, test := range sourceAliyunTests {
 		for _, object := range test.SourceObjects {
 			err = source.bucket.PutObject(object, bytes.NewBuffer([]byte("hello world")))
@@ -114,9 +122,9 @@ func TestSourceAliyun_GetSourceSites(t *testing.T) {
 		assert.Equal(t, test.ExpectedDone, done)
 
 		clearBucket(source.bucket)
+		clearSourceAliyun(source)
 		recorder.Clear()
 	}
-	source.bucket.Client.DeleteBucket(source.bucket.BucketName)
 }
 
 func getSourceSites(upstreamURL string, objectNames []string) []string {
@@ -136,4 +144,10 @@ func clearBucket(bucket *oss.Bucket) {
 			bucket.DeleteObject(object.Key)
 		}
 	}
+}
+
+func clearSourceAliyun(source *SourceAliyun) {
+	source.lastModifiedTimes = make(map[string]time.Time)
+	source.firstObject = ""
+	source.marker = ""
 }
