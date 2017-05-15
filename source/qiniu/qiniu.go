@@ -38,25 +38,27 @@ type SourceQiniu struct {
 	bucketName string
 	// Key:sourceSite Value:LastModifiedTime
 	lastModifiedTimes map[string]time.Time
+	marker            string
 }
 
 var errMissCredential = errors.New("Miss accessKeyID or secretAccessKey for qiniu")
 
 // NewSourceQiniu creates an instance of SourceQiniu
-func NewSourceQiniu(bucketName, accessKeyID, secretAccessKey string) (SourceQiniu, error) {
+func NewSourceQiniu(bucketName, accessKeyID, secretAccessKey string) (*SourceQiniu, error) {
 	if accessKeyID == "" || secretAccessKey == "" {
-		return SourceQiniu{}, errMissCredential
+		return &SourceQiniu{}, errMissCredential
 	}
 	conf.ACCESS_KEY = accessKeyID
 	conf.SECRET_KEY = secretAccessKey
 	bucketURL, err := getBucketURL(bucketName, accessKeyID, secretAccessKey)
 	if err != nil {
-		return SourceQiniu{}, err
+		return &SourceQiniu{}, err
 	}
-	return SourceQiniu{
+	return &SourceQiniu{
 		BucketURL:         "http://" + bucketURL,
 		bucketName:        bucketName,
 		lastModifiedTimes: make(map[string]time.Time),
+		marker:            "",
 	}, nil
 }
 
@@ -76,18 +78,18 @@ func getBucketURL(bucket, accessKeyID, secretAccessKey string) (url string, err 
 }
 
 // GetSourceSites implements MigrateSource.GetSourceSites
-func (source SourceQiniu) GetSourceSites(
+func (source *SourceQiniu) GetSourceSites(
 	threadNum int, logger *log.Logger, recorder *record.Recorder,
 ) (sourceSites []string, objectNames []string, skipped []string, done bool, err error) {
 	sourceSites, objectNames, skipped = []string{}, []string{}, []string{}
-	marker := ""
+
 	for i := 0; i < threadNum; {
 		if done {
 			return
 		}
 		limit := threadNum - i
 		client := rsf.New(nil)
-		objects, nextMarker, err := client.ListPrefix(nil, source.bucketName, "", marker, limit)
+		objects, nextMarker, err := client.ListPrefix(nil, source.bucketName, "", source.marker, limit)
 		if err != nil {
 			if err == io.EOF {
 				done = true
@@ -95,7 +97,7 @@ func (source SourceQiniu) GetSourceSites(
 				return sourceSites, objectNames, skipped, done, err
 			}
 		}
-		marker = nextMarker
+		source.marker = nextMarker
 
 		for _, object := range objects {
 			sourceSite := strings.Join([]string{source.BucketURL, object.Key}, "/")
@@ -116,7 +118,7 @@ func (source SourceQiniu) GetSourceSites(
 }
 
 // GetSourceSiteInfo implements MigrateSource.GetSourceSites
-func (source SourceQiniu) GetSourceSiteInfo(sourceSite string) (lastModified time.Time, err error) {
+func (source *SourceQiniu) GetSourceSiteInfo(sourceSite string) (lastModified time.Time, err error) {
 	if lastModified, ok := source.lastModifiedTimes[sourceSite]; ok {
 		return lastModified, nil
 	}

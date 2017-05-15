@@ -37,40 +37,43 @@ type SourceAliyun struct {
 	// Key:sourceSite Value:LastModifiedTime
 	lastModifiedTimes map[string]time.Time
 	firstObject       string
+	marker            string
 }
 
 var errMissCredential = errors.New("Miss zone, accessKeyID or secretAccessKey for aliyun")
 
 // NewSourceAliyun creates an instance of SourceAliyun
-func NewSourceAliyun(bucketName, zone, accessKeyID, secretAccessKey string) (SourceAliyun, error) {
+func NewSourceAliyun(bucketName, zone, accessKeyID, secretAccessKey string) (*SourceAliyun, error) {
 	if zone == "" || accessKeyID == "" || secretAccessKey == "" {
-		return SourceAliyun{}, errMissCredential
+		return &SourceAliyun{}, errMissCredential
 	}
 	client, err := oss.New("http://"+zone+aliyunEndpoint, accessKeyID, secretAccessKey)
 	if err != nil {
-		return SourceAliyun{}, err
+		return &SourceAliyun{}, err
 	}
 	bucket, _ := client.Bucket(bucketName)
-	return SourceAliyun{
+	return &SourceAliyun{
 		BucketURL:         "http://" + bucketName + "." + zone + aliyunEndpoint,
 		bucket:            bucket,
 		lastModifiedTimes: make(map[string]time.Time),
+		firstObject:       "",
+		marker:            "",
 	}, nil
 }
 
 // GetSourceSites implements MigrateSource.GetSourceSites
-func (source SourceAliyun) GetSourceSites(
+func (source *SourceAliyun) GetSourceSites(
 	threadNum int, logger *log.Logger, recorder *record.Recorder,
 ) (sourceSites []string, objectNames []string, skipped []string, done bool, err error) {
 	sourceSites, objectNames, skipped = []string{}, []string{}, []string{}
-	marker := ""
+
 	for i := 0; i < threadNum; {
 		maxKeys := threadNum - i
-		result, err := source.bucket.ListObjects(oss.MaxKeys(maxKeys), oss.Marker(marker))
+		result, err := source.bucket.ListObjects(oss.MaxKeys(maxKeys), oss.Marker(source.marker))
 		if err != nil {
 			return sourceSites, objectNames, skipped, done, err
 		}
-		marker = result.NextMarker
+		source.marker = result.NextMarker
 
 		for _, object := range result.Objects {
 			if source.firstObject == "" {
@@ -97,7 +100,7 @@ func (source SourceAliyun) GetSourceSites(
 }
 
 // GetSourceSiteInfo implements MigrateSource.GetSourceSites
-func (source SourceAliyun) GetSourceSiteInfo(sourceSite string) (lastModified time.Time, err error) {
+func (source *SourceAliyun) GetSourceSiteInfo(sourceSite string) (lastModified time.Time, err error) {
 	if lastModified, ok := source.lastModifiedTimes[sourceSite]; ok {
 		return lastModified, nil
 	}

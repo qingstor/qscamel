@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"strconv"
 	"testing"
 	"time"
 
@@ -32,9 +31,10 @@ import (
 )
 
 const (
-	envZone      = "QSCAMEL_TEST_SOURCES3_ZONE"
-	envAccessKey = "QSCAMEL_TEST_SOURCES3_ACCESS_KEY_ID"
-	envSecretKey = "QSCAMEL_TEST_SOURCES3_SECRET_ACCESS_KEY"
+	envBucketName = "QSCAMEL_TEST_SOURCES3_BUCKETNAME"
+	envZone       = "QSCAMEL_TEST_SOURCES3_ZONE"
+	envAccessKey  = "QSCAMEL_TEST_SOURCES3_ACCESS_KEY_ID"
+	envSecretKey  = "QSCAMEL_TEST_SOURCES3_SECRET_ACCESS_KEY"
 )
 
 type testCase struct {
@@ -70,21 +70,30 @@ var sourceS3Tests = []testCase{
 		ExpectedSkipped:     []string{"object1"},
 		ExpectedDone:        true,
 	},
+	// TreadNum < total number of objects and TreadNum > number of expected objects
+	{
+		SourceObjects:       []string{"object1", "object2", "object3"},
+		ThreadNum:           2,
+		RecordObjects:       []string{"object1", "object2"},
+		ExpectedObjectNames: []string{"object3"},
+		ExpectedSkipped:     []string{"object1", "object2"},
+		ExpectedDone:        true,
+	},
 }
 
 func TestSourceS3_GetSourceSites(t *testing.T) {
+	bucketName := os.Getenv(envBucketName)
 	zone := os.Getenv(envZone)
 	accessKey := os.Getenv(envAccessKey)
 	secretKey := os.Getenv(envSecretKey)
-	if zone == "" || accessKey == "" || secretKey == "" {
+	if bucketName == "" || zone == "" || accessKey == "" || secretKey == "" {
 		fmt.Println("Miss environment variables for SourceS3 test")
 		t.SkipNow()
 	}
-	bucketName := "test-s3-" + strconv.FormatInt(time.Now().UnixNano(), 10)
+
 	source, err := NewSourceS3(bucketName, zone, accessKey, secretKey)
 	assert.Nil(t, err)
-	_, err = source.service.CreateBucket(&awss3.CreateBucketInput{Bucket: &bucketName})
-	assert.Nil(t, err)
+
 	logger := utils.GetLogger()
 	for _, test := range sourceS3Tests {
 		for _, object := range test.SourceObjects {
@@ -118,9 +127,10 @@ func TestSourceS3_GetSourceSites(t *testing.T) {
 		assert.Equal(t, test.ExpectedDone, done)
 
 		clearBucket(source.service, bucketName)
+		clearSourceS3(source)
 		recorder.Clear()
 	}
-	source.service.DeleteBucket(&awss3.DeleteBucketInput{Bucket: &bucketName})
+
 }
 
 func getSourceSites(upstreamURL string, objectNames []string) []string {
@@ -144,4 +154,9 @@ func clearBucket(service *awss3.S3, bucketName string) {
 			service.DeleteObject(input)
 		}
 	}
+}
+
+func clearSourceS3(source *SourceS3) {
+	source.lastModifiedTimes = make(map[string]time.Time)
+	source.marker = ""
 }
