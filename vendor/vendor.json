@@ -287,6 +287,12 @@
 			"revisionTime": "2016-11-17T07:43:51Z"
 		},
 		{
+			"checksumSHA1": "JiHcfWMC0hkqpx5CbpdD1abUQUw=",
+			"path": "github.com/upyun/go-sdk/upyun",
+			"revision": "a71208d1155d6de85b8e80b480634957695db963",
+			"revisionTime": "2017-02-14T01:42:58Z"
+		},
+		{
 			"checksumSHA1": "oEbokVSNu2HP9WvJmaXJbd3T0UY=",
 			"path": "github.com/yunify/qingstor-sdk-go",
 			"revision": "c3d446bf36a5e1f15856f2a76f1b140bcba77347",

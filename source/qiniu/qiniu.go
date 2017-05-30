@@ -41,12 +41,10 @@ type SourceQiniu struct {
 	marker            string
 }
 
-var errMissCredential = errors.New("Miss accessKeyID or secretAccessKey for qiniu")
-
 // NewSourceQiniu creates an instance of SourceQiniu
 func NewSourceQiniu(bucketName, accessKeyID, secretAccessKey string) (*SourceQiniu, error) {
 	if accessKeyID == "" || secretAccessKey == "" {
-		return &SourceQiniu{}, errMissCredential
+		return &SourceQiniu{}, errors.New("Miss accessKeyID or secretAccessKey for qiniu")
 	}
 	conf.ACCESS_KEY = accessKeyID
 	conf.SECRET_KEY = secretAccessKey

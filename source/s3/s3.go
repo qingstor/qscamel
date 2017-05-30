@@ -43,12 +43,10 @@ type SourceS3 struct {
 	marker            string
 }
 
-var errMissCredential = errors.New("Miss zone, accessKeyID or secretAccessKey for s3")
-
 // NewSourceS3 creates an instance of SourceS3
 func NewSourceS3(bucketName, zone, accessKeyID, secretAccessKey string) (*SourceS3, error) {
 	if zone == "" || accessKeyID == "" || secretAccessKey == "" {
-		return &SourceS3{}, errMissCredential
+		return &SourceS3{}, errors.New("Miss zone, accessKeyID or secretAccessKey for s3")
 	}
 	cfg := &aws.Config{
 		Credentials: credentials.NewStaticCredentials(

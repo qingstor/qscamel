@@ -112,11 +112,11 @@ func defineFlags(cmd *cobra.Command) {
 	)
 	cmd.Flags().StringVarP(
 		&sourceAccessKeyID, "src-access-key", "a", "",
-		"Specify source access_key_id for object storage type source",
+		`Specify source access_key_id for object storage type source. If --src-type is "upyun", "src-access-key" specifies the name of upyun operator.`,
 	)
 	cmd.Flags().StringVarP(
 		&sourceSecretAccessKey, "src-secret-key", "S", "",
-		"Specify source secret_access_key for object storage type source",
+		`Specify source secret_access_key for object storage type source. If --src-type is "upyun", "src-secret-key" specifies the password of upyun operator.`,
 	)
 	cmd.Flags().StringVarP(
 		&ctx.QSBucketName, "bucket", "b", "",

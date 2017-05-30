@@ -40,12 +40,10 @@ type SourceAliyun struct {
 	marker            string
 }
 
-var errMissCredential = errors.New("Miss zone, accessKeyID or secretAccessKey for aliyun")
-
 // NewSourceAliyun creates an instance of SourceAliyun
 func NewSourceAliyun(bucketName, zone, accessKeyID, secretAccessKey string) (*SourceAliyun, error) {
 	if zone == "" || accessKeyID == "" || secretAccessKey == "" {
-		return &SourceAliyun{}, errMissCredential
+		return &SourceAliyun{}, errors.New("Miss zone, accessKeyID or secretAccessKey for aliyun")
 	}
 	client, err := oss.New("http://"+zone+aliyunEndpoint, accessKeyID, secretAccessKey)
 	if err != nil {
