@@ -24,7 +24,7 @@ import (
 	"github.com/yunify/qingstor-sdk-go/config"
 	"github.com/yunify/qingstor-sdk-go/request"
 	"github.com/yunify/qingstor-sdk-go/request/data"
-	"github.com/yunify/qingstor-sdk-go/request/errs"
+	"github.com/yunify/qingstor-sdk-go/request/errors"
 )
 
 var _ fmt.State
@@ -41,8 +41,8 @@ type Bucket struct {
 // Bucket initializes a new bucket.
 func (s *Service) Bucket(bucketName string, zone string) (*Bucket, error) {
 	properties := &Properties{
-		BucketName: bucketName,
-		Zone:       zone,
+		BucketName: &bucketName,
+		Zone:       &zone,
 	}
 
 	return &Bucket{Config: s.Config, Properties: properties}, nil
@@ -62,7 +62,8 @@ func (s *Bucket) Delete() (*DeleteBucketOutput, error) {
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -92,9 +93,9 @@ func (s *Bucket) DeleteRequest() (*request.Request, *DeleteBucketOutput, error) 
 
 // DeleteBucketOutput presents output for DeleteBucket.
 type DeleteBucketOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 }
 
 // DeleteCORS does Delete CORS information of the bucket.
@@ -111,7 +112,8 @@ func (s *Bucket) DeleteCORS() (*DeleteBucketCORSOutput, error) {
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -126,7 +128,7 @@ func (s *Bucket) DeleteCORSRequest() (*request.Request, *DeleteBucketCORSOutput,
 		RequestMethod: "DELETE",
 		RequestURI:    "/<bucket-name>?cors",
 		StatusCodes: []int{
-			200, // OK
+			204, // OK
 		},
 	}
 
@@ -141,9 +143,9 @@ func (s *Bucket) DeleteCORSRequest() (*request.Request, *DeleteBucketCORSOutput,
 
 // DeleteBucketCORSOutput presents output for DeleteBucketCORS.
 type DeleteBucketCORSOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 }
 
 // DeleteExternalMirror does Delete external mirror of the bucket.
@@ -160,7 +162,8 @@ func (s *Bucket) DeleteExternalMirror() (*DeleteBucketExternalMirrorOutput, erro
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -190,9 +193,9 @@ func (s *Bucket) DeleteExternalMirrorRequest() (*request.Request, *DeleteBucketE
 
 // DeleteBucketExternalMirrorOutput presents output for DeleteBucketExternalMirror.
 type DeleteBucketExternalMirrorOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 }
 
 // DeletePolicy does Delete policy information of the bucket.
@@ -209,7 +212,8 @@ func (s *Bucket) DeletePolicy() (*DeleteBucketPolicyOutput, error) {
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -239,9 +243,9 @@ func (s *Bucket) DeletePolicyRequest() (*request.Request, *DeleteBucketPolicyOut
 
 // DeleteBucketPolicyOutput presents output for DeleteBucketPolicy.
 type DeleteBucketPolicyOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 }
 
 // DeleteMultipleObjects does Delete multiple objects from the bucket.
@@ -258,7 +262,8 @@ func (s *Bucket) DeleteMultipleObjects(input *DeleteMultipleObjectsInput) (*Dele
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -296,14 +301,14 @@ type DeleteMultipleObjectsInput struct {
 	// A list of keys to delete
 	Objects []*KeyType `json:"objects" name:"objects" location:"elements"` // Required
 	// Whether to return the list of deleted objects
-	Quiet bool `json:"quiet,omitempty" name:"quiet" location:"elements"`
+	Quiet *bool `json:"quiet,omitempty" name:"quiet" location:"elements"`
 }
 
 // Validate validates the input for DeleteMultipleObjects.
 func (v *DeleteMultipleObjectsInput) Validate() error {
 
 	if len(v.Objects) == 0 {
-		return errs.ParameterRequiredError{
+		return errors.ParameterRequiredError{
 			ParameterName: "Objects",
 			ParentName:    "DeleteMultipleObjectsInput",
 		}
@@ -322,9 +327,9 @@ func (v *DeleteMultipleObjectsInput) Validate() error {
 
 // DeleteMultipleObjectsOutput presents output for DeleteMultipleObjects.
 type DeleteMultipleObjectsOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 
 	// List of deleted objects
 	Deleted []*KeyType `json:"deleted,omitempty" name:"deleted" location:"elements"`
@@ -346,7 +351,8 @@ func (s *Bucket) GetACL() (*GetBucketACLOutput, error) {
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -376,9 +382,9 @@ func (s *Bucket) GetACLRequest() (*request.Request, *GetBucketACLOutput, error) 
 
 // GetBucketACLOutput presents output for GetBucketACL.
 type GetBucketACLOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 
 	// Bucket ACL rules
 	ACL []*ACLType `json:"acl,omitempty" name:"acl" location:"elements"`
@@ -400,7 +406,8 @@ func (s *Bucket) GetCORS() (*GetBucketCORSOutput, error) {
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -430,9 +437,9 @@ func (s *Bucket) GetCORSRequest() (*request.Request, *GetBucketCORSOutput, error
 
 // GetBucketCORSOutput presents output for GetBucketCORS.
 type GetBucketCORSOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 
 	// Bucket CORS rules
 	CORSRules []*CORSRuleType `json:"cors_rules,omitempty" name:"cors_rules" location:"elements"`
@@ -452,7 +459,8 @@ func (s *Bucket) GetExternalMirror() (*GetBucketExternalMirrorOutput, error) {
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -482,12 +490,12 @@ func (s *Bucket) GetExternalMirrorRequest() (*request.Request, *GetBucketExterna
 
 // GetBucketExternalMirrorOutput presents output for GetBucketExternalMirror.
 type GetBucketExternalMirrorOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 
 	// Source site url
-	SourceSite string `json:"source_site,omitempty" name:"source_site" location:"elements"`
+	SourceSite *string `json:"source_site,omitempty" name:"source_site" location:"elements"`
 }
 
 // GetPolicy does Get policy information of the bucket.
@@ -504,7 +512,8 @@ func (s *Bucket) GetPolicy() (*GetBucketPolicyOutput, error) {
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -534,9 +543,9 @@ func (s *Bucket) GetPolicyRequest() (*request.Request, *GetBucketPolicyOutput, e
 
 // GetBucketPolicyOutput presents output for GetBucketPolicy.
 type GetBucketPolicyOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 
 	// Bucket policy statement
 	Statement []*StatementType `json:"statement,omitempty" name:"statement" location:"elements"`
@@ -556,7 +565,8 @@ func (s *Bucket) GetStatistics() (*GetBucketStatisticsOutput, error) {
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -586,25 +596,25 @@ func (s *Bucket) GetStatisticsRequest() (*request.Request, *GetBucketStatisticsO
 
 // GetBucketStatisticsOutput presents output for GetBucketStatistics.
 type GetBucketStatisticsOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 
 	// Objects count in the bucket
-	Count int `json:"count,omitempty" name:"count" location:"elements"`
+	Count *int64 `json:"count,omitempty" name:"count" location:"elements"`
 	// Bucket created time
-	Created time.Time `json:"created,omitempty" name:"created" format:"ISO 8601" location:"elements"`
+	Created *time.Time `json:"created,omitempty" name:"created" format:"ISO 8601" location:"elements"`
 	// QingCloud Zone ID
-	Location string `json:"location,omitempty" name:"location" location:"elements"`
+	Location *string `json:"location,omitempty" name:"location" location:"elements"`
 	// Bucket name
-	Name string `json:"name,omitempty" name:"name" location:"elements"`
+	Name *string `json:"name,omitempty" name:"name" location:"elements"`
 	// Bucket storage size
-	Size int `json:"size,omitempty" name:"size" location:"elements"`
+	Size *int64 `json:"size,omitempty" name:"size" location:"elements"`
 	// Bucket status
 	// Status's available values: active, suspended
-	Status string `json:"status,omitempty" name:"status" location:"elements"`
+	Status *string `json:"status,omitempty" name:"status" location:"elements"`
 	// URL to access the bucket
-	URL string `json:"url,omitempty" name:"url" location:"elements"`
+	URL *string `json:"url,omitempty" name:"url" location:"elements"`
 }
 
 // Head does Check whether the bucket exists and available.
@@ -621,7 +631,8 @@ func (s *Bucket) Head() (*HeadBucketOutput, error) {
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -651,9 +662,98 @@ func (s *Bucket) HeadRequest() (*request.Request, *HeadBucketOutput, error) {
 
 // HeadBucketOutput presents output for HeadBucket.
 type HeadBucketOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
+}
+
+// ListMultipartUploads does List multipart uploads in the bucket.
+// Documentation URL: https://docs.qingcloud.com/qingstor/api/bucket/list_multipart_uploads.html
+func (s *Bucket) ListMultipartUploads(input *ListMultipartUploadsInput) (*ListMultipartUploadsOutput, error) {
+	r, x, err := s.ListMultipartUploadsRequest(input)
+
+	if err != nil {
+		return x, err
+	}
+
+	err = r.Send()
+	if err != nil {
+		return nil, err
+	}
+
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
+
+	return x, err
+}
+
+// ListMultipartUploadsRequest creates request and output object of ListMultipartUploads.
+func (s *Bucket) ListMultipartUploadsRequest(input *ListMultipartUploadsInput) (*request.Request, *ListMultipartUploadsOutput, error) {
+
+	if input == nil {
+		input = &ListMultipartUploadsInput{}
+	}
+
+	o := &data.Operation{
+		Config:        s.Config,
+		Properties:    s.Properties,
+		APIName:       "List Multipart Uploads",
+		RequestMethod: "GET",
+		RequestURI:    "/<bucket-name>?uploads",
+		StatusCodes: []int{
+			200, // OK
+		},
+	}
+
+	x := &ListMultipartUploadsOutput{}
+	r, err := request.New(o, input, x)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return r, x, nil
+}
+
+// ListMultipartUploadsInput presents input for ListMultipartUploads.
+type ListMultipartUploadsInput struct {
+	// Put all keys that share a common prefix into a list
+	Delimiter *string `json:"delimiter,omitempty" name:"delimiter" location:"params"`
+	// Results count limit
+	Limit *int `json:"limit,omitempty" name:"limit" location:"params"`
+	// Limit results to keys that start at this marker
+	Marker *string `json:"marker,omitempty" name:"marker" location:"params"`
+	// Limits results to keys that begin with the prefix
+	Prefix *string `json:"prefix,omitempty" name:"prefix" location:"params"`
+}
+
+// Validate validates the input for ListMultipartUploads.
+func (v *ListMultipartUploadsInput) Validate() error {
+
+	return nil
+}
+
+// ListMultipartUploadsOutput presents output for ListMultipartUploads.
+type ListMultipartUploadsOutput struct {
+	StatusCode *int `location:"statusCode"`
+
+	RequestID *string `location:"requestID"`
+
+	// Other object keys that share common prefixes
+	CommonPrefixes []*string `json:"common_prefixes,omitempty" name:"common_prefixes" location:"elements"`
+	// Delimiter that specified in request parameters
+	Delimiter *string `json:"delimiter,omitempty" name:"delimiter" location:"elements"`
+	// Limit that specified in request parameters
+	Limit *int `json:"limit,omitempty" name:"limit" location:"elements"`
+	// Marker that specified in request parameters
+	Marker *string `json:"marker,omitempty" name:"marker" location:"elements"`
+	// Bucket name
+	Name *string `json:"name,omitempty" name:"name" location:"elements"`
+	// The last key in keys list
+	NextMarker *string `json:"next_marker,omitempty" name:"next_marker" location:"elements"`
+	// Prefix that specified in request parameters
+	Prefix *string `json:"prefix,omitempty" name:"prefix" location:"elements"`
+	// Multipart uploads
+	Uploads []*UploadsType `json:"uploads,omitempty" name:"uploads" location:"elements"`
 }
 
 // ListObjects does Retrieve the object list in a bucket.
@@ -670,7 +770,8 @@ func (s *Bucket) ListObjects(input *ListObjectsInput) (*ListObjectsOutput, error
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -705,13 +806,13 @@ func (s *Bucket) ListObjectsRequest(input *ListObjectsInput) (*request.Request, 
 // ListObjectsInput presents input for ListObjects.
 type ListObjectsInput struct {
 	// Put all keys that share a common prefix into a list
-	Delimiter string `json:"delimiter,omitempty" name:"delimiter" location:"params"`
+	Delimiter *string `json:"delimiter,omitempty" name:"delimiter" location:"params"`
 	// Results count limit
-	Limit int `json:"limit,omitempty" name:"limit" location:"params"`
+	Limit *int `json:"limit,omitempty" name:"limit" location:"params"`
 	// Limit results to keys that start at this marker
-	Marker string `json:"marker,omitempty" name:"marker" location:"params"`
+	Marker *string `json:"marker,omitempty" name:"marker" location:"params"`
 	// Limits results to keys that begin with the prefix
-	Prefix string `json:"prefix,omitempty" name:"prefix" location:"params"`
+	Prefix *string `json:"prefix,omitempty" name:"prefix" location:"params"`
 }
 
 // Validate validates the input for ListObjects.
@@ -722,28 +823,28 @@ func (v *ListObjectsInput) Validate() error {
 
 // ListObjectsOutput presents output for ListObjects.
 type ListObjectsOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 
 	// Other object keys that share common prefixes
-	CommonPrefixes []string `json:"common_prefixes,omitempty" name:"common_prefixes" location:"elements"`
+	CommonPrefixes []*string `json:"common_prefixes,omitempty" name:"common_prefixes" location:"elements"`
 	// Delimiter that specified in request parameters
-	Delimiter string `json:"delimiter,omitempty" name:"delimiter" location:"elements"`
+	Delimiter *string `json:"delimiter,omitempty" name:"delimiter" location:"elements"`
 	// Object keys
 	Keys []*KeyType `json:"keys,omitempty" name:"keys" location:"elements"`
 	// Limit that specified in request parameters
-	Limit int `json:"limit,omitempty" name:"limit" location:"elements"`
+	Limit *int `json:"limit,omitempty" name:"limit" location:"elements"`
 	// Marker that specified in request parameters
-	Marker string `json:"marker,omitempty" name:"marker" location:"elements"`
+	Marker *string `json:"marker,omitempty" name:"marker" location:"elements"`
 	// Bucket name
-	Name string `json:"name,omitempty" name:"name" location:"elements"`
+	Name *string `json:"name,omitempty" name:"name" location:"elements"`
 	// The last key in keys list
-	NextMarker string `json:"next_marker,omitempty" name:"next_marker" location:"elements"`
+	NextMarker *string `json:"next_marker,omitempty" name:"next_marker" location:"elements"`
 	// Bucket owner
 	Owner *OwnerType `json:"owner,omitempty" name:"owner" location:"elements"`
 	// Prefix that specified in request parameters
-	Prefix string `json:"prefix,omitempty" name:"prefix" location:"elements"`
+	Prefix *string `json:"prefix,omitempty" name:"prefix" location:"elements"`
 }
 
 // Put does Create a new bucket.
@@ -760,7 +861,8 @@ func (s *Bucket) Put() (*PutBucketOutput, error) {
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -790,9 +892,9 @@ func (s *Bucket) PutRequest() (*request.Request, *PutBucketOutput, error) {
 
 // PutBucketOutput presents output for PutBucket.
 type PutBucketOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 }
 
 // PutACL does Set ACL information of the bucket.
@@ -809,7 +911,8 @@ func (s *Bucket) PutACL(input *PutBucketACLInput) (*PutBucketACLOutput, error) {
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -852,7 +955,7 @@ type PutBucketACLInput struct {
 func (v *PutBucketACLInput) Validate() error {
 
 	if len(v.ACL) == 0 {
-		return errs.ParameterRequiredError{
+		return errors.ParameterRequiredError{
 			ParameterName: "ACL",
 			ParentName:    "PutBucketACLInput",
 		}
@@ -871,9 +974,9 @@ func (v *PutBucketACLInput) Validate() error {
 
 // PutBucketACLOutput presents output for PutBucketACL.
 type PutBucketACLOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 }
 
 // PutCORS does Set CORS information of the bucket.
@@ -890,7 +993,8 @@ func (s *Bucket) PutCORS(input *PutBucketCORSInput) (*PutBucketCORSOutput, error
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -933,7 +1037,7 @@ type PutBucketCORSInput struct {
 func (v *PutBucketCORSInput) Validate() error {
 
 	if len(v.CORSRules) == 0 {
-		return errs.ParameterRequiredError{
+		return errors.ParameterRequiredError{
 			ParameterName: "CORSRules",
 			ParentName:    "PutBucketCORSInput",
 		}
@@ -952,9 +1056,9 @@ func (v *PutBucketCORSInput) Validate() error {
 
 // PutBucketCORSOutput presents output for PutBucketCORS.
 type PutBucketCORSOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 }
 
 // PutExternalMirror does Set external mirror of the bucket.
@@ -971,7 +1075,8 @@ func (s *Bucket) PutExternalMirror(input *PutBucketExternalMirrorInput) (*PutBuc
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -1006,15 +1111,15 @@ func (s *Bucket) PutExternalMirrorRequest(input *PutBucketExternalMirrorInput) (
 // PutBucketExternalMirrorInput presents input for PutBucketExternalMirror.
 type PutBucketExternalMirrorInput struct {
 	// Source site url
-	SourceSite string `json:"source_site" name:"source_site" location:"elements"` // Required
+	SourceSite *string `json:"source_site" name:"source_site" location:"elements"` // Required
 
 }
 
 // Validate validates the input for PutBucketExternalMirror.
 func (v *PutBucketExternalMirrorInput) Validate() error {
 
-	if fmt.Sprint(v.SourceSite) == "" {
-		return errs.ParameterRequiredError{
+	if v.SourceSite == nil {
+		return errors.ParameterRequiredError{
 			ParameterName: "SourceSite",
 			ParentName:    "PutBucketExternalMirrorInput",
 		}
@@ -1025,9 +1130,9 @@ func (v *PutBucketExternalMirrorInput) Validate() error {
 
 // PutBucketExternalMirrorOutput presents output for PutBucketExternalMirror.
 type PutBucketExternalMirrorOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 }
 
 // PutPolicy does Set policy information of the bucket.
@@ -1044,7 +1149,8 @@ func (s *Bucket) PutPolicy(input *PutBucketPolicyInput) (*PutBucketPolicyOutput,
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -1087,7 +1193,7 @@ type PutBucketPolicyInput struct {
 func (v *PutBucketPolicyInput) Validate() error {
 
 	if len(v.Statement) == 0 {
-		return errs.ParameterRequiredError{
+		return errors.ParameterRequiredError{
 			ParameterName: "Statement",
 			ParentName:    "PutBucketPolicyInput",
 		}
@@ -1106,7 +1212,7 @@ func (v *PutBucketPolicyInput) Validate() error {
 
 // PutBucketPolicyOutput presents output for PutBucketPolicy.
 type PutBucketPolicyOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 }

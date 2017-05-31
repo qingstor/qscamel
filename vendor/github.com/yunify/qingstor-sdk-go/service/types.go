@@ -20,17 +20,17 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/yunify/qingstor-sdk-go/request/errs"
+	"github.com/yunify/qingstor-sdk-go/request/errors"
 )
 
 // Properties presents the service properties.
 type Properties struct {
 	// Bucket name
-	BucketName string `json:"bucket-name" name:"bucket-name"` // Required
+	BucketName *string `json:"bucket-name" name:"bucket-name"` // Required
 	// Object key
-	ObjectKey string `json:"object-key" name:"object-key"` // Required
+	ObjectKey *string `json:"object-key" name:"object-key"` // Required
 	// QingCloud Zone ID
-	Zone string `json:"zone" name:"zone"`
+	Zone *string `json:"zone" name:"zone"`
 }
 
 // ACLType presents ACL.
@@ -38,7 +38,7 @@ type ACLType struct {
 	Grantee *GranteeType `json:"grantee" name:"grantee"` // Required
 	// Permission for this grantee
 	// Permission's available values: READ, WRITE, FULL_CONTROL
-	Permission string `json:"permission" name:"permission"` // Required
+	Permission *string `json:"permission" name:"permission"` // Required
 
 }
 
@@ -52,26 +52,22 @@ func (v *ACLType) Validate() error {
 	}
 
 	if v.Grantee == nil {
-		return errs.ParameterRequiredError{
+		return errors.ParameterRequiredError{
 			ParameterName: "Grantee",
 			ParentName:    "ACL",
 		}
 	}
 
-	if fmt.Sprint(v.Permission) == "" {
-		return errs.ParameterRequiredError{
+	if v.Permission == nil {
+		return errors.ParameterRequiredError{
 			ParameterName: "Permission",
 			ParentName:    "ACL",
 		}
 	}
 
-	permissionParameterValue := fmt.Sprint(v.Permission)
-	if permissionParameterValue == "0" {
-		permissionParameterValue = ""
-	}
-	if permissionParameterValue != "" {
+	if v.Permission != nil {
 		permissionValidValues := []string{"READ", "WRITE", "FULL_CONTROL"}
-		permissionParameterValue := fmt.Sprint(v.Permission)
+		permissionParameterValue := fmt.Sprint(*v.Permission)
 
 		permissionIsValid := false
 		for _, value := range permissionValidValues {
@@ -81,7 +77,7 @@ func (v *ACLType) Validate() error {
 		}
 
 		if !permissionIsValid {
-			return errs.ParameterValueNotAllowedError{
+			return errors.ParameterValueNotAllowedError{
 				ParameterName:  "Permission",
 				ParameterValue: permissionParameterValue,
 				AllowedValues:  permissionValidValues,
@@ -95,13 +91,13 @@ func (v *ACLType) Validate() error {
 // BucketType presents Bucket.
 type BucketType struct {
 	// Created time of the bucket
-	Created time.Time `json:"created,omitempty" name:"created" format:"ISO 8601"`
+	Created *time.Time `json:"created,omitempty" name:"created" format:"ISO 8601"`
 	// QingCloud Zone ID
-	Location string `json:"location,omitempty" name:"location"`
+	Location *string `json:"location,omitempty" name:"location"`
 	// Bucket name
-	Name string `json:"name,omitempty" name:"name"`
+	Name *string `json:"name,omitempty" name:"name"`
 	// URL to access the bucket
-	URL string `json:"url,omitempty" name:"url"`
+	URL *string `json:"url,omitempty" name:"url"`
 }
 
 // Validate validates the Bucket.
@@ -112,7 +108,9 @@ func (v *BucketType) Validate() error {
 
 // ConditionType presents Condition.
 type ConditionType struct {
+	IPAddress     *IPAddressType     `json:"ip_address,omitempty" name:"ip_address"`
 	IsNull        *IsNullType        `json:"is_null,omitempty" name:"is_null"`
+	NotIPAddress  *NotIPAddressType  `json:"not_ip_address,omitempty" name:"not_ip_address"`
 	StringLike    *StringLikeType    `json:"string_like,omitempty" name:"string_like"`
 	StringNotLike *StringNotLikeType `json:"string_not_like,omitempty" name:"string_not_like"`
 }
@@ -120,8 +118,20 @@ type ConditionType struct {
 // Validate validates the Condition.
 func (v *ConditionType) Validate() error {
 
+	if v.IPAddress != nil {
+		if err := v.IPAddress.Validate(); err != nil {
+			return err
+		}
+	}
+
 	if v.IsNull != nil {
 		if err := v.IsNull.Validate(); err != nil {
+			return err
+		}
+	}
+
+	if v.NotIPAddress != nil {
+		if err := v.NotIPAddress.Validate(); err != nil {
 			return err
 		}
 	}
@@ -144,29 +154,29 @@ func (v *ConditionType) Validate() error {
 // CORSRuleType presents CORSRule.
 type CORSRuleType struct {
 	// Allowed headers
-	AllowedHeaders []string `json:"allowed_headers,omitempty" name:"allowed_headers"`
+	AllowedHeaders []*string `json:"allowed_headers,omitempty" name:"allowed_headers"`
 	// Allowed methods
-	AllowedMethods []string `json:"allowed_methods" name:"allowed_methods"` // Required
+	AllowedMethods []*string `json:"allowed_methods" name:"allowed_methods"` // Required
 	// Allowed origin
-	AllowedOrigin string `json:"allowed_origin" name:"allowed_origin"` // Required
+	AllowedOrigin *string `json:"allowed_origin" name:"allowed_origin"` // Required
 	// Expose headers
-	ExposeHeaders []string `json:"expose_headers,omitempty" name:"expose_headers"`
+	ExposeHeaders []*string `json:"expose_headers,omitempty" name:"expose_headers"`
 	// Max age seconds
-	MaxAgeSeconds int `json:"max_age_seconds,omitempty" name:"max_age_seconds"`
+	MaxAgeSeconds *int `json:"max_age_seconds,omitempty" name:"max_age_seconds"`
 }
 
 // Validate validates the CORSRule.
 func (v *CORSRuleType) Validate() error {
 
 	if len(v.AllowedMethods) == 0 {
-		return errs.ParameterRequiredError{
+		return errors.ParameterRequiredError{
 			ParameterName: "AllowedMethods",
 			ParentName:    "CORSRule",
 		}
 	}
 
-	if fmt.Sprint(v.AllowedOrigin) == "" {
-		return errs.ParameterRequiredError{
+	if v.AllowedOrigin == nil {
+		return errors.ParameterRequiredError{
 			ParameterName: "AllowedOrigin",
 			ParentName:    "CORSRule",
 		}
@@ -178,32 +188,28 @@ func (v *CORSRuleType) Validate() error {
 // GranteeType presents Grantee.
 type GranteeType struct {
 	// Grantee user ID
-	ID string `json:"id,omitempty" name:"id"`
+	ID *string `json:"id,omitempty" name:"id"`
 	// Grantee group name
-	Name string `json:"name,omitempty" name:"name"`
+	Name *string `json:"name,omitempty" name:"name"`
 	// Grantee type
 	// Type's available values: user, group
-	Type string `json:"type" name:"type"` // Required
+	Type *string `json:"type" name:"type"` // Required
 
 }
 
 // Validate validates the Grantee.
 func (v *GranteeType) Validate() error {
 
-	if fmt.Sprint(v.Type) == "" {
-		return errs.ParameterRequiredError{
+	if v.Type == nil {
+		return errors.ParameterRequiredError{
 			ParameterName: "Type",
 			ParentName:    "Grantee",
 		}
 	}
 
-	typeParameterValue := fmt.Sprint(v.Type)
-	if typeParameterValue == "0" {
-		typeParameterValue = ""
-	}
-	if typeParameterValue != "" {
+	if v.Type != nil {
 		typeValidValues := []string{"user", "group"}
-		typeParameterValue := fmt.Sprint(v.Type)
+		typeParameterValue := fmt.Sprint(*v.Type)
 
 		typeIsValid := false
 		for _, value := range typeValidValues {
@@ -213,7 +219,7 @@ func (v *GranteeType) Validate() error {
 		}
 
 		if !typeIsValid {
-			return errs.ParameterValueNotAllowedError{
+			return errors.ParameterValueNotAllowedError{
 				ParameterName:  "Type",
 				ParameterValue: typeParameterValue,
 				AllowedValues:  typeValidValues,
@@ -224,10 +230,22 @@ func (v *GranteeType) Validate() error {
 	return nil
 }
 
+// IPAddressType presents IPAddress.
+type IPAddressType struct {
+	// Source IP
+	SourceIP []*string `json:"source_ip,omitempty" name:"source_ip"`
+}
+
+// Validate validates the IPAddress.
+func (v *IPAddressType) Validate() error {
+
+	return nil
+}
+
 // IsNullType presents IsNull.
 type IsNullType struct {
 	// Refer url
-	Referer bool `json:"Referer,omitempty" name:"Referer"`
+	Referer *bool `json:"Referer,omitempty" name:"Referer"`
 }
 
 // Validate validates the IsNull.
@@ -239,17 +257,19 @@ func (v *IsNullType) Validate() error {
 // KeyType presents Key.
 type KeyType struct {
 	// Object created time
-	Created time.Time `json:"created,omitempty" name:"created" format:"ISO 8601"`
+	Created *time.Time `json:"created,omitempty" name:"created" format:"ISO 8601"`
+	// Whether this key is encrypted
+	Encrypted *bool `json:"encrypted,omitempty" name:"encrypted"`
 	// MD5sum of the object
-	Etag string `json:"etag,omitempty" name:"etag"`
+	Etag *string `json:"etag,omitempty" name:"etag"`
 	// Object key
-	Key string `json:"key,omitempty" name:"key"`
+	Key *string `json:"key,omitempty" name:"key"`
 	// MIME type of the object
-	MimeType string `json:"mime_type,omitempty" name:"mime_type"`
+	MimeType *string `json:"mime_type,omitempty" name:"mime_type"`
 	// Last modified time in unix time format
-	Modified int `json:"modified,omitempty" name:"modified"`
+	Modified *int `json:"modified,omitempty" name:"modified"`
 	// Object content size
-	Size int `json:"size,omitempty" name:"size"`
+	Size *int64 `json:"size,omitempty" name:"size"`
 }
 
 // Validate validates the Key.
@@ -261,11 +281,11 @@ func (v *KeyType) Validate() error {
 // KeyDeleteErrorType presents KeyDeleteError.
 type KeyDeleteErrorType struct {
 	// Error code
-	Code string `json:"code,omitempty" name:"code"`
+	Code *string `json:"code,omitempty" name:"code"`
 	// Object key
-	Key string `json:"key,omitempty" name:"key"`
+	Key *string `json:"key,omitempty" name:"key"`
 	// Error message
-	Message string `json:"message,omitempty" name:"message"`
+	Message *string `json:"message,omitempty" name:"message"`
 }
 
 // Validate validates the KeyDeleteError.
@@ -274,23 +294,35 @@ func (v *KeyDeleteErrorType) Validate() error {
 	return nil
 }
 
+// NotIPAddressType presents NotIPAddress.
+type NotIPAddressType struct {
+	// Source IP
+	SourceIP []*string `json:"source_ip,omitempty" name:"source_ip"`
+}
+
+// Validate validates the NotIPAddress.
+func (v *NotIPAddressType) Validate() error {
+
+	return nil
+}
+
 // ObjectPartType presents ObjectPart.
 type ObjectPartType struct {
 	// Object part created time
-	Created time.Time `json:"created,omitempty" name:"created" format:"ISO 8601"`
+	Created *time.Time `json:"created,omitempty" name:"created" format:"ISO 8601"`
 	// MD5sum of the object part
-	Etag string `json:"etag,omitempty" name:"etag"`
+	Etag *string `json:"etag,omitempty" name:"etag"`
 	// Object part number
-	PartNumber int `json:"part_number" name:"part_number" default:"0"` // Required
+	PartNumber *int `json:"part_number" name:"part_number" default:"0"` // Required
 	// Object part size
-	Size int `json:"size,omitempty" name:"size"`
+	Size *int64 `json:"size,omitempty" name:"size"`
 }
 
 // Validate validates the ObjectPart.
 func (v *ObjectPartType) Validate() error {
 
-	if fmt.Sprint(v.PartNumber) == "" {
-		return errs.ParameterRequiredError{
+	if v.PartNumber == nil {
+		return errors.ParameterRequiredError{
 			ParameterName: "PartNumber",
 			ParentName:    "ObjectPart",
 		}
@@ -302,9 +334,9 @@ func (v *ObjectPartType) Validate() error {
 // OwnerType presents Owner.
 type OwnerType struct {
 	// User ID
-	ID string `json:"id,omitempty" name:"id"`
+	ID *string `json:"id,omitempty" name:"id"`
 	// Username
-	Name string `json:"name,omitempty" name:"name"`
+	Name *string `json:"name,omitempty" name:"name"`
 }
 
 // Validate validates the Owner.
@@ -316,17 +348,17 @@ func (v *OwnerType) Validate() error {
 // StatementType presents Statement.
 type StatementType struct {
 	// QingStor API methods
-	Action    []string       `json:"action" name:"action"` // Required
+	Action    []*string      `json:"action" name:"action"` // Required
 	Condition *ConditionType `json:"condition,omitempty" name:"condition"`
 	// Statement effect
 	// Effect's available values: allow, deny
-	Effect string `json:"effect" name:"effect"` // Required
+	Effect *string `json:"effect" name:"effect"` // Required
 	// Bucket policy id, must be unique
-	ID string `json:"id" name:"id"` // Required
+	ID *string `json:"id" name:"id"` // Required
 	// The resources to apply bucket policy
-	Resource []string `json:"resource" name:"resource"` // Required
+	Resource []*string `json:"resource,omitempty" name:"resource"`
 	// The user to apply bucket policy
-	User []string `json:"user" name:"user"` // Required
+	User []*string `json:"user" name:"user"` // Required
 
 }
 
@@ -334,7 +366,7 @@ type StatementType struct {
 func (v *StatementType) Validate() error {
 
 	if len(v.Action) == 0 {
-		return errs.ParameterRequiredError{
+		return errors.ParameterRequiredError{
 			ParameterName: "Action",
 			ParentName:    "Statement",
 		}
@@ -346,20 +378,16 @@ func (v *StatementType) Validate() error {
 		}
 	}
 
-	if fmt.Sprint(v.Effect) == "" {
-		return errs.ParameterRequiredError{
+	if v.Effect == nil {
+		return errors.ParameterRequiredError{
 			ParameterName: "Effect",
 			ParentName:    "Statement",
 		}
 	}
 
-	effectParameterValue := fmt.Sprint(v.Effect)
-	if effectParameterValue == "0" {
-		effectParameterValue = ""
-	}
-	if effectParameterValue != "" {
+	if v.Effect != nil {
 		effectValidValues := []string{"allow", "deny"}
-		effectParameterValue := fmt.Sprint(v.Effect)
+		effectParameterValue := fmt.Sprint(*v.Effect)
 
 		effectIsValid := false
 		for _, value := range effectValidValues {
@@ -369,7 +397,7 @@ func (v *StatementType) Validate() error {
 		}
 
 		if !effectIsValid {
-			return errs.ParameterValueNotAllowedError{
+			return errors.ParameterValueNotAllowedError{
 				ParameterName:  "Effect",
 				ParameterValue: effectParameterValue,
 				AllowedValues:  effectValidValues,
@@ -377,22 +405,15 @@ func (v *StatementType) Validate() error {
 		}
 	}
 
-	if fmt.Sprint(v.ID) == "" {
-		return errs.ParameterRequiredError{
+	if v.ID == nil {
+		return errors.ParameterRequiredError{
 			ParameterName: "ID",
 			ParentName:    "Statement",
 		}
 	}
 
-	if len(v.Resource) == 0 {
-		return errs.ParameterRequiredError{
-			ParameterName: "Resource",
-			ParentName:    "Statement",
-		}
-	}
-
 	if len(v.User) == 0 {
-		return errs.ParameterRequiredError{
+		return errors.ParameterRequiredError{
 			ParameterName: "User",
 			ParentName:    "Statement",
 		}
@@ -404,7 +425,7 @@ func (v *StatementType) Validate() error {
 // StringLikeType presents StringLike.
 type StringLikeType struct {
 	// Refer url
-	Referer []string `json:"Referer,omitempty" name:"Referer"`
+	Referer []*string `json:"Referer,omitempty" name:"Referer"`
 }
 
 // Validate validates the StringLike.
@@ -416,11 +437,27 @@ func (v *StringLikeType) Validate() error {
 // StringNotLikeType presents StringNotLike.
 type StringNotLikeType struct {
 	// Refer url
-	Referer []string `json:"Referer,omitempty" name:"Referer"`
+	Referer []*string `json:"Referer,omitempty" name:"Referer"`
 }
 
 // Validate validates the StringNotLike.
 func (v *StringNotLikeType) Validate() error {
+
+	return nil
+}
+
+// UploadsType presents Uploads.
+type UploadsType struct {
+	// Object part created time
+	Created *time.Time `json:"created,omitempty" name:"created" format:"ISO 8601"`
+	// Object key
+	Key *string `json:"key,omitempty" name:"key"`
+	// Object upload id
+	UploadID *string `json:"upload_id,omitempty" name:"upload_id"`
+}
+
+// Validate validates the Uploads.
+func (v *UploadsType) Validate() error {
 
 	return nil
 }

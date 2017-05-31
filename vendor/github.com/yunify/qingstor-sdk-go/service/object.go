@@ -24,7 +24,7 @@ import (
 	"github.com/yunify/qingstor-sdk-go/config"
 	"github.com/yunify/qingstor-sdk-go/request"
 	"github.com/yunify/qingstor-sdk-go/request/data"
-	"github.com/yunify/qingstor-sdk-go/request/errs"
+	"github.com/yunify/qingstor-sdk-go/request/errors"
 )
 
 var _ fmt.State
@@ -46,7 +46,8 @@ func (s *Bucket) AbortMultipartUpload(objectKey string, input *AbortMultipartUpl
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -69,7 +70,7 @@ func (s *Bucket) AbortMultipartUploadRequest(objectKey string, input *AbortMulti
 		},
 	}
 
-	s.Properties.ObjectKey = objectKey
+	s.Properties.ObjectKey = &objectKey
 
 	x := &AbortMultipartUploadOutput{}
 	r, err := request.New(o, input, x)
@@ -83,15 +84,15 @@ func (s *Bucket) AbortMultipartUploadRequest(objectKey string, input *AbortMulti
 // AbortMultipartUploadInput presents input for AbortMultipartUpload.
 type AbortMultipartUploadInput struct {
 	// Object multipart upload ID
-	UploadID string `json:"upload_id" name:"upload_id" location:"params"` // Required
+	UploadID *string `json:"upload_id" name:"upload_id" location:"params"` // Required
 
 }
 
 // Validate validates the input for AbortMultipartUpload.
 func (v *AbortMultipartUploadInput) Validate() error {
 
-	if fmt.Sprint(v.UploadID) == "" {
-		return errs.ParameterRequiredError{
+	if v.UploadID == nil {
+		return errors.ParameterRequiredError{
 			ParameterName: "UploadID",
 			ParentName:    "AbortMultipartUploadInput",
 		}
@@ -102,9 +103,9 @@ func (v *AbortMultipartUploadInput) Validate() error {
 
 // AbortMultipartUploadOutput presents output for AbortMultipartUpload.
 type AbortMultipartUploadOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 }
 
 // CompleteMultipartUpload does Complete multipart upload.
@@ -121,7 +122,8 @@ func (s *Bucket) CompleteMultipartUpload(objectKey string, input *CompleteMultip
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -144,7 +146,7 @@ func (s *Bucket) CompleteMultipartUploadRequest(objectKey string, input *Complet
 		},
 	}
 
-	s.Properties.ObjectKey = objectKey
+	s.Properties.ObjectKey = &objectKey
 
 	x := &CompleteMultipartUploadOutput{}
 	r, err := request.New(o, input, x)
@@ -158,16 +160,16 @@ func (s *Bucket) CompleteMultipartUploadRequest(objectKey string, input *Complet
 // CompleteMultipartUploadInput presents input for CompleteMultipartUpload.
 type CompleteMultipartUploadInput struct {
 	// Object multipart upload ID
-	UploadID string `json:"upload_id" name:"upload_id" location:"params"` // Required
+	UploadID *string `json:"upload_id" name:"upload_id" location:"params"` // Required
 
 	// MD5sum of the object part
-	ETag string `json:"ETag,omitempty" name:"ETag" location:"headers"`
+	ETag *string `json:"ETag,omitempty" name:"ETag" location:"headers"`
 	// Encryption algorithm of the object
-	XQSEncryptionCustomerAlgorithm string `json:"X-QS-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Encryption-Customer-Algorithm" location:"headers"`
+	XQSEncryptionCustomerAlgorithm *string `json:"X-QS-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Encryption-Customer-Algorithm" location:"headers"`
 	// Encryption key of the object
-	XQSEncryptionCustomerKey string `json:"X-QS-Encryption-Customer-Key,omitempty" name:"X-QS-Encryption-Customer-Key" location:"headers"`
+	XQSEncryptionCustomerKey *string `json:"X-QS-Encryption-Customer-Key,omitempty" name:"X-QS-Encryption-Customer-Key" location:"headers"`
 	// MD5sum of encryption key
-	XQSEncryptionCustomerKeyMD5 string `json:"X-QS-Encryption-Customer-Key-MD5,omitempty" name:"X-QS-Encryption-Customer-Key-MD5" location:"headers"`
+	XQSEncryptionCustomerKeyMD5 *string `json:"X-QS-Encryption-Customer-Key-MD5,omitempty" name:"X-QS-Encryption-Customer-Key-MD5" location:"headers"`
 
 	// Object parts
 	ObjectParts []*ObjectPartType `json:"object_parts,omitempty" name:"object_parts" location:"elements"`
@@ -176,8 +178,8 @@ type CompleteMultipartUploadInput struct {
 // Validate validates the input for CompleteMultipartUpload.
 func (v *CompleteMultipartUploadInput) Validate() error {
 
-	if fmt.Sprint(v.UploadID) == "" {
-		return errs.ParameterRequiredError{
+	if v.UploadID == nil {
+		return errors.ParameterRequiredError{
 			ParameterName: "UploadID",
 			ParentName:    "CompleteMultipartUploadInput",
 		}
@@ -196,9 +198,9 @@ func (v *CompleteMultipartUploadInput) Validate() error {
 
 // CompleteMultipartUploadOutput presents output for CompleteMultipartUpload.
 type CompleteMultipartUploadOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 }
 
 // DeleteObject does Delete the object.
@@ -215,7 +217,8 @@ func (s *Bucket) DeleteObject(objectKey string) (*DeleteObjectOutput, error) {
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -234,7 +237,7 @@ func (s *Bucket) DeleteObjectRequest(objectKey string) (*request.Request, *Delet
 		},
 	}
 
-	s.Properties.ObjectKey = objectKey
+	s.Properties.ObjectKey = &objectKey
 
 	x := &DeleteObjectOutput{}
 	r, err := request.New(o, nil, x)
@@ -247,9 +250,9 @@ func (s *Bucket) DeleteObjectRequest(objectKey string) (*request.Request, *Delet
 
 // DeleteObjectOutput presents output for DeleteObject.
 type DeleteObjectOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 }
 
 // GetObject does Retrieve the object.
@@ -266,7 +269,8 @@ func (s *Bucket) GetObject(objectKey string, input *GetObjectInput) (*GetObjectO
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -292,7 +296,7 @@ func (s *Bucket) GetObjectRequest(objectKey string, input *GetObjectInput) (*req
 		},
 	}
 
-	s.Properties.ObjectKey = objectKey
+	s.Properties.ObjectKey = &objectKey
 
 	x := &GetObjectOutput{}
 	r, err := request.New(o, input, x)
@@ -305,22 +309,35 @@ func (s *Bucket) GetObjectRequest(objectKey string, input *GetObjectInput) (*req
 
 // GetObjectInput presents input for GetObject.
 type GetObjectInput struct {
+	// Specified the Cache-Control response header
+	ResponseCacheControl *string `json:"response-cache-control,omitempty" name:"response-cache-control" location:"params"`
+	// Specified the Content-Disposition response header
+	ResponseContentDisposition *string `json:"response-content-disposition,omitempty" name:"response-content-disposition" location:"params"`
+	// Specified the Content-Encoding response header
+	ResponseContentEncoding *string `json:"response-content-encoding,omitempty" name:"response-content-encoding" location:"params"`
+	// Specified the Content-Language response header
+	ResponseContentLanguage *string `json:"response-content-language,omitempty" name:"response-content-language" location:"params"`
+	// Specified the Content-Type response header
+	ResponseContentType *string `json:"response-content-type,omitempty" name:"response-content-type" location:"params"`
+	// Specified the Expires response header
+	ResponseExpires *string `json:"response-expires,omitempty" name:"response-expires" location:"params"`
+
 	// Check whether the ETag matches
-	IfMatch string `json:"If-Match,omitempty" name:"If-Match" location:"headers"`
+	IfMatch *string `json:"If-Match,omitempty" name:"If-Match" location:"headers"`
 	// Check whether the object has been modified
-	IfModifiedSince time.Time `json:"If-Modified-Since,omitempty" name:"If-Modified-Since" format:"RFC 822" location:"headers"`
+	IfModifiedSince *time.Time `json:"If-Modified-Since,omitempty" name:"If-Modified-Since" format:"RFC 822" location:"headers"`
 	// Check whether the ETag does not match
-	IfNoneMatch string `json:"If-None-Match,omitempty" name:"If-None-Match" location:"headers"`
+	IfNoneMatch *string `json:"If-None-Match,omitempty" name:"If-None-Match" location:"headers"`
 	// Check whether the object has not been modified
-	IfUnmodifiedSince time.Time `json:"If-Unmodified-Since,omitempty" name:"If-Unmodified-Since" format:"RFC 822" location:"headers"`
+	IfUnmodifiedSince *time.Time `json:"If-Unmodified-Since,omitempty" name:"If-Unmodified-Since" format:"RFC 822" location:"headers"`
 	// Specified range of the object
-	Range string `json:"Range,omitempty" name:"Range" location:"headers"`
+	Range *string `json:"Range,omitempty" name:"Range" location:"headers"`
 	// Encryption algorithm of the object
-	XQSEncryptionCustomerAlgorithm string `json:"X-QS-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Encryption-Customer-Algorithm" location:"headers"`
+	XQSEncryptionCustomerAlgorithm *string `json:"X-QS-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Encryption-Customer-Algorithm" location:"headers"`
 	// Encryption key of the object
-	XQSEncryptionCustomerKey string `json:"X-QS-Encryption-Customer-Key,omitempty" name:"X-QS-Encryption-Customer-Key" location:"headers"`
+	XQSEncryptionCustomerKey *string `json:"X-QS-Encryption-Customer-Key,omitempty" name:"X-QS-Encryption-Customer-Key" location:"headers"`
 	// MD5sum of encryption key
-	XQSEncryptionCustomerKeyMD5 string `json:"X-QS-Encryption-Customer-Key-MD5,omitempty" name:"X-QS-Encryption-Customer-Key-MD5" location:"headers"`
+	XQSEncryptionCustomerKeyMD5 *string `json:"X-QS-Encryption-Customer-Key-MD5,omitempty" name:"X-QS-Encryption-Customer-Key-MD5" location:"headers"`
 }
 
 // Validate validates the input for GetObject.
@@ -331,19 +348,21 @@ func (v *GetObjectInput) Validate() error {
 
 // GetObjectOutput presents output for GetObject.
 type GetObjectOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 
 	// The response body
 	Body io.ReadCloser `location:"body"`
 
+	// Object content length
+	ContentLength *int64 `json:"Content-Length,omitempty" name:"Content-Length" location:"headers"`
 	// Range of response data content
-	ContentRange string `json:"Content-Range,omitempty" name:"Content-Range" location:"headers"`
+	ContentRange *string `json:"Content-Range,omitempty" name:"Content-Range" location:"headers"`
 	// MD5sum of the object
-	ETag string `json:"ETag,omitempty" name:"ETag" location:"headers"`
+	ETag *string `json:"ETag,omitempty" name:"ETag" location:"headers"`
 	// Encryption algorithm of the object
-	XQSEncryptionCustomerAlgorithm string `json:"X-QS-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Encryption-Customer-Algorithm" location:"headers"`
+	XQSEncryptionCustomerAlgorithm *string `json:"X-QS-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Encryption-Customer-Algorithm" location:"headers"`
 }
 
 // HeadObject does Check whether the object exists and available.
@@ -360,7 +379,8 @@ func (s *Bucket) HeadObject(objectKey string, input *HeadObjectInput) (*HeadObje
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -383,7 +403,7 @@ func (s *Bucket) HeadObjectRequest(objectKey string, input *HeadObjectInput) (*r
 		},
 	}
 
-	s.Properties.ObjectKey = objectKey
+	s.Properties.ObjectKey = &objectKey
 
 	x := &HeadObjectOutput{}
 	r, err := request.New(o, input, x)
@@ -397,19 +417,19 @@ func (s *Bucket) HeadObjectRequest(objectKey string, input *HeadObjectInput) (*r
 // HeadObjectInput presents input for HeadObject.
 type HeadObjectInput struct {
 	// Check whether the ETag matches
-	IfMatch string `json:"If-Match,omitempty" name:"If-Match" location:"headers"`
+	IfMatch *string `json:"If-Match,omitempty" name:"If-Match" location:"headers"`
 	// Check whether the object has been modified
-	IfModifiedSince time.Time `json:"If-Modified-Since,omitempty" name:"If-Modified-Since" format:"RFC 822" location:"headers"`
+	IfModifiedSince *time.Time `json:"If-Modified-Since,omitempty" name:"If-Modified-Since" format:"RFC 822" location:"headers"`
 	// Check whether the ETag does not match
-	IfNoneMatch string `json:"If-None-Match,omitempty" name:"If-None-Match" location:"headers"`
+	IfNoneMatch *string `json:"If-None-Match,omitempty" name:"If-None-Match" location:"headers"`
 	// Check whether the object has not been modified
-	IfUnmodifiedSince time.Time `json:"If-Unmodified-Since,omitempty" name:"If-Unmodified-Since" format:"RFC 822" location:"headers"`
+	IfUnmodifiedSince *time.Time `json:"If-Unmodified-Since,omitempty" name:"If-Unmodified-Since" format:"RFC 822" location:"headers"`
 	// Encryption algorithm of the object
-	XQSEncryptionCustomerAlgorithm string `json:"X-QS-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Encryption-Customer-Algorithm" location:"headers"`
+	XQSEncryptionCustomerAlgorithm *string `json:"X-QS-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Encryption-Customer-Algorithm" location:"headers"`
 	// Encryption key of the object
-	XQSEncryptionCustomerKey string `json:"X-QS-Encryption-Customer-Key,omitempty" name:"X-QS-Encryption-Customer-Key" location:"headers"`
+	XQSEncryptionCustomerKey *string `json:"X-QS-Encryption-Customer-Key,omitempty" name:"X-QS-Encryption-Customer-Key" location:"headers"`
 	// MD5sum of encryption key
-	XQSEncryptionCustomerKeyMD5 string `json:"X-QS-Encryption-Customer-Key-MD5,omitempty" name:"X-QS-Encryption-Customer-Key-MD5" location:"headers"`
+	XQSEncryptionCustomerKeyMD5 *string `json:"X-QS-Encryption-Customer-Key-MD5,omitempty" name:"X-QS-Encryption-Customer-Key-MD5" location:"headers"`
 }
 
 // Validate validates the input for HeadObject.
@@ -420,19 +440,19 @@ func (v *HeadObjectInput) Validate() error {
 
 // HeadObjectOutput presents output for HeadObject.
 type HeadObjectOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 
 	// Object content length
-	ContentLength int `json:"Content-Length,omitempty" name:"Content-Length" location:"headers"`
+	ContentLength *int64 `json:"Content-Length,omitempty" name:"Content-Length" location:"headers"`
 	// Object content type
-	ContentType string `json:"Content-Type,omitempty" name:"Content-Type" location:"headers"`
+	ContentType *string `json:"Content-Type,omitempty" name:"Content-Type" location:"headers"`
 	// MD5sum of the object
-	ETag         string    `json:"ETag,omitempty" name:"ETag" location:"headers"`
-	LastModified time.Time `json:"Last-Modified,omitempty" name:"Last-Modified" format:"RFC 822" location:"headers"`
+	ETag         *string    `json:"ETag,omitempty" name:"ETag" location:"headers"`
+	LastModified *time.Time `json:"Last-Modified,omitempty" name:"Last-Modified" format:"RFC 822" location:"headers"`
 	// Encryption algorithm of the object
-	XQSEncryptionCustomerAlgorithm string `json:"X-QS-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Encryption-Customer-Algorithm" location:"headers"`
+	XQSEncryptionCustomerAlgorithm *string `json:"X-QS-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Encryption-Customer-Algorithm" location:"headers"`
 }
 
 // InitiateMultipartUpload does Initial multipart upload on the object.
@@ -449,7 +469,8 @@ func (s *Bucket) InitiateMultipartUpload(objectKey string, input *InitiateMultip
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -472,7 +493,7 @@ func (s *Bucket) InitiateMultipartUploadRequest(objectKey string, input *Initiat
 		},
 	}
 
-	s.Properties.ObjectKey = objectKey
+	s.Properties.ObjectKey = &objectKey
 
 	x := &InitiateMultipartUploadOutput{}
 	r, err := request.New(o, input, x)
@@ -486,13 +507,13 @@ func (s *Bucket) InitiateMultipartUploadRequest(objectKey string, input *Initiat
 // InitiateMultipartUploadInput presents input for InitiateMultipartUpload.
 type InitiateMultipartUploadInput struct {
 	// Object content type
-	ContentType string `json:"Content-Type,omitempty" name:"Content-Type" location:"headers"`
+	ContentType *string `json:"Content-Type,omitempty" name:"Content-Type" location:"headers"`
 	// Encryption algorithm of the object
-	XQSEncryptionCustomerAlgorithm string `json:"X-QS-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Encryption-Customer-Algorithm" location:"headers"`
+	XQSEncryptionCustomerAlgorithm *string `json:"X-QS-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Encryption-Customer-Algorithm" location:"headers"`
 	// Encryption key of the object
-	XQSEncryptionCustomerKey string `json:"X-QS-Encryption-Customer-Key,omitempty" name:"X-QS-Encryption-Customer-Key" location:"headers"`
+	XQSEncryptionCustomerKey *string `json:"X-QS-Encryption-Customer-Key,omitempty" name:"X-QS-Encryption-Customer-Key" location:"headers"`
 	// MD5sum of encryption key
-	XQSEncryptionCustomerKeyMD5 string `json:"X-QS-Encryption-Customer-Key-MD5,omitempty" name:"X-QS-Encryption-Customer-Key-MD5" location:"headers"`
+	XQSEncryptionCustomerKeyMD5 *string `json:"X-QS-Encryption-Customer-Key-MD5,omitempty" name:"X-QS-Encryption-Customer-Key-MD5" location:"headers"`
 }
 
 // Validate validates the input for InitiateMultipartUpload.
@@ -503,19 +524,19 @@ func (v *InitiateMultipartUploadInput) Validate() error {
 
 // InitiateMultipartUploadOutput presents output for InitiateMultipartUpload.
 type InitiateMultipartUploadOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 
 	// Bucket name
-	Bucket string `json:"bucket,omitempty" name:"bucket" location:"elements"`
+	Bucket *string `json:"bucket,omitempty" name:"bucket" location:"elements"`
 	// Object key
-	Key string `json:"key,omitempty" name:"key" location:"elements"`
+	Key *string `json:"key,omitempty" name:"key" location:"elements"`
 	// Object multipart upload ID
-	UploadID string `json:"upload_id,omitempty" name:"upload_id" location:"elements"`
+	UploadID *string `json:"upload_id,omitempty" name:"upload_id" location:"elements"`
 
 	// Encryption algorithm of the object
-	XQSEncryptionCustomerAlgorithm string `json:"X-QS-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Encryption-Customer-Algorithm" location:"headers"`
+	XQSEncryptionCustomerAlgorithm *string `json:"X-QS-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Encryption-Customer-Algorithm" location:"headers"`
 }
 
 // ListMultipart does List object parts.
@@ -532,7 +553,8 @@ func (s *Bucket) ListMultipart(objectKey string, input *ListMultipartInput) (*Li
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -555,7 +577,7 @@ func (s *Bucket) ListMultipartRequest(objectKey string, input *ListMultipartInpu
 		},
 	}
 
-	s.Properties.ObjectKey = objectKey
+	s.Properties.ObjectKey = &objectKey
 
 	x := &ListMultipartOutput{}
 	r, err := request.New(o, input, x)
@@ -569,19 +591,19 @@ func (s *Bucket) ListMultipartRequest(objectKey string, input *ListMultipartInpu
 // ListMultipartInput presents input for ListMultipart.
 type ListMultipartInput struct {
 	// Limit results count
-	Limit int `json:"limit,omitempty" name:"limit" location:"params"`
+	Limit *int `json:"limit,omitempty" name:"limit" location:"params"`
 	// Object multipart upload part number
-	PartNumberMarker int `json:"part_number_marker,omitempty" name:"part_number_marker" location:"params"`
+	PartNumberMarker *int `json:"part_number_marker,omitempty" name:"part_number_marker" location:"params"`
 	// Object multipart upload ID
-	UploadID string `json:"upload_id" name:"upload_id" location:"params"` // Required
+	UploadID *string `json:"upload_id" name:"upload_id" location:"params"` // Required
 
 }
 
 // Validate validates the input for ListMultipart.
 func (v *ListMultipartInput) Validate() error {
 
-	if fmt.Sprint(v.UploadID) == "" {
-		return errs.ParameterRequiredError{
+	if v.UploadID == nil {
+		return errors.ParameterRequiredError{
 			ParameterName: "UploadID",
 			ParentName:    "ListMultipartInput",
 		}
@@ -592,12 +614,12 @@ func (v *ListMultipartInput) Validate() error {
 
 // ListMultipartOutput presents output for ListMultipart.
 type ListMultipartOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 
 	// Object multipart count
-	Count int `json:"count,omitempty" name:"count" location:"elements"`
+	Count *int `json:"count,omitempty" name:"count" location:"elements"`
 	// Object parts
 	ObjectParts []*ObjectPartType `json:"object_parts,omitempty" name:"object_parts" location:"elements"`
 }
@@ -616,7 +638,8 @@ func (s *Bucket) OptionsObject(objectKey string, input *OptionsObjectInput) (*Op
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -639,7 +662,7 @@ func (s *Bucket) OptionsObjectRequest(objectKey string, input *OptionsObjectInpu
 		},
 	}
 
-	s.Properties.ObjectKey = objectKey
+	s.Properties.ObjectKey = &objectKey
 
 	x := &OptionsObjectOutput{}
 	r, err := request.New(o, input, x)
@@ -653,26 +676,26 @@ func (s *Bucket) OptionsObjectRequest(objectKey string, input *OptionsObjectInpu
 // OptionsObjectInput presents input for OptionsObject.
 type OptionsObjectInput struct {
 	// Request headers
-	AccessControlRequestHeaders string `json:"Access-Control-Request-Headers,omitempty" name:"Access-Control-Request-Headers" location:"headers"`
+	AccessControlRequestHeaders *string `json:"Access-Control-Request-Headers,omitempty" name:"Access-Control-Request-Headers" location:"headers"`
 	// Request method
-	AccessControlRequestMethod string `json:"Access-Control-Request-Method" name:"Access-Control-Request-Method" location:"headers"` // Required
+	AccessControlRequestMethod *string `json:"Access-Control-Request-Method" name:"Access-Control-Request-Method" location:"headers"` // Required
 	// Request origin
-	Origin string `json:"Origin" name:"Origin" location:"headers"` // Required
+	Origin *string `json:"Origin" name:"Origin" location:"headers"` // Required
 
 }
 
 // Validate validates the input for OptionsObject.
 func (v *OptionsObjectInput) Validate() error {
 
-	if fmt.Sprint(v.AccessControlRequestMethod) == "" {
-		return errs.ParameterRequiredError{
+	if v.AccessControlRequestMethod == nil {
+		return errors.ParameterRequiredError{
 			ParameterName: "AccessControlRequestMethod",
 			ParentName:    "OptionsObjectInput",
 		}
 	}
 
-	if fmt.Sprint(v.Origin) == "" {
-		return errs.ParameterRequiredError{
+	if v.Origin == nil {
+		return errors.ParameterRequiredError{
 			ParameterName: "Origin",
 			ParentName:    "OptionsObjectInput",
 		}
@@ -683,20 +706,20 @@ func (v *OptionsObjectInput) Validate() error {
 
 // OptionsObjectOutput presents output for OptionsObject.
 type OptionsObjectOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 
 	// Allowed headers
-	AccessControlAllowHeaders string `json:"Access-Control-Allow-Headers,omitempty" name:"Access-Control-Allow-Headers" location:"headers"`
+	AccessControlAllowHeaders *string `json:"Access-Control-Allow-Headers,omitempty" name:"Access-Control-Allow-Headers" location:"headers"`
 	// Allowed methods
-	AccessControlAllowMethods string `json:"Access-Control-Allow-Methods,omitempty" name:"Access-Control-Allow-Methods" location:"headers"`
+	AccessControlAllowMethods *string `json:"Access-Control-Allow-Methods,omitempty" name:"Access-Control-Allow-Methods" location:"headers"`
 	// Allowed origin
-	AccessControlAllowOrigin string `json:"Access-Control-Allow-Origin,omitempty" name:"Access-Control-Allow-Origin" location:"headers"`
+	AccessControlAllowOrigin *string `json:"Access-Control-Allow-Origin,omitempty" name:"Access-Control-Allow-Origin" location:"headers"`
 	// Expose headers
-	AccessControlExposeHeaders string `json:"Access-Control-Expose-Headers,omitempty" name:"Access-Control-Expose-Headers" location:"headers"`
+	AccessControlExposeHeaders *string `json:"Access-Control-Expose-Headers,omitempty" name:"Access-Control-Expose-Headers" location:"headers"`
 	// Max age
-	AccessControlMaxAge string `json:"Access-Control-Max-Age,omitempty" name:"Access-Control-Max-Age" location:"headers"`
+	AccessControlMaxAge *string `json:"Access-Control-Max-Age,omitempty" name:"Access-Control-Max-Age" location:"headers"`
 }
 
 // PutObject does Upload the object.
@@ -713,7 +736,8 @@ func (s *Bucket) PutObject(objectKey string, input *PutObjectInput) (*PutObjectO
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -736,7 +760,7 @@ func (s *Bucket) PutObjectRequest(objectKey string, input *PutObjectInput) (*req
 		},
 	}
 
-	s.Properties.ObjectKey = objectKey
+	s.Properties.ObjectKey = &objectKey
 
 	x := &PutObjectOutput{}
 	r, err := request.New(o, input, x)
@@ -750,41 +774,41 @@ func (s *Bucket) PutObjectRequest(objectKey string, input *PutObjectInput) (*req
 // PutObjectInput presents input for PutObject.
 type PutObjectInput struct {
 	// Object content size
-	ContentLength int `json:"Content-Length" name:"Content-Length" location:"headers"` // Required
+	ContentLength *int64 `json:"Content-Length" name:"Content-Length" location:"headers"` // Required
 	// Object MD5sum
-	ContentMD5 string `json:"Content-MD5,omitempty" name:"Content-MD5" location:"headers"`
+	ContentMD5 *string `json:"Content-MD5,omitempty" name:"Content-MD5" location:"headers"`
 	// Object content type
-	ContentType string `json:"Content-Type,omitempty" name:"Content-Type" location:"headers"`
+	ContentType *string `json:"Content-Type,omitempty" name:"Content-Type" location:"headers"`
 	// Used to indicate that particular server behaviors are required by the client
-	Expect string `json:"Expect,omitempty" name:"Expect" location:"headers"`
+	Expect *string `json:"Expect,omitempty" name:"Expect" location:"headers"`
 	// Copy source, format (/<bucket-name>/<object-key>)
-	XQSCopySource string `json:"X-QS-Copy-Source,omitempty" name:"X-QS-Copy-Source" location:"headers"`
+	XQSCopySource *string `json:"X-QS-Copy-Source,omitempty" name:"X-QS-Copy-Source" location:"headers"`
 	// Encryption algorithm of the object
-	XQSCopySourceEncryptionCustomerAlgorithm string `json:"X-QS-Copy-Source-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Copy-Source-Encryption-Customer-Algorithm" location:"headers"`
+	XQSCopySourceEncryptionCustomerAlgorithm *string `json:"X-QS-Copy-Source-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Copy-Source-Encryption-Customer-Algorithm" location:"headers"`
 	// Encryption key of the object
-	XQSCopySourceEncryptionCustomerKey string `json:"X-QS-Copy-Source-Encryption-Customer-Key,omitempty" name:"X-QS-Copy-Source-Encryption-Customer-Key" location:"headers"`
+	XQSCopySourceEncryptionCustomerKey *string `json:"X-QS-Copy-Source-Encryption-Customer-Key,omitempty" name:"X-QS-Copy-Source-Encryption-Customer-Key" location:"headers"`
 	// MD5sum of encryption key
-	XQSCopySourceEncryptionCustomerKeyMD5 string `json:"X-QS-Copy-Source-Encryption-Customer-Key-MD5,omitempty" name:"X-QS-Copy-Source-Encryption-Customer-Key-MD5" location:"headers"`
+	XQSCopySourceEncryptionCustomerKeyMD5 *string `json:"X-QS-Copy-Source-Encryption-Customer-Key-MD5,omitempty" name:"X-QS-Copy-Source-Encryption-Customer-Key-MD5" location:"headers"`
 	// Check whether the copy source matches
-	XQSCopySourceIfMatch string `json:"X-QS-Copy-Source-If-Match,omitempty" name:"X-QS-Copy-Source-If-Match" location:"headers"`
+	XQSCopySourceIfMatch *string `json:"X-QS-Copy-Source-If-Match,omitempty" name:"X-QS-Copy-Source-If-Match" location:"headers"`
 	// Check whether the copy source has been modified
-	XQSCopySourceIfModifiedSince time.Time `json:"X-QS-Copy-Source-If-Modified-Since,omitempty" name:"X-QS-Copy-Source-If-Modified-Since" format:"RFC 822" location:"headers"`
+	XQSCopySourceIfModifiedSince *time.Time `json:"X-QS-Copy-Source-If-Modified-Since,omitempty" name:"X-QS-Copy-Source-If-Modified-Since" format:"RFC 822" location:"headers"`
 	// Check whether the copy source does not match
-	XQSCopySourceIfNoneMatch string `json:"X-QS-Copy-Source-If-None-Match,omitempty" name:"X-QS-Copy-Source-If-None-Match" location:"headers"`
+	XQSCopySourceIfNoneMatch *string `json:"X-QS-Copy-Source-If-None-Match,omitempty" name:"X-QS-Copy-Source-If-None-Match" location:"headers"`
 	// Check whether the copy source has not been modified
-	XQSCopySourceIfUnmodifiedSince time.Time `json:"X-QS-Copy-Source-If-Unmodified-Since,omitempty" name:"X-QS-Copy-Source-If-Unmodified-Since" format:"RFC 822" location:"headers"`
+	XQSCopySourceIfUnmodifiedSince *time.Time `json:"X-QS-Copy-Source-If-Unmodified-Since,omitempty" name:"X-QS-Copy-Source-If-Unmodified-Since" format:"RFC 822" location:"headers"`
 	// Encryption algorithm of the object
-	XQSEncryptionCustomerAlgorithm string `json:"X-QS-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Encryption-Customer-Algorithm" location:"headers"`
+	XQSEncryptionCustomerAlgorithm *string `json:"X-QS-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Encryption-Customer-Algorithm" location:"headers"`
 	// Encryption key of the object
-	XQSEncryptionCustomerKey string `json:"X-QS-Encryption-Customer-Key,omitempty" name:"X-QS-Encryption-Customer-Key" location:"headers"`
+	XQSEncryptionCustomerKey *string `json:"X-QS-Encryption-Customer-Key,omitempty" name:"X-QS-Encryption-Customer-Key" location:"headers"`
 	// MD5sum of encryption key
-	XQSEncryptionCustomerKeyMD5 string `json:"X-QS-Encryption-Customer-Key-MD5,omitempty" name:"X-QS-Encryption-Customer-Key-MD5" location:"headers"`
+	XQSEncryptionCustomerKeyMD5 *string `json:"X-QS-Encryption-Customer-Key-MD5,omitempty" name:"X-QS-Encryption-Customer-Key-MD5" location:"headers"`
 	// Check whether fetch target object has not been modified
-	XQSFetchIfUnmodifiedSince time.Time `json:"X-QS-Fetch-If-Unmodified-Since,omitempty" name:"X-QS-Fetch-If-Unmodified-Since" format:"RFC 822" location:"headers"`
+	XQSFetchIfUnmodifiedSince *time.Time `json:"X-QS-Fetch-If-Unmodified-Since,omitempty" name:"X-QS-Fetch-If-Unmodified-Since" format:"RFC 822" location:"headers"`
 	// Fetch source, should be a valid url
-	XQSFetchSource string `json:"X-QS-Fetch-Source,omitempty" name:"X-QS-Fetch-Source" location:"headers"`
+	XQSFetchSource *string `json:"X-QS-Fetch-Source,omitempty" name:"X-QS-Fetch-Source" location:"headers"`
 	// Move source, format (/<bucket-name>/<object-key>)
-	XQSMoveSource string `json:"X-QS-Move-Source,omitempty" name:"X-QS-Move-Source" location:"headers"`
+	XQSMoveSource *string `json:"X-QS-Move-Source,omitempty" name:"X-QS-Move-Source" location:"headers"`
 
 	// The request body
 	Body io.Reader `location:"body"`
@@ -798,9 +822,9 @@ func (v *PutObjectInput) Validate() error {
 
 // PutObjectOutput presents output for PutObject.
 type PutObjectOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 }
 
 // UploadMultipart does Upload object multipart.
@@ -817,7 +841,8 @@ func (s *Bucket) UploadMultipart(objectKey string, input *UploadMultipartInput) 
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -840,7 +865,7 @@ func (s *Bucket) UploadMultipartRequest(objectKey string, input *UploadMultipart
 		},
 	}
 
-	s.Properties.ObjectKey = objectKey
+	s.Properties.ObjectKey = &objectKey
 
 	x := &UploadMultipartOutput{}
 	r, err := request.New(o, input, x)
@@ -854,20 +879,20 @@ func (s *Bucket) UploadMultipartRequest(objectKey string, input *UploadMultipart
 // UploadMultipartInput presents input for UploadMultipart.
 type UploadMultipartInput struct {
 	// Object multipart upload part number
-	PartNumber int `json:"part_number" name:"part_number" default:"0" location:"params"` // Required
+	PartNumber *int `json:"part_number" name:"part_number" default:"0" location:"params"` // Required
 	// Object multipart upload ID
-	UploadID string `json:"upload_id" name:"upload_id" location:"params"` // Required
+	UploadID *string `json:"upload_id" name:"upload_id" location:"params"` // Required
 
 	// Object multipart content length
-	ContentLength int `json:"Content-Length,omitempty" name:"Content-Length" location:"headers"`
+	ContentLength *int64 `json:"Content-Length,omitempty" name:"Content-Length" location:"headers"`
 	// Object multipart content MD5sum
-	ContentMD5 string `json:"Content-MD5,omitempty" name:"Content-MD5" location:"headers"`
+	ContentMD5 *string `json:"Content-MD5,omitempty" name:"Content-MD5" location:"headers"`
 	// Encryption algorithm of the object
-	XQSEncryptionCustomerAlgorithm string `json:"X-QS-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Encryption-Customer-Algorithm" location:"headers"`
+	XQSEncryptionCustomerAlgorithm *string `json:"X-QS-Encryption-Customer-Algorithm,omitempty" name:"X-QS-Encryption-Customer-Algorithm" location:"headers"`
 	// Encryption key of the object
-	XQSEncryptionCustomerKey string `json:"X-QS-Encryption-Customer-Key,omitempty" name:"X-QS-Encryption-Customer-Key" location:"headers"`
+	XQSEncryptionCustomerKey *string `json:"X-QS-Encryption-Customer-Key,omitempty" name:"X-QS-Encryption-Customer-Key" location:"headers"`
 	// MD5sum of encryption key
-	XQSEncryptionCustomerKeyMD5 string `json:"X-QS-Encryption-Customer-Key-MD5,omitempty" name:"X-QS-Encryption-Customer-Key-MD5" location:"headers"`
+	XQSEncryptionCustomerKeyMD5 *string `json:"X-QS-Encryption-Customer-Key-MD5,omitempty" name:"X-QS-Encryption-Customer-Key-MD5" location:"headers"`
 
 	// The request body
 	Body io.Reader `location:"body"`
@@ -876,15 +901,15 @@ type UploadMultipartInput struct {
 // Validate validates the input for UploadMultipart.
 func (v *UploadMultipartInput) Validate() error {
 
-	if fmt.Sprint(v.PartNumber) == "" {
-		return errs.ParameterRequiredError{
+	if v.PartNumber == nil {
+		return errors.ParameterRequiredError{
 			ParameterName: "PartNumber",
 			ParentName:    "UploadMultipartInput",
 		}
 	}
 
-	if fmt.Sprint(v.UploadID) == "" {
-		return errs.ParameterRequiredError{
+	if v.UploadID == nil {
+		return errors.ParameterRequiredError{
 			ParameterName: "UploadID",
 			ParentName:    "UploadMultipartInput",
 		}
@@ -895,7 +920,7 @@ func (v *UploadMultipartInput) Validate() error {
 
 // UploadMultipartOutput presents output for UploadMultipart.
 type UploadMultipartOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 }

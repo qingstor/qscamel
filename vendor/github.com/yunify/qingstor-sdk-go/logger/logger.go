@@ -20,74 +20,100 @@ package logger
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
 )
+
+var instance *logrus.Logger
 
 // LogFormatter is used to format log entry.
 type LogFormatter struct{}
 
 // Format formats a given log entry, returns byte slice and error.
-func (c *LogFormatter) Format(entry *log.Entry) ([]byte, error) {
-	timestamp := time.Now().Format(time.RFC3339)
-
+func (c *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	level := strings.ToUpper(entry.Level.String())
-	if len(level) == 4 {
-		level = " " + level
+	if level == "WARNING" {
+		level = "WARN"
+	}
+	if len(level) < 5 {
+		level = strings.Repeat(" ", 5-len(level)) + level
 	}
 
 	return []byte(fmt.Sprintf(
 		"[%s #%d] %s -- : %s\n",
-		timestamp,
+		time.Now().Format("2006-01-02T15:04:05.000Z"),
 		os.Getpid(),
 		level,
 		entry.Message)), nil
 }
 
-func init() {
-	log.SetFormatter(&LogFormatter{})
-	log.SetOutput(os.Stderr)
-	log.SetLevel(log.WarnLevel)
+// SetOutput set the destination for the log output
+func SetOutput(out io.Writer) {
+	instance.Out = out
+}
+
+// CheckLevel checks whether the log level is valid.
+func CheckLevel(level string) error {
+	if _, err := logrus.ParseLevel(level); err != nil {
+		return fmt.Errorf(`log level not valid: "%s"`, level)
+	}
+	return nil
 }
 
 // GetLevel get the log level string.
 func GetLevel() string {
-	return log.GetLevel().String()
+	return instance.Level.String()
 }
 
 // SetLevel sets the log level. Valid levels are "debug", "info", "warn", "error", and "fatal".
 func SetLevel(level string) {
-	lvl, err := log.ParseLevel(level)
+	lvl, err := logrus.ParseLevel(level)
 	if err != nil {
-		Fatal(fmt.Sprintf(`not a valid level: "%s"`, level))
+		Fatal(fmt.Sprintf(`log level not valid: "%s"`, level))
 	}
-	log.SetLevel(lvl)
+	instance.Level = lvl
 }
 
 // Debug logs a message with severity DEBUG.
 func Debug(format string, v ...interface{}) {
-	log.Debug(fmt.Sprintf(format, v...))
+	output(instance.Debug, format, v...)
 }
 
 // Info logs a message with severity INFO.
 func Info(format string, v ...interface{}) {
-	log.Info(fmt.Sprintf(format, v...))
+	output(instance.Info, format, v...)
 }
 
-// Warn logs a message with severity WARNING.
+// Warn logs a message with severity WARN.
 func Warn(format string, v ...interface{}) {
-	log.Warn(fmt.Sprintf(format, v...))
+	output(instance.Warn, format, v...)
 }
 
 // Error logs a message with severity ERROR.
 func Error(format string, v ...interface{}) {
-	log.Error(fmt.Sprintf(format, v...))
+	output(instance.Error, format, v...)
 }
 
 // Fatal logs a message with severity ERROR followed by a call to os.Exit().
 func Fatal(format string, v ...interface{}) {
-	log.Fatal(fmt.Sprintf(format, v...))
+	output(instance.Fatal, format, v...)
+}
+
+func output(origin func(...interface{}), format string, v ...interface{}) {
+	if len(v) > 0 {
+		origin(fmt.Sprintf(format, v...))
+	} else {
+		origin(format)
+	}
+}
+
+func init() {
+	instance = logrus.New()
+	instance.Formatter = &LogFormatter{}
+	instance.Out = os.Stderr
+	instance.Level = logrus.WarnLevel
 }

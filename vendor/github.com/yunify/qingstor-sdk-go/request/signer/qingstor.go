@@ -22,9 +22,10 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
-	"net/url"
 	"sort"
 	"strings"
+
+	"github.com/pengsrc/go-shared/convert"
 
 	"github.com/yunify/qingstor-sdk-go/logger"
 	"github.com/yunify/qingstor-sdk-go/utils"
@@ -62,7 +63,7 @@ func (qss *QingStorSigner) WriteQuerySignature(request *http.Request, expires in
 	}
 
 	newRequest, err := http.NewRequest(request.Method,
-		request.URL.Scheme+"://"+request.URL.Host+request.URL.Path+query, nil)
+		request.URL.Scheme+"://"+request.URL.Host+utils.URLQueryEscape(request.URL.Path)+query, nil)
 	if err != nil {
 		return err
 	}
@@ -86,7 +87,9 @@ func (qss *QingStorSigner) BuildSignature(request *http.Request) (string, error)
 
 	logger.Debug(fmt.Sprintf(
 		"QingStor authorization: [%d] %s",
-		utils.StringToUnixInt(request.Header.Get("Date"), "RFC 822"), authorization))
+		convert.StringToUnixTimestamp(request.Header.Get("Date"), convert.RFC822),
+		authorization),
+	)
 
 	return authorization, nil
 }
@@ -102,7 +105,7 @@ func (qss *QingStorSigner) BuildQuerySignature(request *http.Request, expires in
 	h.Write([]byte(stringToSign))
 
 	signature := strings.TrimSpace(base64.StdEncoding.EncodeToString(h.Sum(nil)))
-	signature = url.QueryEscape(signature)
+	signature = utils.URLQueryEscape(signature)
 	query := fmt.Sprintf(
 		"access_key_id=%s&expires=%d&signature=%s",
 		qss.AccessKeyID, expires, signature,
@@ -110,7 +113,9 @@ func (qss *QingStorSigner) BuildQuerySignature(request *http.Request, expires in
 
 	logger.Debug(fmt.Sprintf(
 		"QingStor query signature: [%d] %s",
-		utils.StringToUnixInt(request.Header.Get("Date"), "RFC 822"), query))
+		convert.StringToUnixTimestamp(request.Header.Get("Date"), convert.RFC822),
+		query,
+	))
 
 	return query, nil
 }
@@ -126,11 +131,17 @@ func (qss *QingStorSigner) BuildStringToSign(request *http.Request) (string, err
 	)
 
 	stringToSign += qss.buildCanonicalizedHeaders(request)
-	stringToSign += qss.buildCanonicalizedResource(request)
+	canonicalizedResource, err := qss.buildCanonicalizedResource(request)
+	if err != nil {
+		return "", err
+	}
+	stringToSign += canonicalizedResource
 
 	logger.Debug(fmt.Sprintf(
 		"QingStor string to sign: [%d] %s",
-		utils.StringToUnixInt(request.Header.Get("Date"), "RFC 822"), stringToSign))
+		convert.StringToUnixTimestamp(request.Header.Get("Date"), convert.RFC822),
+		stringToSign,
+	))
 
 	return stringToSign, nil
 }
@@ -146,11 +157,17 @@ func (qss *QingStorSigner) BuildQueryStringToSign(request *http.Request, expires
 	)
 
 	stringToSign += qss.buildCanonicalizedHeaders(request)
-	stringToSign += qss.buildCanonicalizedResource(request)
+	canonicalizedResource, err := qss.buildCanonicalizedResource(request)
+	if err != nil {
+		return "", err
+	}
+	stringToSign += canonicalizedResource
 
 	logger.Debug(fmt.Sprintf(
 		"QingStor query string to sign: [%d] %s",
-		utils.StringToUnixInt(request.Header.Get("Date"), "RFC 822"), stringToSign))
+		convert.StringToUnixTimestamp(request.Header.Get("Date"), convert.RFC822),
+		stringToSign,
+	))
 
 	return stringToSign, nil
 }
@@ -173,8 +190,8 @@ func (qss *QingStorSigner) buildCanonicalizedHeaders(request *http.Request) stri
 	return canonicalizedHeaders
 }
 
-func (qss *QingStorSigner) buildCanonicalizedResource(request *http.Request) string {
-	path := qss.escape(request.URL.Path)
+func (qss *QingStorSigner) buildCanonicalizedResource(request *http.Request) (string, error) {
+	path := utils.URLQueryEscape(request.URL.Path)
 	query := request.URL.Query()
 
 	keys := []string{}
@@ -187,11 +204,15 @@ func (qss *QingStorSigner) buildCanonicalizedResource(request *http.Request) str
 	parts := []string{}
 	for _, key := range keys {
 		values := query[key]
-		if qss.isSubResource(key) {
+		if qss.paramsToSign(key) {
 			if len(values) > 0 {
 				if values[0] != "" {
 					value := strings.TrimSpace(strings.Join(values, ""))
-					parts = append(parts, key+"="+qss.escape(value))
+					value, err := utils.URLQueryUnescape(value)
+					if err != nil {
+						return "", err
+					}
+					parts = append(parts, key+"="+value)
 				} else {
 					parts = append(parts, key)
 				}
@@ -208,31 +229,30 @@ func (qss *QingStorSigner) buildCanonicalizedResource(request *http.Request) str
 
 	logger.Debug(fmt.Sprintf(
 		"QingStor canonicalized resource: [%d] %s",
-		utils.StringToUnixInt(request.Header.Get("Date"), "RFC 822"), path))
+		convert.StringToUnixTimestamp(request.Header.Get("Date"), convert.RFC822),
+		path,
+	))
 
-	return path
+	return path, nil
 }
 
-func (qss *QingStorSigner) escape(original string) string {
-	original = url.QueryEscape(original)
-	original = strings.Replace(original, "%2F", "/", -1)
-	original = strings.Replace(original, "+", "%20", -1)
-	original = strings.Replace(original, "%2B", "+", -1)
-
-	return original
-}
-
-func (qss *QingStorSigner) isSubResource(key string) bool {
+func (qss *QingStorSigner) paramsToSign(key string) bool {
 	keysMap := map[string]bool{
-		"acl":         true,
-		"cors":        true,
-		"delete":      true,
-		"mirror":      true,
-		"part_number": true,
-		"policy":      true,
-		"stats":       true,
-		"upload_id":   true,
-		"uploads":     true,
+		"acl":                          true,
+		"cors":                         true,
+		"delete":                       true,
+		"mirror":                       true,
+		"part_number":                  true,
+		"policy":                       true,
+		"stats":                        true,
+		"upload_id":                    true,
+		"uploads":                      true,
+		"response-expires":             true,
+		"response-cache-control":       true,
+		"response-content-type":        true,
+		"response-content-language":    true,
+		"response-content-encoding":    true,
+		"response-content-disposition": true,
 	}
 
 	return keysMap[key]

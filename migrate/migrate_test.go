@@ -60,7 +60,7 @@ func initQSConfig(t *testing.T) *config.Config {
 	)
 	setUpTestFiles(t, configContent)
 	c := &config.Config{Connection: &http.Client{}}
-	err := c.LoadConfigFromFilepath(config.GetUserConfigFilePath())
+	err := c.LoadConfigFromFilePath(config.GetUserConfigFilePath())
 	if err != nil {
 		fmt.Println(err)
 		t.FailNow()
@@ -84,7 +84,7 @@ func setUpUpstreamBucket(t *testing.T, c *config.Config) (*service.Bucket, strin
 	err := setBucketACLPublicRead(bucket)
 	assert.Nil(t, err)
 	bucketURL += strings.Join(
-		[]string{bucket.Properties.BucketName, testZone, c.Host}, ".",
+		[]string{*bucket.Properties.BucketName, testZone, c.Host}, ".",
 	)
 	return bucket, bucketURL
 }
@@ -92,10 +92,11 @@ func setUpUpstreamBucket(t *testing.T, c *config.Config) (*service.Bucket, strin
 // Put sample objects.
 func putObjects(t *testing.T, bucket *service.Bucket, objects []string) {
 	content := "hello world"
+	contentLength := int64(len(content))
 	for _, name := range objects {
 		_, err := bucket.PutObject(
 			name, &service.PutObjectInput{
-				ContentLength: len(content),
+				ContentLength: &contentLength,
 				Body:          bytes.NewBuffer([]byte(content)),
 			})
 		if err != nil {
@@ -152,7 +153,7 @@ func Test_Migrate_SkipRecord(t *testing.T) {
 		t, testSrcListPath, upstreamURL, append(sourceObjects, nonExistingObjects...),
 	)
 	setUpSourceSites(t, testRecordPath, upstreamURL, recordedObjects)
-	context := initCtx(t, testSrcListPath, c, bucket.Properties.BucketName, testRecordPath)
+	context := initCtx(t, testSrcListPath, c, *bucket.Properties.BucketName, testRecordPath)
 
 	completed, failed, skipped, err := Migrate(context)
 	assert.Nil(t, err)
@@ -187,7 +188,7 @@ func Test_Migrate_DryRun(t *testing.T) {
 	bucket := setUpBucket(t, c)
 	setUpSourceSites(t, testSrcListPath, upstreamURL, sourceObjects)
 	setUpSourceSites(t, testRecordPath, upstreamURL, recordedObjects)
-	context := initCtx(t, testSrcListPath, c, bucket.Properties.BucketName, testRecordPath)
+	context := initCtx(t, testSrcListPath, c, *bucket.Properties.BucketName, testRecordPath)
 	context.DryRun = true
 
 	completed, failed, skipped, err := Migrate(context)
@@ -236,7 +237,7 @@ func Test_Migrate_IgnoreUnmodified(t *testing.T) {
 	putObjects(t, bucket, latestObjects)
 	setUpSourceSites(t, testSrcListPath, upstreamURL, sourceObjects)
 	setUpSourceSites(t, testRecordPath, upstreamURL, []string{})
-	context := initCtx(t, testSrcListPath, c, bucket.Properties.BucketName, testRecordPath)
+	context := initCtx(t, testSrcListPath, c, *bucket.Properties.BucketName, testRecordPath)
 
 	completed, failed, skipped, err := Migrate(context)
 	assert.Nil(t, err)
@@ -272,7 +273,7 @@ func Test_Migrate_Overwrite(t *testing.T) {
 	putObjects(t, bucket, existingObjects)
 	setUpSourceSites(t, testSrcListPath, upstreamURL, sourceObjects)
 	setUpSourceSites(t, testRecordPath, upstreamURL, []string{})
-	context := initCtx(t, testSrcListPath, c, bucket.Properties.BucketName, testRecordPath)
+	context := initCtx(t, testSrcListPath, c, *bucket.Properties.BucketName, testRecordPath)
 	context.Overwrite = true
 
 	completed, failed, skipped, err := Migrate(context)
@@ -309,7 +310,7 @@ func Test_Migrate_IgnoreExisting(t *testing.T) {
 	putObjects(t, bucket, existingObjects)
 	setUpSourceSites(t, testSrcListPath, upstreamURL, sourceObjects)
 	setUpSourceSites(t, testRecordPath, upstreamURL, []string{})
-	context := initCtx(t, testSrcListPath, c, bucket.Properties.BucketName, testRecordPath)
+	context := initCtx(t, testSrcListPath, c, *bucket.Properties.BucketName, testRecordPath)
 	context.IgnoreExisting = true
 
 	completed, failed, skipped, err := Migrate(context)

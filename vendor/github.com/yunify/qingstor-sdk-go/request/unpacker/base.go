@@ -24,9 +24,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/pengsrc/go-shared/convert"
+	"github.com/pengsrc/go-shared/json"
+
 	"github.com/yunify/qingstor-sdk-go/logger"
 	"github.com/yunify/qingstor-sdk-go/request/data"
-	"github.com/yunify/qingstor-sdk-go/utils"
 )
 
 // BaseUnpacker is the base unpacker for all services.
@@ -66,12 +68,13 @@ func (b *BaseUnpacker) exposeStatusCode() error {
 	value := b.output.Elem().FieldByName("StatusCode")
 	if value.IsValid() {
 		switch value.Interface().(type) {
-		case int:
+		case *int:
 			logger.Info(fmt.Sprintf(
 				"QingStor response status code: [%d] %d",
-				utils.StringToUnixInt(b.httpResponse.Header.Get("Date"), "RFC 822"),
-				b.httpResponse.StatusCode))
-			value.SetInt(int64(b.httpResponse.StatusCode))
+				convert.StringToUnixTimestamp(b.httpResponse.Header.Get("Date"), convert.RFC822),
+				b.httpResponse.StatusCode,
+			))
+			value.Set(reflect.ValueOf(&b.httpResponse.StatusCode))
 		}
 	}
 
@@ -81,8 +84,9 @@ func (b *BaseUnpacker) exposeStatusCode() error {
 func (b *BaseUnpacker) parseResponseHeaders() error {
 	logger.Info(fmt.Sprintf(
 		"QingStor response headers: [%d] %s",
-		utils.StringToUnixInt(b.httpResponse.Header.Get("Date"), "RFC 822"),
-		fmt.Sprint(b.httpResponse.Header)))
+		convert.StringToUnixTimestamp(b.httpResponse.Header.Get("Date"), convert.RFC822),
+		fmt.Sprint(b.httpResponse.Header),
+	))
 
 	if b.isResponseRight() {
 		fields := b.output.Elem()
@@ -94,22 +98,35 @@ func (b *BaseUnpacker) parseResponseHeaders() error {
 
 			if fieldTagName != "" && fieldTagLocation == "headers" {
 				switch field.Interface().(type) {
-				case string:
-					field.Set(reflect.ValueOf(fieldStringValue))
-				case int:
+				case *string:
+					field.Set(reflect.ValueOf(&fieldStringValue))
+				case *int:
 					intValue, err := strconv.Atoi(fieldStringValue)
 					if err != nil {
 						return err
 					}
-					field.Set(reflect.ValueOf(intValue))
-				case bool:
-				case time.Time:
-					format := fields.Type().Field(i).Tag.Get("format")
-					timeValue, err := utils.StringToTime(fieldStringValue, format)
+					field.Set(reflect.ValueOf(&intValue))
+				case *int64:
+					int64Value, err := strconv.ParseInt(fieldStringValue, 10, 64)
 					if err != nil {
 						return err
 					}
-					field.Set(reflect.ValueOf(timeValue))
+					field.Set(reflect.ValueOf(&int64Value))
+				case *bool:
+				case *time.Time:
+					formatString := fields.Type().Field(i).Tag.Get("format")
+					format := ""
+					switch formatString {
+					case "RFC 822":
+						format = convert.RFC822
+					case "ISO 8601":
+						format = convert.ISO8601
+					}
+					timeValue, err := convert.StringToTime(fieldStringValue, format)
+					if err != nil {
+						return err
+					}
+					field.Set(reflect.ValueOf(&timeValue))
 				}
 			}
 		}
@@ -130,8 +147,9 @@ func (b *BaseUnpacker) parseResponseBody() error {
 
 				logger.Info(fmt.Sprintf(
 					"QingStor response body string: [%d] %s",
-					utils.StringToUnixInt(b.httpResponse.Header.Get("Date"), "RFC 822"),
-					string(buffer.Bytes())))
+					convert.StringToUnixTimestamp(b.httpResponse.Header.Get("Date"), convert.RFC822),
+					string(buffer.Bytes()),
+				))
 
 				value.SetString(string(buffer.Bytes()))
 			case "io.ReadCloser":
@@ -152,10 +170,11 @@ func (b *BaseUnpacker) parseResponseElements() error {
 
 			logger.Info(fmt.Sprintf(
 				"QingStor response body string: [%d] %s",
-				utils.StringToUnixInt(b.httpResponse.Header.Get("Date"), "RFC 822"),
-				string(buffer.Bytes())))
+				convert.StringToUnixTimestamp(b.httpResponse.Header.Get("Date"), convert.RFC822),
+				string(buffer.Bytes()),
+			))
 
-			_, err := utils.JSONDecode(buffer.Bytes(), b.output.Interface())
+			_, err := json.Decode(buffer.Bytes(), b.output.Interface())
 			if err != nil {
 				return err
 			}
