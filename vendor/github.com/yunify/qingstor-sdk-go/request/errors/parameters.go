@@ -14,7 +14,7 @@
 // | limitations under the License.
 // +-------------------------------------------------------------------------
 
-package errs
+package errors
 
 import (
 	"fmt"

@@ -209,6 +209,30 @@
 			"revisionTime": "2016-01-29T22:01:14Z"
 		},
 		{
+			"checksumSHA1": "dK/NpalxVb/G+3pVzB182i7TlPc=",
+			"path": "github.com/pengsrc/go-shared/check",
+			"revision": "454950d6a0782c34427d4f29b46c6bf447256f20",
+			"revisionTime": "2017-04-21T12:04:37Z"
+		},
+		{
+			"checksumSHA1": "1cx1m4J2/Ii3lmtwKAFnZO+b9LU=",
+			"path": "github.com/pengsrc/go-shared/convert",
+			"revision": "454950d6a0782c34427d4f29b46c6bf447256f20",
+			"revisionTime": "2017-04-21T12:04:37Z"
+		},
+		{
+			"checksumSHA1": "BMbDaOVL62AWhzP511e/WENG6Hk=",
+			"path": "github.com/pengsrc/go-shared/json",
+			"revision": "454950d6a0782c34427d4f29b46c6bf447256f20",
+			"revisionTime": "2017-04-21T12:04:37Z"
+		},
+		{
+			"checksumSHA1": "m0xWOKZr9ePNVyPRP3F2cDzsaAI=",
+			"path": "github.com/pengsrc/go-shared/yaml",
+			"revision": "454950d6a0782c34427d4f29b46c6bf447256f20",
+			"revisionTime": "2017-04-21T12:04:37Z"
+		},
+		{
 			"checksumSHA1": "LuFv4/jlrmFNnDb/5SCSEPAM9vU=",
 			"path": "github.com/pmezard/go-difflib/difflib",
 			"revision": "792786c7400a136282c1664665ae0a8db921c6c2",
@@ -293,74 +317,92 @@
 			"revisionTime": "2017-02-14T01:42:58Z"
 		},
 		{
-			"checksumSHA1": "oEbokVSNu2HP9WvJmaXJbd3T0UY=",
+			"checksumSHA1": "+eT+hg4+TqtTcmX96X2VMstOco8=",
 			"path": "github.com/yunify/qingstor-sdk-go",
-			"revision": "c3d446bf36a5e1f15856f2a76f1b140bcba77347",
-			"revisionTime": "2016-12-15T09:18:26Z",
-			"version": "v2.0.1",
-			"versionExact": "v2.0.1"
+			"revision": "26f2cc6f249f4c2a08ed89f1d7d566a463c1dfc2",
+			"revisionTime": "2017-05-22T06:47:55Z",
+			"version": "v2.2.5",
+			"versionExact": "v2.2.5"
 		},
 		{
-			"checksumSHA1": "mO6ArP85cl1VNXrDPBdwGqwOoME=",
+			"checksumSHA1": "2Z5qmw6W7FBYADnYNNb9nVTKI7U=",
 			"path": "github.com/yunify/qingstor-sdk-go/config",
-			"revision": "c3d446bf36a5e1f15856f2a76f1b140bcba77347",
-			"revisionTime": "2016-12-15T09:18:26Z"
+			"revision": "26f2cc6f249f4c2a08ed89f1d7d566a463c1dfc2",
+			"revisionTime": "2017-05-22T06:47:55Z",
+			"version": "v2.2.5",
+			"versionExact": "v2.2.5"
 		},
 		{
-			"checksumSHA1": "v+LnFBlGAKqUzqLhAaXoCAgh4Xg=",
+			"checksumSHA1": "6zfRtLmHgunpF5KBYVbNJYu7db0=",
 			"path": "github.com/yunify/qingstor-sdk-go/logger",
-			"revision": "c3d446bf36a5e1f15856f2a76f1b140bcba77347",
-			"revisionTime": "2016-12-15T09:18:26Z"
+			"revision": "26f2cc6f249f4c2a08ed89f1d7d566a463c1dfc2",
+			"revisionTime": "2017-05-22T06:47:55Z",
+			"version": "v2.2.5",
+			"versionExact": "v2.2.5"
 		},
 		{
-			"checksumSHA1": "3PtSmpGZZdeg0h2xTVoMFxToZ50=",
+			"checksumSHA1": "+HqIwLEJAvrN0FXA9KBw0qI3bTo=",
 			"path": "github.com/yunify/qingstor-sdk-go/request",
-			"revision": "c3d446bf36a5e1f15856f2a76f1b140bcba77347",
-			"revisionTime": "2016-12-15T09:18:26Z"
+			"revision": "26f2cc6f249f4c2a08ed89f1d7d566a463c1dfc2",
+			"revisionTime": "2017-05-22T06:47:55Z",
+			"version": "v2.2.5",
+			"versionExact": "v2.2.5"
 		},
 		{
-			"checksumSHA1": "C6fHNYeTTRjmQc45QFQBPyKDMxQ=",
+			"checksumSHA1": "n5c6dK3TxagIsjkm/urA69Ho4N4=",
 			"path": "github.com/yunify/qingstor-sdk-go/request/builder",
-			"revision": "c3d446bf36a5e1f15856f2a76f1b140bcba77347",
-			"revisionTime": "2016-12-15T09:18:26Z"
+			"revision": "26f2cc6f249f4c2a08ed89f1d7d566a463c1dfc2",
+			"revisionTime": "2017-05-22T06:47:55Z",
+			"version": "v2.2.5",
+			"versionExact": "v2.2.5"
 		},
 		{
 			"checksumSHA1": "bRyvwldoVMMxJXhUYgWQIpVTE1o=",
 			"path": "github.com/yunify/qingstor-sdk-go/request/data",
-			"revision": "c3d446bf36a5e1f15856f2a76f1b140bcba77347",
-			"revisionTime": "2016-12-15T09:18:26Z"
+			"revision": "26f2cc6f249f4c2a08ed89f1d7d566a463c1dfc2",
+			"revisionTime": "2017-05-22T06:47:55Z",
+			"version": "v2.2.5",
+			"versionExact": "v2.2.5"
 		},
 		{
-			"checksumSHA1": "Z08kSLbQExC/LEO6yi+MAFe4qVM=",
-			"path": "github.com/yunify/qingstor-sdk-go/request/errs",
-			"revision": "c3d446bf36a5e1f15856f2a76f1b140bcba77347",
-			"revisionTime": "2016-12-15T09:18:26Z"
+			"checksumSHA1": "2J9/95Z+n0O7z29KH6EDqQi1FII=",
+			"path": "github.com/yunify/qingstor-sdk-go/request/errors",
+			"revision": "26f2cc6f249f4c2a08ed89f1d7d566a463c1dfc2",
+			"revisionTime": "2017-05-22T06:47:55Z",
+			"version": "v2.2.5",
+			"versionExact": "v2.2.5"
 		},
 		{
-			"checksumSHA1": "PM4q6ne3DjkgnlT0Rg7XtOBR8PQ=",
+			"checksumSHA1": "y+w/WcIoEIoiKiCdnfpViUhQocY=",
 			"path": "github.com/yunify/qingstor-sdk-go/request/signer",
-			"revision": "c3d446bf36a5e1f15856f2a76f1b140bcba77347",
-			"revisionTime": "2016-12-15T09:18:26Z"
+			"revision": "26f2cc6f249f4c2a08ed89f1d7d566a463c1dfc2",
+			"revisionTime": "2017-05-22T06:47:55Z",
+			"version": "v2.2.5",
+			"versionExact": "v2.2.5"
 		},
 		{
-			"checksumSHA1": "g/b1CdtmyiDl5YJuZkIvTbQ78tU=",
+			"checksumSHA1": "WuSD2frpx9+9iNFdjfnL6Ju+97E=",
 			"path": "github.com/yunify/qingstor-sdk-go/request/unpacker",
-			"revision": "c3d446bf36a5e1f15856f2a76f1b140bcba77347",
-			"revisionTime": "2016-12-15T09:18:26Z"
+			"revision": "26f2cc6f249f4c2a08ed89f1d7d566a463c1dfc2",
+			"revisionTime": "2017-05-22T06:47:55Z",
+			"version": "v2.2.5",
+			"versionExact": "v2.2.5"
 		},
 		{
-			"checksumSHA1": "T4prw4N4neTE6GlHeWQh03FkuRc=",
+			"checksumSHA1": "/t4IP+XBDvdGOWC9MDR+88odFPM=",
 			"path": "github.com/yunify/qingstor-sdk-go/service",
-			"revision": "c3d446bf36a5e1f15856f2a76f1b140bcba77347",
-			"revisionTime": "2016-12-15T09:18:26Z",
-			"version": "v2.0.1",
-			"versionExact": "v2.0.1"
+			"revision": "26f2cc6f249f4c2a08ed89f1d7d566a463c1dfc2",
+			"revisionTime": "2017-05-22T06:47:55Z",
+			"version": "v2.2.5",
+			"versionExact": "v2.2.5"
 		},
 		{
-			"checksumSHA1": "E/rtQsvQRENkmRV1iMUK6Konw8w=",
+			"checksumSHA1": "qQd4/qerUE5v66rJb7gjDFd1uTk=",
 			"path": "github.com/yunify/qingstor-sdk-go/utils",
-			"revision": "c3d446bf36a5e1f15856f2a76f1b140bcba77347",
-			"revisionTime": "2016-12-15T09:18:26Z"
+			"revision": "26f2cc6f249f4c2a08ed89f1d7d566a463c1dfc2",
+			"revisionTime": "2017-05-22T06:47:55Z",
+			"version": "v2.2.5",
+			"versionExact": "v2.2.5"
 		},
 		{
 			"checksumSHA1": "Mk0HzIHe8LoPSTkLvGLAvwUtUcQ=",

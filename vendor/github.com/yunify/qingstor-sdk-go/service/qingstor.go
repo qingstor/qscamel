@@ -47,7 +47,8 @@ func (s *Service) ListBuckets(input *ListBucketsInput) (*ListBucketsOutput, erro
 		return nil, err
 	}
 
-	x.RequestID = r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	requestID := r.HTTPResponse.Header.Get("X-Qs-Request-Id")
+	x.RequestID = &requestID
 
 	return x, err
 }
@@ -81,7 +82,7 @@ func (s *Service) ListBucketsRequest(input *ListBucketsInput) (*request.Request,
 // ListBucketsInput presents input for ListBuckets.
 type ListBucketsInput struct {
 	// Limits results to buckets that in the location
-	Location string `json:"Location,omitempty" name:"Location" location:"headers"`
+	Location *string `json:"Location,omitempty" name:"Location" location:"headers"`
 }
 
 // Validate validates the input for ListBuckets.
@@ -92,12 +93,12 @@ func (v *ListBucketsInput) Validate() error {
 
 // ListBucketsOutput presents output for ListBuckets.
 type ListBucketsOutput struct {
-	StatusCode int `location:"statusCode"`
+	StatusCode *int `location:"statusCode"`
 
-	RequestID string `location:"requestID"`
+	RequestID *string `location:"requestID"`
 
 	// Buckets information
 	Buckets []*BucketType `json:"buckets,omitempty" name:"buckets" location:"elements"`
 	// Bucket count
-	Count int `json:"count,omitempty" name:"count" location:"elements"`
+	Count *int `json:"count,omitempty" name:"count" location:"elements"`
 }

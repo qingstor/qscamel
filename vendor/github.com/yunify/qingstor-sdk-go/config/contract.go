@@ -27,16 +27,19 @@ import (
 // DefaultConfigFileContent is the content of default config file.
 const DefaultConfigFileContent = `# QingStor services configuration
 
-#access_key_id: 'ACCESS_KEY_ID'
-#secret_access_key: 'SECRET_ACCESS_KEY'
+#access_key_id: ACCESS_KEY_ID
+#secret_access_key: SECRET_ACCESS_KEY
 
-host: 'qingstor.com'
+host: qingstor.com
 port: 443
-protocol: 'https'
+protocol: https
 connection_retries: 3
 
+# Additional User-Agent
+additional_user_agent: ""
+
 # Valid log levels are "debug", "info", "warn", "error", and "fatal".
-log_level: 'warn'
+log_level: warn
 
 `
 

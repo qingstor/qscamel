@@ -23,12 +23,13 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/pengsrc/go-shared/convert"
+
 	"github.com/yunify/qingstor-sdk-go/logger"
 	"github.com/yunify/qingstor-sdk-go/request/builder"
 	"github.com/yunify/qingstor-sdk-go/request/data"
 	"github.com/yunify/qingstor-sdk-go/request/signer"
 	"github.com/yunify/qingstor-sdk-go/request/unpacker"
-	"github.com/yunify/qingstor-sdk-go/utils"
 )
 
 // A Request can build, sign, send and unpack API request.
@@ -195,9 +196,10 @@ func (r *Request) send() error {
 		if retries > 0 {
 			logger.Info(fmt.Sprintf(
 				"Sending request: [%d] %s %s",
-				utils.StringToUnixInt(r.HTTPRequest.Header.Get("Date"), "RFC 822"),
+				convert.StringToUnixTimestamp(r.HTTPRequest.Header.Get("Date"), convert.RFC822),
 				r.Operation.RequestMethod,
-				r.HTTPRequest.Host))
+				r.HTTPRequest.Host,
+			))
 
 			response, err = r.Operation.Config.Connection.Do(r.HTTPRequest)
 			if err == nil {

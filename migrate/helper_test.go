@@ -102,7 +102,7 @@ func clearBucket(bucket *service.Bucket) {
 		fmt.Println(err)
 	} else {
 		for _, object := range output.Keys {
-			bucket.DeleteObject(object.Key)
+			bucket.DeleteObject(*object.Key)
 		}
 	}
 	_, err = bucket.Delete()

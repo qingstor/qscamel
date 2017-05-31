@@ -24,12 +24,15 @@ import (
 	"io/ioutil"
 	"mime"
 	"net/http"
+	"net/url"
 	"path"
 	"reflect"
 	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
+
+	"github.com/pengsrc/go-shared/convert"
 
 	"github.com/yunify/qingstor-sdk-go"
 	"github.com/yunify/qingstor-sdk-go/logger"
@@ -74,19 +77,22 @@ func (qb *QingStorBuilder) BuildHTTPRequest(o *data.Operation, i *reflect.Value)
 
 	logger.Info(fmt.Sprintf(
 		"Built QingStor request: [%d] %s",
-		utils.StringToUnixInt(httpRequest.Header.Get("Date"), "RFC 822"),
-		httpRequest.URL.String()))
+		convert.StringToUnixTimestamp(httpRequest.Header.Get("Date"), convert.RFC822),
+		httpRequest.URL.String()),
+	)
 
 	logger.Info(fmt.Sprintf(
 		"QingStor request headers: [%d] %s",
-		utils.StringToUnixInt(httpRequest.Header.Get("Date"), "RFC 822"),
-		fmt.Sprint(httpRequest.Header)))
+		convert.StringToUnixTimestamp(httpRequest.Header.Get("Date"), convert.RFC822),
+		fmt.Sprint(httpRequest.Header)),
+	)
 
 	if qb.baseBuilder.parsedBodyString != "" {
 		logger.Info(fmt.Sprintf(
 			"QingStor request body string: [%d] %s",
-			utils.StringToUnixInt(httpRequest.Header.Get("Date"), "RFC 822"),
-			qb.baseBuilder.parsedBodyString))
+			convert.StringToUnixTimestamp(httpRequest.Header.Get("Date"), convert.RFC822),
+			qb.baseBuilder.parsedBodyString),
+		)
 	}
 
 	return httpRequest, nil
@@ -104,25 +110,25 @@ func (qb *QingStorBuilder) parseURL() error {
 
 	requestURI := qb.baseBuilder.operation.RequestURI
 	for key, value := range *qb.baseBuilder.parsedProperties {
-		endpoint = strings.Replace(endpoint, "<"+key+">", value, -1)
-		requestURI = strings.Replace(requestURI, "<"+key+">", value, -1)
+		endpoint = strings.Replace(endpoint, "<"+key+">", utils.URLQueryEscape(value), -1)
+		requestURI = strings.Replace(requestURI, "<"+key+">", utils.URLQueryEscape(value), -1)
 	}
 	requestURI = regexp.MustCompile(`/+`).ReplaceAllString(requestURI, "/")
 
-	qb.baseBuilder.parsedURL = endpoint + requestURI
+	requestURL, err := url.Parse(endpoint + requestURI)
+	if err != nil {
+		return err
+	}
 
 	if qb.baseBuilder.parsedParams != nil {
-		paramsParts := []string{}
+		queryValue := requestURL.Query()
 		for key, value := range *qb.baseBuilder.parsedParams {
-			paramsParts = append(paramsParts, key+"="+value)
-
+			queryValue.Set(key, value)
 		}
-
-		joined := strings.Join(paramsParts, "&")
-		if joined != "" {
-			qb.baseBuilder.parsedURL += "?" + joined
-		}
+		requestURL.RawQuery = queryValue.Encode()
 	}
+
+	qb.baseBuilder.parsedURL = requestURL.String()
 
 	return nil
 }
@@ -139,9 +145,12 @@ func (qb *QingStorBuilder) setupHeaders(httpRequest *http.Request) error {
 	}
 
 	if httpRequest.Header.Get("User-Agent") == "" {
-		version := "Go v" + strings.Replace(runtime.Version(), "go", "", -1) + ""
-		system := runtime.GOOS + "_" + runtime.GOARCH + "_" + runtime.Compiler
-		ua := "qingstor-sdk-go/" + sdk.Version + " (" + version + "; " + system + ")"
+		version := fmt.Sprintf(`Go v%s`, strings.Replace(runtime.Version(), "go", "", -1))
+		system := fmt.Sprintf(`%s_%s_%s`, runtime.GOOS, runtime.GOARCH, runtime.Compiler)
+		ua := fmt.Sprintf(`qingstor-sdk-go/%s (%s; %s)`, sdk.Version, version, system)
+		if qb.baseBuilder.operation.Config.AdditionalUserAgent != "" {
+			ua = fmt.Sprintf(`%s %s`, ua, qb.baseBuilder.operation.Config.AdditionalUserAgent)
+		}
 		httpRequest.Header.Set("User-Agent", ua)
 	}
 

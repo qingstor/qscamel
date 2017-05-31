@@ -23,7 +23,7 @@ import (
 
 	log "github.com/frostyplanet/logrus"
 
-	"github.com/yunify/qingstor-sdk-go/request/errs"
+	"github.com/yunify/qingstor-sdk-go/request/errors"
 	"github.com/yunify/qingstor-sdk-go/service"
 	"github.com/yunify/qscamel/utils"
 )
@@ -41,7 +41,7 @@ func checkIgnoreCondition(context *Context, bucket *service.Bucket, objectName s
 		)
 		if err != nil {
 			// If object doesn't exist, still fetch
-			qsErr, ok := err.(*errs.QingStorError)
+			qsErr, ok := err.(*errors.QingStorError)
 			if !ok || qsErr.StatusCode != http.StatusNotFound {
 				context.Logger.Errorf(
 					"Error occurs when heading object %s. %s",
@@ -151,7 +151,7 @@ func fetchObject(objectName string, sourceSite string, bucket *service.Bucket,
 	resultChan chan fetchResult, logger *log.Logger) {
 	_, err := bucket.PutObject(
 		objectName,
-		&service.PutObjectInput{XQSFetchSource: sourceSite},
+		&service.PutObjectInput{XQSFetchSource: &sourceSite},
 	)
 	if err != nil {
 		logger.Warnf(

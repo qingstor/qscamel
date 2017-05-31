@@ -18,12 +18,18 @@ package builder
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
+
+	"github.com/pengsrc/go-shared/convert"
+	"github.com/pengsrc/go-shared/json"
 
 	"github.com/yunify/qingstor-sdk-go/request/data"
 	"github.com/yunify/qingstor-sdk-go/utils"
@@ -113,34 +119,35 @@ func (b *BaseBuilder) parseRequestParamsAndHeaders() error {
 	for i := 0; i < fields.NumField(); i++ {
 		tagName := fields.Type().Field(i).Tag.Get("name")
 		tagLocation := fields.Type().Field(i).Tag.Get("location")
-		tagDefault := fields.Type().Field(i).Tag.Get("default")
+		if tagDefault := fields.Type().Field(i).Tag.Get("default"); tagDefault != "" {
+			maps[tagLocation][tagName] = tagDefault
+		}
 		if tagName != "" && tagLocation != "" && maps[tagLocation] != nil {
 			switch value := fields.Field(i).Interface().(type) {
-			case string:
-				if value != "" {
-					maps[tagLocation][tagName] = value
+			case *string:
+				if value != nil {
+					maps[tagLocation][tagName] = *value
 				}
-			case int:
-				numberString := strconv.Itoa(int(value))
-				if numberString == "0" {
-					numberString = ""
-					if tagDefault != "" {
-						numberString = tagDefault
+			case *int:
+				if value != nil {
+					maps[tagLocation][tagName] = strconv.Itoa(int(*value))
+				}
+			case *int64:
+				if value != nil {
+					maps[tagLocation][tagName] = strconv.FormatInt(int64(*value), 10)
+				}
+			case *bool:
+			case *time.Time:
+				if value != nil {
+					formatString := fields.Type().Field(i).Tag.Get("format")
+					format := ""
+					switch formatString {
+					case "RFC 822":
+						format = convert.RFC822
+					case "ISO 8601":
+						format = convert.ISO8601
 					}
-				}
-				if numberString != "" {
-					maps[tagLocation][tagName] = numberString
-				}
-			case bool:
-			case time.Time:
-				zero := time.Time{}
-				if value != zero {
-					var timeString string
-					format := fields.Type().Field(i).Tag.Get("format")
-					timeString = utils.TimeToString(value, format)
-					if timeString != "" {
-						maps[tagLocation][tagName] = timeString
-					}
+					maps[tagLocation][tagName] = convert.TimeToString(*value, format)
 				}
 			}
 		}
@@ -170,7 +177,7 @@ func (b *BaseBuilder) parseRequestBody() error {
 	}
 
 	if len(requestData) != 0 {
-		dataValue, err := utils.JSONEncode(requestData, true)
+		dataValue, err := json.Encode(requestData, true)
 		if err != nil {
 			return err
 		}
@@ -207,11 +214,15 @@ func (b *BaseBuilder) parseRequestProperties() error {
 		if fields.IsValid() {
 			for i := 0; i < fields.NumField(); i++ {
 				switch value := fields.Field(i).Interface().(type) {
-				case string:
-					propertiesMap[fields.Type().Field(i).Tag.Get("name")] = value
-				case int:
-					numberString := strconv.Itoa(int(value))
-					propertiesMap[fields.Type().Field(i).Tag.Get("name")] = numberString
+				case *string:
+					if value != nil {
+						propertiesMap[fields.Type().Field(i).Tag.Get("name")] = *value
+					}
+				case *int:
+					if value != nil {
+						numberString := strconv.Itoa(int(*value))
+						propertiesMap[fields.Type().Field(i).Tag.Get("name")] = numberString
+					}
 				}
 			}
 		}
@@ -226,7 +237,25 @@ func (b *BaseBuilder) parseRequestURL() error {
 
 func (b *BaseBuilder) setupHeaders(httpRequest *http.Request) error {
 	if b.parsedHeaders != nil {
+
 		for headerKey, headerValue := range *b.parsedHeaders {
+			if headerKey == "X-QS-Fetch-Source" {
+				// header X-QS-Fetch-Source is a URL to fetch.
+				// We should first parse this URL.
+				requestURL, err := url.Parse(headerValue)
+				if err != nil {
+					return fmt.Errorf("invalid HTTP header value: %s", headerValue)
+				}
+				headerValue = requestURL.String()
+			} else {
+				for _, r := range headerValue {
+					if r > unicode.MaxASCII {
+						headerValue = utils.URLQueryEscape(headerValue)
+						break
+					}
+				}
+			}
+
 			httpRequest.Header.Set(headerKey, headerValue)
 		}
 	}
@@ -267,7 +296,7 @@ func (b *BaseBuilder) setupHeaders(httpRequest *http.Request) error {
 	httpRequest.ContentLength = int64(length)
 
 	if httpRequest.Header.Get("Date") == "" {
-		httpRequest.Header.Set("Date", utils.TimeToString(time.Now(), "RFC 822"))
+		httpRequest.Header.Set("Date", convert.TimeToString(time.Now(), convert.RFC822))
 	}
 
 	return nil

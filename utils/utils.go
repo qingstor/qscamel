@@ -79,8 +79,8 @@ func DetermineBucketZone(qsService *service.Service, bucketName string) (string,
 		return "", err
 	}
 	for _, bucket := range output.Buckets {
-		if bucketName == bucket.Name {
-			return bucket.Location, nil
+		if bucketName == *bucket.Name {
+			return *bucket.Location, nil
 		}
 	}
 	return "", fmt.Errorf("cannot determine which zone the bucket \"%s\" resides", bucketName)

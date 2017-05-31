@@ -14,35 +14,23 @@
 // | limitations under the License.
 // +-------------------------------------------------------------------------
 
-package utils
+package errors
 
-import (
-	"gopkg.in/yaml.v2"
-)
+import "fmt"
 
-// YAMLEncode encode given interface to yaml byte slice.
-func YAMLEncode(source interface{}) ([]byte, error) {
-	bytesResult, err := yaml.Marshal(source)
-	if err != nil {
-		return []byte{}, err
-	}
+// QingStorError stores information of an QingStor error response.
+type QingStorError struct {
+	StatusCode int
 
-	return bytesResult, nil
+	Code         string `json:"code"`
+	Message      string `json:"message"`
+	RequestID    string `json:"request_id"`
+	ReferenceURL string `json:"url"`
 }
 
-// YAMLDecode decode given yaml byte slice to corresponding struct.
-func YAMLDecode(content []byte, destinations ...interface{}) (interface{}, error) {
-	var destination interface{}
-	var err error
-	if len(destinations) == 1 {
-		destination = destinations[0]
-		err = yaml.Unmarshal(content, destination)
-	} else {
-		err = yaml.Unmarshal(content, &destination)
-	}
-
-	if err != nil {
-		return nil, err
-	}
-	return destination, err
+// Error returns the description of QingStor error response.
+func (qse QingStorError) Error() string {
+	return fmt.Sprintf(
+		"QingStor Error: StatusCode \"%d\", Code \"%s\", Message \"%s\", Request ID \"%s\", Reference URL \"%s\"",
+		qse.StatusCode, qse.Code, qse.Message, qse.RequestID, qse.ReferenceURL)
 }

@@ -179,7 +179,7 @@ func checkFlags(cmd *cobra.Command, args []string) error {
 		configPath = config.GetUserConfigFilePath()
 		ctx.Logger.Printf("Use default configuration file %s.", configPath)
 	}
-	err = ctx.QSConfig.LoadConfigFromFilepath(configPath)
+	err = ctx.QSConfig.LoadConfigFromFilePath(configPath)
 	if err != nil {
 		return fmt.Errorf("can't open or parse configuration file %s (%s)", configPath, err.Error())
 	}
