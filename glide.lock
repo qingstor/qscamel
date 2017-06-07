@@ -1,0 +1,108 @@
+hash: 1d3e5588a9d415b988753a50bd7662c882195afc570107bbf024bc2ccf71bc20
+updated: 2017-06-07T19:52:19.414857963+08:00
+imports:
+- name: github.com/aliyun/aliyun-oss-go-sdk
+  version: 3e9e60c8c688b34d1a632b518697d7042c13fbc4
+  subpackages:
+  - oss
+- name: github.com/aws/aws-sdk-go
+  version: 0df2a7ae7e82d2643e4a8fed1b2e36a1cf0580bc
+  subpackages:
+  - aws
+  - aws/awserr
+  - aws/awsutil
+  - aws/client
+  - aws/client/metadata
+  - aws/corehandlers
+  - aws/credentials
+  - aws/credentials/ec2rolecreds
+  - aws/credentials/endpointcreds
+  - aws/credentials/stscreds
+  - aws/defaults
+  - aws/ec2metadata
+  - aws/endpoints
+  - aws/request
+  - aws/session
+  - aws/signer/v4
+  - private/protocol
+  - private/protocol/query
+  - private/protocol/query/queryutil
+  - private/protocol/rest
+  - private/protocol/restxml
+  - private/protocol/xml/xmlutil
+  - private/waiter
+  - service/s3
+  - service/sts
+- name: github.com/frostyplanet/logrus
+  version: 6e2c42e3954fb3e93a2118842f8b943cc314e83c
+- name: github.com/go-ini/ini
+  version: d3de07a94d22b4a0972deb4b96d790c2c0ce8333
+- name: github.com/inconshreveable/mousetrap
+  version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
+- name: github.com/jmespath/go-jmespath
+  version: bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d
+- name: github.com/pengsrc/go-shared
+  version: 454950d6a0782c34427d4f29b46c6bf447256f20
+  subpackages:
+  - check
+  - convert
+  - json
+  - yaml
+- name: github.com/qiniu/api.v6
+  version: 705d485512bab38d44f792b1d401b70b4e15a092
+  subpackages:
+  - auth/digest
+  - conf
+  - io
+  - rs
+  - rsf
+  - url
+- name: github.com/qiniu/bytes
+  version: 4887e7b2bde38e8f2a8cb7a092d6e197dbcda741
+  subpackages:
+  - seekable
+- name: github.com/qiniu/rpc
+  version: 30c22466d920a7dc0e1f79d048f44af85ac04ee6
+- name: github.com/Sirupsen/logrus
+  version: d26492970760ca5d33129d2d799e34be5c4782eb
+- name: github.com/spf13/cobra
+  version: 99ff9334bda26384b5ef4a4aaa4d444d29bdde73
+- name: github.com/spf13/pflag
+  version: e57e3eeb33f795204c1ca35f56c44f83227c6e66
+- name: github.com/upyun/go-sdk
+  version: a71208d1155d6de85b8e80b480634957695db963
+  subpackages:
+  - upyun
+- name: github.com/yunify/qingstor-sdk-go
+  version: 26f2cc6f249f4c2a08ed89f1d7d566a463c1dfc2
+  subpackages:
+  - config
+  - logger
+  - request
+  - request/builder
+  - request/data
+  - request/errors
+  - request/signer
+  - request/unpacker
+  - service
+  - utils
+- name: golang.org/x/sys
+  version: f3918c30c5c2cb527c0b071a27c35120a6c0719a
+  subpackages:
+  - unix
+- name: gopkg.in/yaml.v2
+  version: a5b47d31c556af34a302ce5d659e6fea44d90de0
+  repo: https://github.com/go-yaml/yaml.git
+testImports:
+- name: github.com/davecgh/go-spew
+  version: 346938d642f2ec3594ed81d874461961cd0faa76
+  subpackages:
+  - spew
+- name: github.com/pmezard/go-difflib
+  version: 792786c7400a136282c1664665ae0a8db921c6c2
+  subpackages:
+  - difflib
+- name: github.com/stretchr/testify
+  version: 69483b4bd14f5845b5a1e55bca19e954e827f1d0
+  subpackages:
+  - assert
