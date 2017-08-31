@@ -102,42 +102,42 @@ http://image.example.com/public/cat.png archive/cat.png
 
 Use `--src-type=<platform>` or `-t <platform>` to enable migrating from other object storage platform (e.g. `--src-type=s3`), then use `--src` or `-s` to specify the source bucket name.
 
-| platform | require --src-zone | require --src-access | require --src-secret |
-| -------- |:------------------:|:--------------------:|:--------------------:|
-| s3       | Y                  | Y                    | Y                    |
-| qiniu    | N                  | Y                    | Y                    |
-| aliyun   | Y                  | Y                    | Y                    |
-| upyun    | Y                  | Y                    | Y                    |
+| platform | require --src-zone | require --src-access-key | require --src-secret-key |
+| -------- |:------------------:|:------------------------:|:------------------------:|
+| s3       | Y                  | Y                        | Y                        |
+| qiniu    | N                  | Y                        | Y                        |
+| aliyun   | Y                  | Y                        | Y                        |
+| upyun    | Y                  | Y                        | Y                        |
 
 ### Examples
 
 ``` bash
 # Read from source list file
-$ qscamel -t file -s ~/source-list -b QingStor-bucket-name -d "migrate 01"
+$ qscamel -t file -s ~/source-list -b qingstor-bucket-name -d "migrate 01"
 
 # Overwrite existing object forcefully
-$ qscamel -t file -s ~/source-list -b QingStor-bucket-name -d "migrate 02" -o
+$ qscamel -t file -s ~/source-list -b qingstor-bucket-name -d "migrate 02" -o
 
 # Ignore existing object and dry-run
-$ qscamel -t file -s ~/source-list -b QingStor-bucket-name -d "migrate 03" -i -n
+$ qscamel -t file -s ~/source-list -b qingstor-bucket-name -d "migrate 03" -i -n
 
 # Specify threads and log-file
-$ qscamel -t file -s ~/source-list -b QingStor-bucket-name -d "migrate 04" -T 5 -l ~/logfile
+$ qscamel -t file -s ~/source-list -b qingstor-bucket-name -d "migrate 04" -T 5 -l ~/logfile
 
 # Migrate from aws s3
-$ qscamel -t s3 -s s3-bucket-name -z us-east-1 -a "S3ACCESSKEYID" -S "S3SECRETACCESSKEY" -b QingStor-bucket-name -d "migrate 05"
+$ qscamel -t s3 -s s3-bucket-name -z us-east-1 -a "S3ACCESSKEYID" -S "S3SECRETACCESSKEY" -b qingstor-bucket-name -d "migrate 05"
 
 # Migrate from qiniu
-$ qscamel -t qiniu -s qiniu-bucket-name -a "QINIUACCESSKEYID" -S "QINIUSECRETACCESSKEY" -b QingStor-bucket-name -d "migrate 06"
+$ qscamel -t qiniu -s qiniu-bucket-name -a "QINIUACCESSKEYID" -S "QINIUSECRETACCESSKEY" -b qingstor-bucket-name -d "migrate 06"
 
 # Migrate from aliyun
-$ qscamel -t aliyun -s aliyun-bucket-name -z oss-cn-shanghai -a "ALIYUNACCESSKEYID" -S "ALIYUNSECRETACCESSKEY" -b QingStor-bucket-name -d "migrate 07"
+$ qscamel -t aliyun -s aliyun-bucket-name -z oss-cn-shanghai -a "ALIYUNACCESSKEYID" -S "ALIYUNSECRETACCESSKEY" -b qingstor-bucket-name -d "migrate 07"
 
 # Migrate from upyun
 # For Upyun, "--src-access-key" refers to the name of upyun operator which 
 # must have permission to read the bucket specified on the command line. 
 # "--src-secret-key" refers to the password of upyun operator
-$ qscamel -t upyun -s upyun-bucket-name -z b0 -a "UPYUNOPERATOR" -S "UPYUNOPERATORPASSWORD" -b QingStor-bucket-name -d "migrate 08"
+$ qscamel -t upyun -s upyun-bucket-name -z b0 -a "UPYUNOPERATOR" -S "UPYUNOPERATORPASSWORD" -b qingstor-bucket-name -d "migrate 08"
 ```
 
 See the detailed usage with `qscamel -h` or `qscamel --help`.
