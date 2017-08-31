@@ -25,17 +25,19 @@ import (
 	"github.com/yunify/qscamel/record"
 	"github.com/yunify/qscamel/source/aliyun"
 	"github.com/yunify/qscamel/source/file"
+	"github.com/yunify/qscamel/source/qingstor"
 	"github.com/yunify/qscamel/source/qiniu"
 	"github.com/yunify/qscamel/source/s3"
 	"github.com/yunify/qscamel/source/upyun"
 )
 
 const (
-	sourceTypeFile   = "file"
-	sourceTypeAliyun = "aliyun"
-	sourceTypeQiniu  = "qiniu"
-	sourceTypeS3     = "s3"
-	sourceTypeUpyun  = "upyun"
+	sourceTypeFile     = "file"
+	sourceTypeAliyun   = "aliyun"
+	sourceTypeQiniu    = "qiniu"
+	sourceTypeS3       = "s3"
+	sourceTypeUpyun    = "upyun"
+	sourceTypeQingstor = "qingstor"
 )
 
 // MigrateSource is interface of migrating source specified by '--src-type' flag.
@@ -62,6 +64,8 @@ func InstantiateMigrateSource(sourceType, specificSource, zone, accessKey, secre
 		return s3.NewSourceS3(specificSource, zone, accessKey, secreteKey)
 	case sourceTypeUpyun:
 		return upyun.NewSourceUpyun(specificSource, zone, accessKey, secreteKey)
+	case sourceTypeQingstor:
+		return qingstor.NewSourceQingstor(specificSource, zone, accessKey, secreteKey)
 	default:
 		return nil, fmt.Errorf("Unsupported source type: %s", sourceType)
 	}

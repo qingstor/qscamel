@@ -190,6 +190,12 @@ func checkFlags(cmd *cobra.Command, args []string) error {
 		return errors.New("use -b (--bucket) flag to specify QingStor bucket")
 	}
 
+	// When migrating from QingStor bucket, check that
+	// the source bucket name is the same as the target bucket name.
+	if ctx.SourceType == "qingstor" && specificSource == ctx.QSBucketName {
+		return errors.New("The source bucket name is the same as the target bucket name")
+	}
+
 	if ctx.ThreadNum > MaxThreadNum {
 		ctx.Logger.Printf("Threads %d is over limit. Use max threads %d.", ctx.ThreadNum, MaxThreadNum)
 		ctx.ThreadNum = MaxThreadNum

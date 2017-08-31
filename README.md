@@ -108,6 +108,7 @@ Use `--src-type=<platform>` or `-t <platform>` to enable migrating from other ob
 | qiniu    | N                  | Y                        | Y                        |
 | aliyun   | Y                  | Y                        | Y                        |
 | upyun    | Y                  | Y                        | Y                        |
+| qingstor | Y                  | Y                        | Y                        |
 
 ### Examples
 
@@ -138,6 +139,9 @@ $ qscamel -t aliyun -s aliyun-bucket-name -z oss-cn-shanghai -a "ALIYUNACCESSKEY
 # must have permission to read the bucket specified on the command line. 
 # "--src-secret-key" refers to the password of upyun operator
 $ qscamel -t upyun -s upyun-bucket-name -z b0 -a "UPYUNOPERATOR" -S "UPYUNOPERATORPASSWORD" -b qingstor-bucket-name -d "migrate 08"
+
+# Migrate from qingstor 
+$ qscamel -t qingstor -s qingstor-bucket-name-01 -z pek3a -a "QINGSTORACCESSKEYID" -S "QINGSTORSECRETACCESSKEY" -b qingstor-bucket-name-02 -d "migrate 09"
 ```
 
 See the detailed usage with `qscamel -h` or `qscamel --help`.
