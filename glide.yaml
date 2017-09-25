@@ -1,4 +1,39 @@
 package: github.com/yunify/qscamel
 import:
+- package: github.com/aliyun/aliyun-oss-go-sdk
+  version: ~1.6.0
+  subpackages:
+  - oss
 - package: github.com/aws/aws-sdk-go
-  version: v1.6.4
+  version: ~1.10.50
+  subpackages:
+  - aws
+  - aws/credentials
+  - aws/session
+  - service/s3
+- package: github.com/frostyplanet/logrus
+  version: ~0.10.0
+- package: github.com/qiniu/api.v6
+  version: ~6.0.9
+  subpackages:
+  - auth/digest
+  - conf
+  - rs
+  - rsf
+- package: github.com/spf13/cobra
+- package: github.com/upyun/go-sdk
+  version: ~2.1.0
+  subpackages:
+  - upyun
+- package: github.com/yunify/qingstor-sdk-go
+  version: ~2.2.7
+  subpackages:
+  - config
+  - request/errors
+  - request/signer
+  - service
+testImport:
+- package: github.com/stretchr/testify
+  version: ~1.1.4
+  subpackages:
+  - assert
