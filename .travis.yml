@@ -10,7 +10,6 @@ install:
   - sudo add-apt-repository ppa:masterminds/glide && sudo apt-get update
   - sudo apt-get install glide
   - go get -u github.com/golang/lint/golint
-  - curl https://glide.sh/get | sh
   - glide install
 
 script:
