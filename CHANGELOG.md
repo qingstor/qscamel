@@ -24,4 +24,3 @@ All notable changes to QingStor qcamel will be documented in this file.
 - QingStor qcamel.
 
 [v1.1.0]: https://github.com/yunify/qscamel/compare/v1.1.0...v1.0.0
-
