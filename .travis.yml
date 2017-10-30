@@ -25,11 +25,11 @@ before_install:
     - popd
     - make --version
     - glide --version
+    - mkdir ${HOME}/.qingstor
 
 install:
   - go get -u github.com/golang/lint/golint
   - glide install
-
 
 script:
   - make check
