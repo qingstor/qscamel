@@ -1,8 +1,8 @@
 language: go
 go:
+  - 1.9
   - 1.8
   - 1.7
-  - 1.6
 
 cache:
   directories:
@@ -34,7 +34,5 @@ install:
 script:
   - make check
   - make build
-  - make release
-  - make clean
   - make test
   - make coverage
