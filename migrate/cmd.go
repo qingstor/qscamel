@@ -26,7 +26,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qingstor-sdk-go/config"
-	"github.com/yunify/qscamel/metadata"
+	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/record"
 	"github.com/yunify/qscamel/source"
 	"github.com/yunify/qscamel/utils"
@@ -81,7 +81,7 @@ func Execute() {
 		Run: func(cmd *cobra.Command, args []string) {
 			if ctx.PrintVersion {
 				fmt.Printf(
-					"qscamel version %s\n", metadata.Version,
+					"qscamel version %s\n", constants.Version,
 				)
 				return
 			}
