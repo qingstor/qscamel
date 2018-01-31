@@ -14,7 +14,7 @@
 // | limitations under the License.
 // +-------------------------------------------------------------------------
 
-package metadata
+package constants
 
 // Version number string.
 const Version = "1.1.0"
