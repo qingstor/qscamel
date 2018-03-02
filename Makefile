@@ -2,7 +2,7 @@ SHELL := /bin/bash
 
 .PHONY: all check format　vet lint build install uninstall release clean test coverage
 
-VERSION=$(shell cat ./metadata/version.go | grep "Version\ =" | sed -e s/^.*\ //g | sed -e s/\"//g)
+VERSION=$(shell cat ./constants/version.go | grep "Version\ =" | sed -e s/^.*\ //g | sed -e s/\"//g)
 DIRS_TO_CHECK=$(shell ls -d */ | grep -vE "vendor|test")
 PKGS_TO_CHECK=$(shell go list ./... | grep -v "/vendor/")
 
