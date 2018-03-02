@@ -1,12 +1,12 @@
-hash: b73393acb936b8a431a277ae3d78b0050f74251a857e4d3643d26ea3367436fd
-updated: 2018-03-01T23:36:28.221963545+08:00
+hash: 9737258b7175b63e769028a99bbdba67a7197249c712e1cfdf01e1c28cf7f421
+updated: 2018-03-02T22:21:02.962871152+08:00
 imports:
 - name: github.com/aliyun/aliyun-oss-go-sdk
   version: 52de7239022ceba47354832fbcc65983aa8d019d
   subpackages:
   - oss
 - name: github.com/aws/aws-sdk-go
-  version: 9a79087b1148376f4dd860c188c948479e2def3b
+  version: aace5875a5c3b85a3902c6d72b9caed301d64cce
   subpackages:
   - aws
   - aws/credentials
@@ -14,8 +14,6 @@ imports:
   - service/s3
 - name: github.com/coreos/bbolt
   version: 48ea1b39c25fc1bab3506fbc712ecbaa842c4d2d
-- name: github.com/dgraph-io/badger
-  version: 69611218c7078be6de16f4ea13fb256e701b6b73
 - name: github.com/golang/protobuf
   version: 130e6b02ab059e7b717a096f397c5b60111cae74
   subpackages:
@@ -74,7 +72,7 @@ imports:
   subpackages:
   - context
 - name: golang.org/x/sys
-  version: f3918c30c5c2cb527c0b071a27c35120a6c0719a
+  version: dd2ff4accc098aceecb86b36eaa7829b2a17b1c9
   subpackages:
   - unix
   - windows

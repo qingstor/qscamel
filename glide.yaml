@@ -42,6 +42,10 @@ import:
   subpackages:
   - upyun
 
+# Fix build error on windows
+- package: golang.org/x/sys
+  version: dd2ff4accc098aceecb86b36eaa7829b2a17b1c9
+
 testImport:
 - package: github.com/stretchr/testify
   version: ^1.2.0
