@@ -12,7 +12,7 @@ import (
 
 // Config stores all config value.
 type Config struct {
-	ThreadNum int `yaml:"thread_num"`
+	Concurrency int `yaml:"concurrency"`
 
 	LogFile      string `yaml:"log_file"`
 	LogLevel     string `yaml:"log_level"`
