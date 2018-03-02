@@ -50,7 +50,7 @@ func (f *Fs) List(ctx context.Context, p string) (o []model.Object, err error) {
 }
 
 // Read implement source.Read
-func (f *Fs) Read(ctx context.Context, p string) (r io.Reader, err error) {
+func (f *Fs) Read(ctx context.Context, p string) (r io.ReadCloser, err error) {
 	task, err := model.GetTask(ctx)
 	if err != nil {
 		logrus.Panic(err)

@@ -22,7 +22,7 @@ func (f *Fs) Writable() bool {
 }
 
 // Write implement destination.Write
-func (f *Fs) Write(ctx context.Context, p string, r io.Reader) (err error) {
+func (f *Fs) Write(ctx context.Context, p string, r io.ReadCloser) (err error) {
 	t, err := model.GetTask(ctx)
 	if err != nil {
 		logrus.Panic(err)
