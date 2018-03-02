@@ -10,6 +10,10 @@ import (
 
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
+	"net"
+	"net/http"
+	"strconv"
+	"time"
 )
 
 var (
@@ -66,7 +70,6 @@ func New(ctx context.Context, et uint8) (q *QingStor, err error) {
 		}
 	}
 
-	logrus.Debug(e.Options)
 	// Set bucket name.
 	q.BucketName = e.Options["bucket_name"]
 	if q.BucketName == "" {
@@ -94,7 +97,36 @@ func New(ctx context.Context, et uint8) (q *QingStor, err error) {
 	// Set prefix.
 	q.Prefix = e.Path
 
+	// Set qingstor config.
 	qsConfig, _ := config.New(q.AccessKeyID, q.SecretAccessKey)
+	qsConfig.Protocol = q.Protocol
+	qsConfig.Host = q.Host
+	port, err := strconv.ParseInt(q.Port, 10, 64)
+	if err != nil {
+		return
+	}
+	qsConfig.Port = int(port)
+	// Set timeout to 0 to ignore file already closed error.
+	qsConfig.Connection.Timeout = 0
+	qsConfig.Connection.Transport = &http.Transport{
+		DialContext: (&net.Dialer{
+			// With or without a timeout, the operating system may impose
+			// its own earlier timeout
+			Timeout: 1 * time.Minute,
+			// Do not keep alive for too long.
+			KeepAlive: 30 * time.Second,
+			// XXX: DualStack enables RFC 6555-compliant "Happy Eyeballs" dialing
+			// when the network is "tcp" and the destination is a host name
+			// with both IPv4 and IPv6 addresses. This allows a client to
+			// tolerate networks where one address family is silently broken
+			DualStack: false,
+		}).DialContext,
+		MaxIdleConns:          0,
+		IdleConnTimeout:       30 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second, //Default
+		ExpectContinueTimeout: 2 * time.Second,
+	}
+
 	qsService, _ := service.Init(qsConfig)
 	zone, err := q.GetZone()
 	if err != nil {
