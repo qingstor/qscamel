@@ -29,7 +29,7 @@ func Copy(ctx context.Context) (err error) {
 	c := make(chan string)
 	wg := new(sync.WaitGroup)
 
-	for i := 0; i < contexts.Config.ThreadNum; i++ {
+	for i := 0; i < contexts.Config.Concurrency; i++ {
 		wg.Add(1)
 		go copyWorker(ctx, c, wg)
 	}
