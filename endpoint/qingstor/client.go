@@ -3,6 +3,10 @@ package qingstor
 import (
 	"context"
 	"errors"
+	"net"
+	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/yunify/qingstor-sdk-go/config"
@@ -10,18 +14,14 @@ import (
 
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
-	"net"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 var (
 	t *model.Task
 )
 
-// QingStor is the client to visit QingStor service.
-type QingStor struct {
+// Client is the client to visit QingStor service.
+type Client struct {
 	Protocol        string
 	Host            string
 	Port            string
@@ -29,19 +29,19 @@ type QingStor struct {
 	AccessKeyID     string
 	SecretAccessKey string
 
-	Prefix string
+	Path string
 
 	client *service.Bucket
 }
 
 // New will create a new QingStor client.
-func New(ctx context.Context, et uint8) (q *QingStor, err error) {
+func New(ctx context.Context, et uint8) (c *Client, err error) {
 	t, err = model.GetTask(ctx)
 	if err != nil {
 		return
 	}
 
-	q = &QingStor{}
+	c = &Client{}
 
 	e := t.Src
 	if et == constants.DestinationEndpoint {
@@ -49,59 +49,59 @@ func New(ctx context.Context, et uint8) (q *QingStor, err error) {
 	}
 
 	// Set protocol.
-	q.Protocol = e.Options["protocol"]
-	if q.Protocol == "" {
-		q.Protocol = "https"
+	c.Protocol = e.Options["protocol"]
+	if c.Protocol == "" {
+		c.Protocol = "https"
 	}
 
 	// Set host.
-	q.Host = e.Options["host"]
-	if q.Host == "" {
-		q.Host = "qingstor.com"
+	c.Host = e.Options["host"]
+	if c.Host == "" {
+		c.Host = "qingstor.com"
 	}
 
 	// Set port.
-	q.Port = e.Options["port"]
-	if q.Port == "" {
-		if q.Protocol == "https" {
-			q.Port = "443"
+	c.Port = e.Options["port"]
+	if c.Port == "" {
+		if c.Protocol == "https" {
+			c.Port = "443"
 		} else {
-			q.Port = "80"
+			c.Port = "80"
 		}
 	}
 
 	// Set bucket name.
-	q.BucketName = e.Options["bucket_name"]
-	if q.BucketName == "" {
+	c.BucketName = e.Options["bucket_name"]
+	if c.BucketName == "" {
 		logrus.Error("QingStor's bucket name can't be empty.")
 		err = errors.New("qingstor bucket name is empty")
 		return
 	}
 
 	// Set access key.
-	q.AccessKeyID = e.Options["access_key_id"]
-	if q.AccessKeyID == "" {
+	c.AccessKeyID = e.Options["access_key_id"]
+	if c.AccessKeyID == "" {
 		logrus.Error("QingStor's access key id can't be empty.")
 		err = errors.New("qingstor access key is empty")
 		return
 	}
 
 	// Set secret key.
-	q.SecretAccessKey = e.Options["secret_access_key"]
-	if q.SecretAccessKey == "" {
+	c.SecretAccessKey = e.Options["secret_access_key"]
+	if c.SecretAccessKey == "" {
 		logrus.Error("QingStor's secret access key can't be empty.")
 		err = errors.New("qingstor secret access key is empty")
 		return
 	}
 
-	// Set prefix.
-	q.Prefix = e.Path
+	// Set path.
+	c.Path = e.Path
 
 	// Set qingstor config.
-	qsConfig, _ := config.New(q.AccessKeyID, q.SecretAccessKey)
-	qsConfig.Protocol = q.Protocol
-	qsConfig.Host = q.Host
-	port, err := strconv.ParseInt(q.Port, 10, 64)
+	qsConfig, _ := config.New(c.AccessKeyID, c.SecretAccessKey)
+	qsConfig.Protocol = c.Protocol
+	qsConfig.Host = c.Host
+	port, err := strconv.ParseInt(c.Port, 10, 64)
 	if err != nil {
 		return
 	}
@@ -128,10 +128,10 @@ func New(ctx context.Context, et uint8) (q *QingStor, err error) {
 	}
 
 	qsService, _ := service.Init(qsConfig)
-	zone, err := q.GetZone()
+	zone, err := c.GetZone()
 	if err != nil {
 		return
 	}
-	q.client, _ = qsService.Bucket(q.BucketName, zone)
+	c.client, _ = qsService.Bucket(c.BucketName, zone)
 	return
 }

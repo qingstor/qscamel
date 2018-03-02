@@ -13,22 +13,22 @@ import (
 )
 
 // Reachable implement source.Reachable
-func (q *QingStor) Reachable() bool {
+func (c *Client) Reachable() bool {
 	return true
 }
 
 // Readable implement source.Readable
-func (q *QingStor) Readable() bool {
+func (c *Client) Readable() bool {
 	return true
 }
 
 // List implement source.List
-func (q *QingStor) List(ctx context.Context, p string) (o []model.Object, err error) {
+func (c *Client) List(ctx context.Context, p string) (o []model.Object, err error) {
 	o = []model.Object{}
 	om := make(map[string]struct{})
 
 	// Add "/" to list specific prefix.
-	cp := path.Join(q.Prefix, p) + "/"
+	cp := path.Join(c.Path, p) + "/"
 	// Trim left "/" to prevent object start with "/"
 	cp = strings.TrimLeft(cp, "/")
 
@@ -36,7 +36,7 @@ func (q *QingStor) List(ctx context.Context, p string) (o []model.Object, err er
 	first := true
 
 	for marker != "" || first {
-		resp, err := q.client.ListObjects(&service.ListObjectsInput{
+		resp, err := c.client.ListObjects(&service.ListObjectsInput{
 			Prefix:    convert.String(cp),
 			Marker:    convert.String(marker),
 			Limit:     convert.Int(MaxListObjectsLimit),
@@ -80,12 +80,12 @@ func (q *QingStor) List(ctx context.Context, p string) (o []model.Object, err er
 }
 
 // Read implement source.Read
-func (q *QingStor) Read(ctx context.Context, p string) (r io.ReadCloser, err error) {
-	cp := path.Join(q.Prefix, p)
+func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error) {
+	cp := path.Join(c.Path, p)
 	// Trim left "/" to prevent object start with "/"
 	cp = strings.TrimLeft(cp, "/")
 
-	resp, err := q.client.GetObject(cp, nil)
+	resp, err := c.client.GetObject(cp, nil)
 	if err != nil {
 		return
 	}

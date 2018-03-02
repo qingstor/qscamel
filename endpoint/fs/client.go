@@ -11,13 +11,13 @@ var (
 	t *model.Task
 )
 
-// Fs is the struct for POSIX file system endpoint.
-type Fs struct {
+// Client is the struct for POSIX file system endpoint.
+type Client struct {
 	Path string
 }
 
 // New will create a Fs.
-func New(ctx context.Context, et uint8) (f *Fs, err error) {
+func New(ctx context.Context, et uint8) (c *Client, err error) {
 	t, err = model.GetTask(ctx)
 	if err != nil {
 		return
@@ -28,10 +28,10 @@ func New(ctx context.Context, et uint8) (f *Fs, err error) {
 		e = t.Dst
 	}
 
-	f = &Fs{}
+	c = &Client{}
 
 	// Set prefix.
-	f.Path = e.Path
+	c.Path = e.Path
 
 	return
 }

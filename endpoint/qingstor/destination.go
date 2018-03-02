@@ -14,18 +14,18 @@ import (
 )
 
 // Fetchable implement destination.Fetchable
-func (q *QingStor) Fetchable() bool {
+func (c *Client) Fetchable() bool {
 	return true
 }
 
 // Writable implement destination.Writable
-func (q *QingStor) Writable() bool {
+func (c *Client) Writable() bool {
 	return true
 }
 
 // Write implement destination.Write
-func (q *QingStor) Write(ctx context.Context, p string, r io.ReadCloser) (err error) {
-	cp := path.Join(q.Prefix, p)
+func (c *Client) Write(ctx context.Context, p string, r io.ReadCloser) (err error) {
+	cp := path.Join(c.Path, p)
 	cp = strings.TrimLeft(cp, "/")
 	if cp == "" {
 		return
@@ -36,7 +36,7 @@ func (q *QingStor) Write(ctx context.Context, p string, r io.ReadCloser) (err er
 		logrus.Panic(err)
 	}
 
-	_, err = q.client.PutObject(cp, &service.PutObjectInput{
+	_, err = c.client.PutObject(cp, &service.PutObjectInput{
 		Body:          r,
 		ContentLength: convert.Int64(o.Size),
 	})
@@ -49,19 +49,19 @@ func (q *QingStor) Write(ctx context.Context, p string, r io.ReadCloser) (err er
 }
 
 // Fetch implement destination.Fetch
-func (q *QingStor) Fetch(ctx context.Context, p string) (err error) {
+func (c *Client) Fetch(ctx context.Context, p string) (err error) {
 	return
 }
 
 // Dir implement destination.Dir
-func (q *QingStor) Dir(ctx context.Context, p string) (err error) {
-	cp := path.Join(q.Prefix, p)
+func (c *Client) Dir(ctx context.Context, p string) (err error) {
+	cp := path.Join(c.Path, p)
 	cp = strings.TrimLeft(cp, "/")
 	if cp == "" {
 		return
 	}
 
-	_, err = q.client.PutObject(cp, &service.PutObjectInput{
+	_, err = c.client.PutObject(cp, &service.PutObjectInput{
 		ContentType: convert.String(DirectoryContentType),
 	})
 	if err != nil {

@@ -12,23 +12,18 @@ import (
 )
 
 // Reachable implement source.Reachable
-func (f *Fs) Reachable() bool {
+func (c *Client) Reachable() bool {
 	return false
 }
 
 // Readable implement source.Readable
-func (f *Fs) Readable() bool {
+func (c *Client) Readable() bool {
 	return true
 }
 
 // List implement source.List
-func (f *Fs) List(ctx context.Context, p string) (o []model.Object, err error) {
-	task, err := model.GetTask(ctx)
-	if err != nil {
-		logrus.Panic(err)
-	}
-
-	cp := path.Join(task.Src.Path, p)
+func (c *Client) List(ctx context.Context, p string) (o []model.Object, err error) {
+	cp := path.Join(c.Path, p)
 
 	fi, err := os.Open(cp)
 	if err != nil {
@@ -50,13 +45,8 @@ func (f *Fs) List(ctx context.Context, p string) (o []model.Object, err error) {
 }
 
 // Read implement source.Read
-func (f *Fs) Read(ctx context.Context, p string) (r io.ReadCloser, err error) {
-	task, err := model.GetTask(ctx)
-	if err != nil {
-		logrus.Panic(err)
-	}
-
-	cp := path.Join(task.Src.Path, p)
+func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error) {
+	cp := path.Join(c.Path, p)
 
 	r, err = os.Open(cp)
 	if err != nil {
