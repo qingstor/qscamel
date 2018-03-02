@@ -80,7 +80,7 @@ func (q *QingStor) List(ctx context.Context, p string) (o []model.Object, err er
 }
 
 // Read implement source.Read
-func (q *QingStor) Read(ctx context.Context, p string) (r io.Reader, err error) {
+func (q *QingStor) Read(ctx context.Context, p string) (r io.ReadCloser, err error) {
 	cp := path.Join(q.Prefix, p)
 	// Trim left "/" to prevent object start with "/"
 	cp = strings.TrimLeft(cp, "/")

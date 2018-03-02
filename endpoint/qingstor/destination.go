@@ -24,7 +24,7 @@ func (q *QingStor) Writable() bool {
 }
 
 // Write implement destination.Write
-func (q *QingStor) Write(ctx context.Context, p string, r io.Reader) (err error) {
+func (q *QingStor) Write(ctx context.Context, p string, r io.ReadCloser) (err error) {
 	cp := path.Join(q.Prefix, p)
 	cp = strings.TrimLeft(cp, "/")
 	if cp == "" {
