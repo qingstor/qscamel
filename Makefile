@@ -8,7 +8,6 @@ PKGS_TO_CHECK=$(shell go list ./... | grep -v "/vendor/")
 
 help:
 	@echo "Please use \`make <target>\` where <target> is one of"
-	@echo "  all        to check, build and test qscamel"
 	@echo "  check      to format, vet and lint "
 	@echo "  build      to create bin directory and build qscamel"
 	@echo "  install    to install qscamel to /usr/local/bin/qscamel"
@@ -17,8 +16,6 @@ help:
 	@echo "  clean      to clean build and test files"
 	@echo "  test       to run test"
 	@echo "  coverage   to test with coverage"
-
-all: check build test
 
 check: format vet lint
 
@@ -39,15 +36,15 @@ lint:
 	 if [[ -n $${lint} ]]; then echo "$${lint}"; exit 1; fi
 	@echo "ok"
 
-build:
+build: check
 	@echo "build qscamel"
 	@mkdir -p ./bin
 	@go build -o ./bin/qscamel .
 	@echo "ok"
 
 install: build
-	@echo "install qscamel to /usr/local/bin/qscamel"
-	@cp ./bin/qscamel /usr/local/bin/qscamel
+	@echo "install qscamel to GOPATH"
+	@cp ./bin/qscamel ${GOPATH}/bin/qscamel
 	@echo "ok"
 
 uninstall:
