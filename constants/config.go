@@ -20,4 +20,5 @@ const (
 	ConfigPath   = Path + "/qscamel.yaml"
 	DatabasePath = Path + "/qscamel.db"
 	LogPath      = Path + "/qscamel.log"
+	PIDPath      = Path + "/qscamel.pid"
 )

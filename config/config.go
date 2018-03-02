@@ -67,8 +67,17 @@ func (c *Config) LoadFromContent(content []byte) error {
 // Check will check whether the config is vaild.
 func (c *Config) Check() (err error) {
 	// Check thread number.
-	if c.ThreadNum == 0 {
-		c.ThreadNum = constants.DefaultThreadNum
+	if c.Concurrency == 0 {
+		c.Concurrency = constants.DefaultConcurrency
+	}
+
+	// Check pid file.
+	if c.PIDFile == "" {
+		c.PIDFile = constants.PIDPath
+	}
+	c.PIDFile, err = utils.Expand(c.PIDFile)
+	if err != nil {
+		return
 	}
 
 	// Check log file.
