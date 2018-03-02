@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/pengsrc/go-shared/convert"
-	"github.com/sirupsen/logrus"
 	"github.com/yunify/qingstor-sdk-go/service"
 
 	"github.com/yunify/qscamel/model"
@@ -25,16 +24,11 @@ func (q *QingStor) Readable() bool {
 
 // List implement source.List
 func (q *QingStor) List(ctx context.Context, p string) (o []model.Object, err error) {
-	t, err := model.GetTask(ctx)
-	if err != nil {
-		logrus.Panic(err)
-	}
-
 	o = []model.Object{}
 	om := make(map[string]struct{})
 
 	// Add "/" to list specific prefix.
-	cp := path.Join(t.Src.Path, p) + "/"
+	cp := path.Join(q.Prefix, p) + "/"
 	// Trim left "/" to prevent object start with "/"
 	cp = strings.TrimLeft(cp, "/")
 
@@ -87,12 +81,7 @@ func (q *QingStor) List(ctx context.Context, p string) (o []model.Object, err er
 
 // Read implement source.Read
 func (q *QingStor) Read(ctx context.Context, p string) (r io.Reader, err error) {
-	t, err := model.GetTask(ctx)
-	if err != nil {
-		logrus.Panic(err)
-	}
-
-	cp := path.Join(t.Src.Path, p)
+	cp := path.Join(q.Prefix, p)
 	// Trim left "/" to prevent object start with "/"
 	cp = strings.TrimLeft(cp, "/")
 

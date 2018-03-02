@@ -25,12 +25,7 @@ func (q *QingStor) Writable() bool {
 
 // Write implement destination.Write
 func (q *QingStor) Write(ctx context.Context, p string, r io.Reader) (err error) {
-	t, err := model.GetTask(ctx)
-	if err != nil {
-		logrus.Panic(err)
-	}
-
-	cp := path.Join(t.Dst.Path, p)
+	cp := path.Join(q.Prefix, p)
 	cp = strings.TrimLeft(cp, "/")
 	if cp == "" {
 		return
@@ -60,12 +55,7 @@ func (q *QingStor) Fetch(ctx context.Context, p string) (err error) {
 
 // Dir implement destination.Dir
 func (q *QingStor) Dir(ctx context.Context, p string) (err error) {
-	t, err := model.GetTask(ctx)
-	if err != nil {
-		logrus.Panic(err)
-	}
-
-	cp := path.Join(t.Dst.Path, p)
+	cp := path.Join(q.Prefix, p)
 	cp = strings.TrimLeft(cp, "/")
 	if cp == "" {
 		return
