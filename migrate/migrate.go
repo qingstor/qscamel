@@ -24,6 +24,7 @@ import (
 
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/endpoint"
+	"github.com/yunify/qscamel/endpoint/aliyun"
 	"github.com/yunify/qscamel/endpoint/fs"
 	"github.com/yunify/qscamel/endpoint/qingstor"
 	"github.com/yunify/qscamel/model"
@@ -57,6 +58,11 @@ func Execute(ctx context.Context) (err error) {
 		}
 	case constants.EndpointFs:
 		src, err = fs.New(ctx, constants.SourceEndpoint)
+		if err != nil {
+			return
+		}
+	case constants.EndpointAliyun:
+		src, err = aliyun.New(ctx, constants.SourceEndpoint)
 		if err != nil {
 			return
 		}

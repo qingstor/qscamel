@@ -127,7 +127,7 @@ func Copy(ctx context.Context) (err error) {
 		logrus.Infof("There are not finished objects, retried.")
 		return Copy(ctx)
 	}
-	// TODO: we should retry failed task.
+
 	logrus.Infof("Task %s has been finished.", t.Name)
 	return
 }
