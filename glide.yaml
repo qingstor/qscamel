@@ -1,31 +1,13 @@
 package: github.com/yunify/qscamel
 import:
-- package: github.com/aliyun/aliyun-oss-go-sdk
-  version: ^1.8.0
-  subpackages:
-  - oss
-- package: github.com/aws/aws-sdk-go
-  version: ^1.12.70
-  subpackages:
-  - aws
-  - aws/credentials
-  - aws/session
-  - service/s3
-- package: github.com/frostyplanet/logrus
-  version: ^0.10.0
-- package: github.com/qiniu/api.v6
-  version: ^6.0.9
-  subpackages:
-  - auth/digest
-  - conf
-  - rs
-  - rsf
+- package: github.com/vmihailenco/msgpack
+  version: ^3.2.0
 - package: github.com/spf13/cobra
   version: ^0.0.1
-- package: github.com/upyun/go-sdk
-  version: ^2.1.0
-  subpackages:
-  - upyun
+- package: github.com/sirupsen/logrus
+  version: ^1.0.4
+
+# SDK for QingStor.
 - package: github.com/yunify/qingstor-sdk-go
   version: ^2.2.9
   subpackages:
@@ -33,6 +15,33 @@ import:
   - request/errors
   - request/signer
   - service
+# SDK for aliyun OSS.
+- package: github.com/aliyun/aliyun-oss-go-sdk
+  version: ^1.8.0
+  subpackages:
+  - oss
+# SDK for AWS S3.
+- package: github.com/aws/aws-sdk-go
+  version: ^1.12.70
+  subpackages:
+  - aws
+  - aws/credentials
+  - aws/session
+  - service/s3
+# SDK for qiniu.
+- package: github.com/qiniu/api.v6
+  version: ^6.0.9
+  subpackages:
+  - auth/digest
+  - conf
+  - rs
+  - rsf
+# SDK for upyun.
+- package: github.com/upyun/go-sdk
+  version: ^2.1.0
+  subpackages:
+  - upyun
+
 testImport:
 - package: github.com/stretchr/testify
   version: ^1.2.0

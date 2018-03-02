@@ -1,46 +1,27 @@
-hash: dc8142dcbfd56765f1947464560136db08e8251cd10db78c19d88f3f8ef2d322
-updated: 2018-01-31T20:47:31.813884265+08:00
+hash: b73393acb936b8a431a277ae3d78b0050f74251a857e4d3643d26ea3367436fd
+updated: 2018-03-01T23:36:28.221963545+08:00
 imports:
 - name: github.com/aliyun/aliyun-oss-go-sdk
   version: 52de7239022ceba47354832fbcc65983aa8d019d
   subpackages:
   - oss
 - name: github.com/aws/aws-sdk-go
-  version: 1b176c5c6b57adb03bb982c21930e708ebca5a77
+  version: 9a79087b1148376f4dd860c188c948479e2def3b
   subpackages:
   - aws
-  - aws/awserr
-  - aws/awsutil
-  - aws/client
-  - aws/client/metadata
-  - aws/corehandlers
   - aws/credentials
-  - aws/credentials/ec2rolecreds
-  - aws/credentials/endpointcreds
-  - aws/credentials/stscreds
-  - aws/defaults
-  - aws/ec2metadata
-  - aws/endpoints
-  - aws/request
   - aws/session
-  - aws/signer/v4
-  - internal/shareddefaults
-  - private/protocol
-  - private/protocol/query
-  - private/protocol/query/queryutil
-  - private/protocol/rest
-  - private/protocol/restxml
-  - private/protocol/xml/xmlutil
   - service/s3
-  - service/sts
-- name: github.com/frostyplanet/logrus
-  version: 4b6ea7319e214d98c938f12692336f7ca9348d6b
-- name: github.com/go-ini/ini
-  version: d3de07a94d22b4a0972deb4b96d790c2c0ce8333
+- name: github.com/coreos/bbolt
+  version: 48ea1b39c25fc1bab3506fbc712ecbaa842c4d2d
+- name: github.com/dgraph-io/badger
+  version: 69611218c7078be6de16f4ea13fb256e701b6b73
+- name: github.com/golang/protobuf
+  version: 130e6b02ab059e7b717a096f397c5b60111cae74
+  subpackages:
+  - proto
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
-- name: github.com/jmespath/go-jmespath
-  version: bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d
 - name: github.com/pengsrc/go-shared
   version: b98065a377794d577e2a0e32869378b9ce4b8952
   subpackages:
@@ -48,22 +29,17 @@ imports:
   - check
   - convert
   - log
+  - pid
   - reopen
 - name: github.com/qiniu/api.v6
   version: 68a2bc2dbc7f4f1ba0fe5573a69cf003f3f32a54
   subpackages:
   - auth/digest
   - conf
-  - io
   - rs
   - rsf
-  - url
-- name: github.com/qiniu/bytes
-  version: 4887e7b2bde38e8f2a8cb7a092d6e197dbcda741
-  subpackages:
-  - seekable
-- name: github.com/qiniu/rpc
-  version: 30c22466d920a7dc0e1f79d048f44af85ac04ee6
+- name: github.com/sirupsen/logrus
+  version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
 - name: github.com/spf13/cobra
   version: 7b2c5ac9fc04fc5efafb60700713d4fa609b777b
 - name: github.com/spf13/pflag
@@ -72,6 +48,10 @@ imports:
   version: a71208d1155d6de85b8e80b480634957695db963
   subpackages:
   - upyun
+- name: github.com/vmihailenco/msgpack
+  version: b83fb55e0632418103602b3b23851cabc5d11762
+  subpackages:
+  - codes
 - name: github.com/yunify/qingstor-sdk-go
   version: 51fa3b6bb3c24f4d646eefff251cd2e6ba716600
   subpackages:
@@ -85,23 +65,34 @@ imports:
   - request/unpacker
   - service
   - utils
+- name: golang.org/x/crypto
+  version: bd6f299fb381e4c3393d1c4b1f0b94f5e77650c8
+  subpackages:
+  - ssh/terminal
+- name: golang.org/x/net
+  version: cd69bc3fc700721b709c3a59e16e24c67b58f6ff
+  subpackages:
+  - context
 - name: golang.org/x/sys
   version: f3918c30c5c2cb527c0b071a27c35120a6c0719a
   subpackages:
   - unix
+  - windows
+- name: google.golang.org/appengine
+  version: a2e0dc829727a4f957a7428b1f322805cfc1f362
+  subpackages:
+  - datastore
+  - internal
+  - internal/app_identity
+  - internal/base
+  - internal/datastore
+  - internal/log
+  - internal/modules
+  - internal/remote_api
 - name: gopkg.in/yaml.v2
-  version: 287cf08546ab5e7e37d55a84f7ed3fd1db036de5
-  repo: https://github.com/go-yaml/yaml.git
+  version: d670f9405373e636a5a2765eea47fac0c9bc91a4
 testImports:
-- name: github.com/davecgh/go-spew
-  version: 346938d642f2ec3594ed81d874461961cd0faa76
-  subpackages:
-  - spew
-- name: github.com/pmezard/go-difflib
-  version: 792786c7400a136282c1664665ae0a8db921c6c2
-  subpackages:
-  - difflib
 - name: github.com/stretchr/testify
-  version: b91bfb9ebec76498946beb6af7c0230c7cc7ba6c
+  version: 12b6f73e6084dad08a7c6e575284b177ecafbc71
   subpackages:
   - assert
