@@ -3,13 +3,13 @@ package model
 import (
 	"context"
 	"io/ioutil"
+	"bytes"
+	"crypto/sha256"
 
 	"github.com/sirupsen/logrus"
 	"github.com/vmihailenco/msgpack"
 	"gopkg.in/yaml.v2"
 
-	"bytes"
-	"crypto/sha256"
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/contexts"
 	"github.com/yunify/qscamel/utils"
@@ -31,8 +31,9 @@ type Task struct {
 	Status string `yaml:"-" msgpack:"s"`
 }
 
-// LoadTask will try to load task from database first.
+// LoadTask will try to load task from database and file.
 func LoadTask(s string) (t *Task, err error) {
+	// Load from database first.
 	t, err = GetTaskByName(nil, s)
 	if err != nil {
 		return
@@ -41,7 +42,26 @@ func LoadTask(s string) (t *Task, err error) {
 		return
 	}
 
-	return LoadTaskFromFilePath(s)
+	// Load from file
+	task, err := LoadTaskFromFilePath(s)
+	if err != nil {
+		return
+	}
+	t, err = GetTaskByName(nil, task.Name)
+	if err != nil {
+		return
+	}
+	if t == nil {
+		// If task not in database, set task status to
+		// running and save it.
+		task.Status = constants.TaskStatusRunning
+		err = task.Save(nil)
+		if err != nil {
+			return
+		}
+		return task, err
+	}
+	return
 }
 
 // LoadTaskFromFilePath will load config from specific file path.
