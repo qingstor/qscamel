@@ -1,10 +1,10 @@
 package model
 
 import (
-	"context"
-	"io/ioutil"
 	"bytes"
+	"context"
 	"crypto/sha256"
+	"io/ioutil"
 
 	"github.com/sirupsen/logrus"
 	"github.com/vmihailenco/msgpack"
