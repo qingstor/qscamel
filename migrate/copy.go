@@ -136,6 +136,8 @@ func copyWorker(ctx context.Context, c chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	for p := range c {
+		logrus.Infof("Start copying object %s.", p)
+
 		r, err := src.Read(ctx, p)
 		if err != nil {
 			logrus.Errorf("Src read %s failed for %v.", p, err)
