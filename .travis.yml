@@ -1,8 +1,8 @@
 language: go
 go:
-  - 1.9
-  - 1.8
-  - 1.7
+  - "1.9"
+  - "1.10"
+  - master
 
 cache:
   directories:
@@ -25,10 +25,10 @@ before_install:
     - popd
     - make --version
     - glide --version
-    - mkdir ${HOME}/.qingstor
+    - mkdir ${HOME}/.qscamel
 
 install:
-  - go get -u github.com/golang/lint/golint
+  - go get -u golang.org/x/lint/golint
   - glide install
 
 script:
