@@ -4,6 +4,7 @@ package constants
 const (
 	EndpointQingStor = "qingstor"
 	EndpointFs       = "fs"
+	EndpointAliyun   = "aliyun"
 )
 
 // Constants for endpoint type.
