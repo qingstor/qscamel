@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"path"
+	"strings"
 
 	"github.com/pengsrc/go-shared/convert"
 	"github.com/sirupsen/logrus"
@@ -30,6 +31,10 @@ func (q *QingStor) Write(ctx context.Context, p string, r io.Reader) (err error)
 	}
 
 	cp := path.Join(t.Dst.Path, p)
+	cp = strings.TrimLeft(cp, "/")
+	if cp == "" {
+		return
+	}
 
 	o, err := model.GetObject(ctx, p)
 	if err != nil {
@@ -61,6 +66,10 @@ func (q *QingStor) Dir(ctx context.Context, p string) (err error) {
 	}
 
 	cp := path.Join(t.Dst.Path, p)
+	cp = strings.TrimLeft(cp, "/")
+	if cp == "" {
+		return
+	}
 
 	_, err = q.client.PutObject(cp, &service.PutObjectInput{
 		ContentType: convert.String(DirectoryContentType),
