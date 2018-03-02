@@ -9,8 +9,8 @@ import (
 )
 
 // GetZone determines the zone of bucket.
-func (q QingStor) GetZone() (zone string, err error) {
-	url := fmt.Sprintf("%s://%s.%s:%s", q.Protocol, q.BucketName, q.Host, q.Port)
+func (c *Client) GetZone() (zone string, err error) {
+	url := fmt.Sprintf("%s://%s.%s:%s", c.Protocol, c.BucketName, c.Host, c.Port)
 
 	r, err := http.Head(url)
 	if err != nil {
