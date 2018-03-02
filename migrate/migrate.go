@@ -17,150 +17,72 @@
 package migrate
 
 import (
-	"fmt"
-	"net/http"
-	"time"
+	"context"
+	"errors"
 
-	log "github.com/frostyplanet/logrus"
+	"github.com/sirupsen/logrus"
 
-	"github.com/yunify/qingstor-sdk-go/request/errors"
-	"github.com/yunify/qingstor-sdk-go/service"
-	"github.com/yunify/qscamel/utils"
+	"github.com/yunify/qscamel/constants"
+	"github.com/yunify/qscamel/endpoint"
+	"github.com/yunify/qscamel/endpoint/fs"
+	"github.com/yunify/qscamel/endpoint/qingstor"
+	"github.com/yunify/qscamel/model"
 )
 
-type fetchResult struct {
-	Completed bool
-	Source    string
-}
+var (
+	t *model.Task
 
-func checkIgnoreCondition(context *Context, bucket *service.Bucket, objectName string,
-	sourceSite string, failed, skipped *[]string) (ignore bool) {
-	if context.IgnoreExisting || context.IgnoreUnmodified {
-		objectInfo, err := bucket.HeadObject(
-			objectName, &service.HeadObjectInput{},
-		)
-		if err != nil {
-			// If object doesn't exist, still fetch
-			qsErr, ok := err.(*errors.QingStorError)
-			if !ok || qsErr.StatusCode != http.StatusNotFound {
-				context.Logger.Errorf(
-					"Error occurs when heading object %s. %s",
-					objectName, err.Error(),
-				)
-				*failed = append(*failed, sourceSite)
-				ignore = true
-			}
-		} else {
-			if context.IgnoreExisting {
-				// Skip existing object.
-				context.Logger.Infof("Skip existing object: %s", objectName)
-				*skipped = append(*skipped, sourceSite)
-				ignore = true
-			} else {
-				// IgnoreUnmodified is true, check whether object is the latest.
-				sourceLastModified, err := context.Source.GetSourceSiteInfo(sourceSite)
-				if err != nil {
-					context.Logger.Warnf(
-						"Can't get last modified time of source site %s. %v",
-						sourceSite, err,
-					)
-				}
-				if objectInfo.LastModified.Local().After(sourceLastModified.Local()) {
-					context.Logger.Infof("Skip the latest object: %s", objectName)
-					*skipped = append(*skipped, sourceSite)
-					ignore = true
-				}
-			}
-		}
-	}
-	return
-}
+	src endpoint.Source
+	dst endpoint.Destination
+)
 
-// Migrate reads source list, executes migration and waits for all migrations done.
-// It returns three string slice for completed, failed and skipped situation.
-func Migrate(context *Context) ([]string, []string, []string, error) {
-	completed, failed, skipped := []string{}, []string{}, []string{}
-
-	service, _ := service.Init(context.QSConfig)
-	zone, err := utils.DetermineBucketZone(service, context.QSBucketName)
+// Execute will execute migrate task.
+func Execute(ctx context.Context) (err error) {
+	t, err = model.GetTask(ctx)
 	if err != nil {
-		return completed, failed, skipped, err
+		return
 	}
-	bucket, _ := service.Bucket(context.QSBucketName, zone)
-	for {
-		sourceSites, objectNames, skippedSourceFiles, endOfSource, err :=
-			context.Source.GetSourceSites(context.ThreadNum, context.Logger, context.Recorder)
+
+	if t.Status == constants.TaskStatusFinished {
+		logrus.Infof("Task %s has been finished, skip.", t.Name)
+		return
+	}
+
+	// Initialize source.
+	switch t.Src.Type {
+	case constants.EndpointQingStor:
+		src, err = qingstor.New(ctx, constants.SourceEndpoint)
 		if err != nil {
-			return completed, failed, skipped, err
+			return
 		}
-		skipped = append(skipped, skippedSourceFiles...)
-		var resultChan chan fetchResult
-		if len(sourceSites) != 0 {
-			resultChan = make(chan fetchResult, len(sourceSites))
+	case constants.EndpointFs:
+		src, err = fs.New(ctx, constants.SourceEndpoint)
+		if err != nil {
+			return
 		}
-
-		fetchNum := 0
-		for i, sourceSite := range sourceSites {
-			objectName := objectNames[i]
-			// If not overwrite, check whether skipping existing or unmodified objects.
-			if !context.Overwrite && checkIgnoreCondition(
-				context, bucket, objectName, sourceSite, &failed, &skipped) {
-				continue
-			}
-			if context.DryRun {
-				completed = append(completed, sourceSite)
-				continue
-			}
-			fetchNum++
-			go fetchObject(
-				objectName, sourceSite, bucket, resultChan,
-				context.Logger,
-			)
-		}
-
-		// Wait for completion of this batch
-		progressBarTimer := time.NewTimer(time.Second * 2)
-		for i := 0; i < fetchNum; {
-			select {
-			case <-progressBarTimer.C:
-				progressBarTimer.Reset(time.Second * 2)
-				fmt.Print(">>")
-			case result := <-resultChan:
-				if result.Completed {
-					completed = append(completed, result.Source)
-					context.Recorder.Put(result.Source)
-
-				} else {
-					failed = append(failed, result.Source)
-				}
-				i++
-				fmt.Printf("\n[ %d/%d of the download tasks in current batch is finished. ]\n", i, fetchNum)
-			}
-		}
-		if endOfSource {
-			break
-		}
-		fmt.Println("[ New batch of fiels begin to download. ]")
+	default:
+		logrus.Errorf("Type %s is not supported.", t.Src.Type)
+		err = errors.New("type is not supported")
+		return
 	}
-	fmt.Println("[ All download taskes are finished. ]")
-	context.Recorder.Clear()
-	return completed, failed, skipped, nil
-}
 
-func fetchObject(objectName string, sourceSite string, bucket *service.Bucket,
-	resultChan chan fetchResult, logger *log.Logger) {
-	_, err := bucket.PutObject(
-		objectName,
-		&service.PutObjectInput{XQSFetchSource: &sourceSite},
-	)
-	if err != nil {
-		logger.Warnf(
-			"Can't fetch object %s. %s",
-			objectName,
-			err.Error(),
-		)
-		resultChan <- fetchResult{false, sourceSite}
-	} else {
-		resultChan <- fetchResult{true, sourceSite}
+	// Initialize destination.
+	switch t.Dst.Type {
+	case constants.EndpointQingStor:
+		dst, err = qingstor.New(ctx, constants.DestinationEndpoint)
+		if err != nil {
+			return
+		}
+	case constants.EndpointFs:
+		dst, err = fs.New(ctx, constants.DestinationEndpoint)
+		if err != nil {
+			return
+		}
+	default:
+		logrus.Errorf("Type %s is not supported.", t.Src.Type)
+		err = errors.New("type is not supported")
+		return
 	}
+
+	return Run(ctx)
 }
