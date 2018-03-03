@@ -15,7 +15,7 @@ import (
 	"github.com/yunify/qscamel/model"
 )
 
-// Client is the client to visit S3 service.
+// Client is the client to visit service.
 type Client struct {
 	BucketName      string `yaml:"bucket_name"`
 	Endpoint        string `yaml:"endpoint"`
