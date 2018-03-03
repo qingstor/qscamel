@@ -26,7 +26,11 @@ import (
 	"github.com/yunify/qscamel/endpoint"
 	"github.com/yunify/qscamel/endpoint/aliyun"
 	"github.com/yunify/qscamel/endpoint/fs"
+	"github.com/yunify/qscamel/endpoint/gcs"
 	"github.com/yunify/qscamel/endpoint/qingstor"
+	"github.com/yunify/qscamel/endpoint/qiniu"
+	"github.com/yunify/qscamel/endpoint/s3"
+	"github.com/yunify/qscamel/endpoint/upyun"
 	"github.com/yunify/qscamel/model"
 )
 
@@ -51,8 +55,8 @@ func Execute(ctx context.Context) (err error) {
 
 	// Initialize source.
 	switch t.Src.Type {
-	case constants.EndpointQingStor:
-		src, err = qingstor.New(ctx, constants.SourceEndpoint)
+	case constants.EndpointAliyun:
+		src, err = aliyun.New(ctx, constants.SourceEndpoint)
 		if err != nil {
 			return
 		}
@@ -61,8 +65,28 @@ func Execute(ctx context.Context) (err error) {
 		if err != nil {
 			return
 		}
-	case constants.EndpointAliyun:
-		src, err = aliyun.New(ctx, constants.SourceEndpoint)
+	case constants.EndpointGCS:
+		src, err = gcs.New(ctx, constants.SourceEndpoint)
+		if err != nil {
+			return
+		}
+	case constants.EndpointQingStor:
+		src, err = qingstor.New(ctx, constants.SourceEndpoint)
+		if err != nil {
+			return
+		}
+	case constants.EndpointQiniu:
+		src, err = qiniu.New(ctx, constants.SourceEndpoint)
+		if err != nil {
+			return
+		}
+	case constants.EndpointS3:
+		src, err = s3.New(ctx, constants.SourceEndpoint)
+		if err != nil {
+			return
+		}
+	case constants.EndpointUpyun:
+		src, err = upyun.New(ctx, constants.SourceEndpoint)
 		if err != nil {
 			return
 		}
