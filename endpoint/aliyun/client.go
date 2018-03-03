@@ -6,6 +6,7 @@ import (
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v2"
 
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
@@ -17,10 +18,10 @@ var (
 
 // Client is the client to visit aliyun oss service.
 type Client struct {
-	Endpoint        string
-	BucketName      string
-	AccessKeyID     string
-	AccessKeySecret string
+	Endpoint        string `yaml:"endpoint"`
+	BucketName      string `yaml:"bucket_name"`
+	AccessKeyID     string `yaml:"access_key_id"`
+	AccessKeySecret string `yaml:"access_key_secret"`
 
 	Path string
 
@@ -41,8 +42,16 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 		e = t.Dst
 	}
 
+	content, err := yaml.Marshal(e.Options)
+	if err != nil {
+		return
+	}
+	err = yaml.Unmarshal(content, c)
+	if err != nil {
+		return
+	}
+
 	// Set endpoint
-	c.Endpoint = e.Options["endpoint"]
 	if c.Endpoint == "" {
 		logrus.Error("Aliyun OSS's endpoint can't be empty.")
 		err = errors.New("aliyun oss endpoint is empty")
@@ -50,7 +59,6 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	}
 
 	// Set bucket name.
-	c.BucketName = e.Options["bucket_name"]
 	if c.BucketName == "" {
 		logrus.Error("Aliyun OSS's bucket name can't be empty.")
 		err = errors.New("aliyun oss bucket name is empty")
@@ -58,7 +66,6 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	}
 
 	// Set access key.
-	c.AccessKeyID = e.Options["access_key_id"]
 	if c.AccessKeyID == "" {
 		logrus.Error("Aliyun OSS's access key id can't be empty.")
 		err = errors.New("aliyun oss access key is empty")
@@ -66,7 +73,6 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	}
 
 	// Set secret key.
-	c.AccessKeySecret = e.Options["access_key_secret"]
 	if c.AccessKeySecret == "" {
 		logrus.Error("Aliyun OSS's access key secret can't be empty.")
 		err = errors.New("aliyun oss access key secret is empty")
