@@ -14,7 +14,12 @@ qscamel is a command line tool to migrate data between different endpoint effici
 - Mutiple endpoint support
 
   - POSIX File System _(local fs, nfs, s3fs and so on)_
-  - QingStor
+  - [QingStor](https://www.qingcloud.com/products/qingstor)
+  - [Aliyun OSS](https://www.aliyun.com/product/oss)
+  - [Google Cloud Storage](https://cloud.google.com/storage/)
+  - [Qiniu](https://www.qiniu.com/)
+  - [AWS S3](https://amazonaws-china.com/cn/s3)
+  - [Upyun](https://www.upyun.com/)
 
 ## Quick start
 
@@ -97,6 +102,7 @@ type: copy
 # source is the source endpoint for current task.
 source:
   # type is the type for endpoint.
+  # Available value: aliyun, fs, gcs, qingstor, qiniu, s3, upyun.
   type: fs
   # path is the path for endpoint.
   path: "/home/xuanwo/Downloads/Telegram Desktop"
@@ -104,6 +110,7 @@ source:
 # destination is the destination endpoint for current task.
 destination:
   # type is the type for endpoint.
+  # Available value: fs, qingstor.
   type: qingstor
   # path is the path for endpoint.
   path: /aaa
@@ -119,11 +126,43 @@ ignore_existing: false
 ignore_unmodified: false
 ```
 
+### Endpoint aliyun
+
+Can be used as **source** endpoint.
+
+Aliyun is the object storage service provided by [Alibaba](https://www.aliyun.com/product/oss).
+
+aliyun endpoint has following options:
+
+```yaml
+endpoint: example_endpoint
+bucket_name: example_bucket
+access_key_id: example_access_key_id
+access_key_secret: example_access_key_secret
+```
+
 ### Endpoint fs
+
+Can be used as **source** and **destination** endpoint.
 
 There is no more config for fs endpoint.
 
+### Endpoint gcs
+
+Can be used as **source** endpoint.
+
+GCS(Google Cloud Storage) is the object storage service provided by [Google](https://cloud.google.com/storage/).
+
+gcs endpoint has following options:
+
+```yaml
+api_key: example_api_key
+bucket_name: exmaple_bukcet
+```
+
 ### Endpoint qingstor
+
+Can be used as **source** and **destination** endpoint.
 
 qingstor endpoint has following options:
 
@@ -144,6 +183,55 @@ bucket_name: example_bucket
 access_key_id: example_access_key_id
 # secret_access_key is the secret_access_key for qingstor.
 secret_access_key: example_secret_access_key
+```
+
+### Endpoint qiniu
+
+Can be used as **source** endpoint.
+
+Qiniu is the object storage service provided by [Qiniu](https://www.qiniu.com/).
+
+qiniu endpoint has following options:
+
+```yaml
+bucket_name: example_bucket
+access_key: example_access_key
+secret_key: example_secret_key
+domain: example_domain
+use_https: false
+use_cdn_domains: false
+```
+
+### Endpoint s3
+
+Can be used as **source** endpoint.
+
+S3 is the object storage service provided by [AWS](https://amazonaws-china.com/cn/s3).
+
+s3 endpoint has following options.
+
+```yaml
+bucket_name: example_bucket
+endpoint: example_endpoint
+region: example_region
+access_key_id: example_access_key_id
+secret_access_key: example_secret_access_key
+disable_ssl: false
+use_accelerate: false
+```
+
+### Endpoint upyun
+
+Can be used as **source** endpoint.
+
+upyun is the object storage service provided by [Upyun](https://www.upyun.com/).
+
+upyun endpoint has following options.
+
+```yaml
+bucket_name: example_bucket
+operator: example_operator
+password: example_password
 ```
 
 ## Usage
@@ -170,10 +258,7 @@ or
 qscamel run task-name
 ```
 
-> When a new task created, we will calculate the sha256 checksum for it's content and save it
-> to the database, and we will check if the content of the task file has been changed, if changed,
-> qscamel will return an error. In other word, task can't be changed after created. If your need
-> to update the task, please create a new one.
+> When a new task created, we will calculate the sha256 checksum for it's content and save it to the database, and we will check if the content of the task file has been changed, if changed, qscamel will return an error. In other word, task can't be changed after created. If your need to update the task, please create a new one.
 
 ### Delete
 
