@@ -14,10 +14,6 @@ import (
 	"github.com/yunify/qscamel/model"
 )
 
-var (
-	t *model.Task
-)
-
 // Client is the client to visit aliyun oss service.
 type Client struct {
 	BucketName    string `yaml:"bucket_name"`
@@ -36,7 +32,7 @@ type Client struct {
 
 // New will create a new client.
 func New(ctx context.Context, et uint8) (c *Client, err error) {
-	t, err = model.GetTask(ctx)
+	t, err := model.GetTask(ctx)
 	if err != nil {
 		return
 	}
