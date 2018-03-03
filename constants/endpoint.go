@@ -2,9 +2,13 @@ package constants
 
 // Endpoint the const for all supported endpoint.
 const (
-	EndpointQingStor = "qingstor"
-	EndpointFs       = "fs"
 	EndpointAliyun   = "aliyun"
+	EndpointFs       = "fs"
+	EndpointGCS      = "gcs"
+	EndpointQingStor = "qingstor"
+	EndpointQiniu    = "qiniu"
+	EndpointS3       = "s3"
+	EndpointUpyun    = "upyun"
 )
 
 // Constants for endpoint type.
