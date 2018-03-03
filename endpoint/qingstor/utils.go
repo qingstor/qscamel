@@ -10,7 +10,7 @@ import (
 
 // GetZone determines the zone of bucket.
 func (c *Client) GetZone() (zone string, err error) {
-	url := fmt.Sprintf("%s://%s.%s:%s", c.Protocol, c.BucketName, c.Host, c.Port)
+	url := fmt.Sprintf("%s://%s.%s:%d", c.Protocol, c.BucketName, c.Host, c.Port)
 
 	r, err := http.Head(url)
 	if err != nil {
