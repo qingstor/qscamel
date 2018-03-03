@@ -1,6 +1,15 @@
-hash: 9737258b7175b63e769028a99bbdba67a7197249c712e1cfdf01e1c28cf7f421
-updated: 2018-03-02T22:21:02.962871152+08:00
+hash: 4d937b8305e7079048dd2419def78418f69cfe5e350fcc6aa3fbb66de625846e
+updated: 2018-03-03T15:45:30.818344607+08:00
 imports:
+- name: cloud.google.com/go
+  version: 20d4028b8a750c2aca76bf9fefa8ed2d0109b573
+  subpackages:
+  - compute/metadata
+  - iam
+  - internal
+  - internal/optional
+  - internal/version
+  - storage
 - name: github.com/aliyun/aliyun-oss-go-sdk
   version: 52de7239022ceba47354832fbcc65983aa8d019d
   subpackages:
@@ -9,17 +18,50 @@ imports:
   version: aace5875a5c3b85a3902c6d72b9caed301d64cce
   subpackages:
   - aws
+  - aws/awserr
+  - aws/awsutil
+  - aws/client
+  - aws/client/metadata
+  - aws/corehandlers
   - aws/credentials
+  - aws/credentials/ec2rolecreds
+  - aws/credentials/endpointcreds
+  - aws/credentials/stscreds
+  - aws/defaults
+  - aws/ec2metadata
+  - aws/endpoints
+  - aws/request
   - aws/session
+  - aws/signer/v4
+  - internal/sdkrand
+  - internal/shareddefaults
+  - private/protocol
+  - private/protocol/query
+  - private/protocol/query/queryutil
+  - private/protocol/rest
+  - private/protocol/restxml
+  - private/protocol/xml/xmlutil
   - service/s3
+  - service/sts
 - name: github.com/coreos/bbolt
   version: 48ea1b39c25fc1bab3506fbc712ecbaa842c4d2d
+- name: github.com/go-ini/ini
+  version: d3de07a94d22b4a0972deb4b96d790c2c0ce8333
 - name: github.com/golang/protobuf
   version: 130e6b02ab059e7b717a096f397c5b60111cae74
   subpackages:
   - proto
+  - protoc-gen-go/descriptor
+  - ptypes
+  - ptypes/any
+  - ptypes/duration
+  - ptypes/timestamp
+- name: github.com/googleapis/gax-go
+  version: 317e0006254c44a0ac427cc52a0e083ff0b9622f
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
+- name: github.com/jmespath/go-jmespath
+  version: bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d
 - name: github.com/pengsrc/go-shared
   version: b98065a377794d577e2a0e32869378b9ce4b8952
   subpackages:
@@ -29,13 +71,20 @@ imports:
   - log
   - pid
   - reopen
-- name: github.com/qiniu/api.v6
-  version: 68a2bc2dbc7f4f1ba0fe5573a69cf003f3f32a54
+- name: github.com/qiniu/api.v7
+  version: 0c661d0ca96771709f67b3d9eac10f27033b1f2a
   subpackages:
-  - auth/digest
+  - auth/qbox
   - conf
-  - rs
-  - rsf
+  - storage
+- name: github.com/qiniu/x
+  version: f512abcf45ab4e2ba0fd4784c57b53d495997d66
+  subpackages:
+  - bytes.v7
+  - bytes.v7/seekable
+  - ctype.v7
+  - rpc.v7
+  - xlog.v7
 - name: github.com/sirupsen/logrus
   version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
 - name: github.com/spf13/cobra
@@ -71,11 +120,44 @@ imports:
   version: cd69bc3fc700721b709c3a59e16e24c67b58f6ff
   subpackages:
   - context
+  - context/ctxhttp
+  - http2
+  - http2/hpack
+  - idna
+  - internal/timeseries
+  - lex/httplex
+  - trace
+- name: golang.org/x/oauth2
+  version: 2f32c3ac0fa4fb807a0fcefb0b6f2468a0d99bd0
+  subpackages:
+  - google
+  - internal
+  - jws
+  - jwt
 - name: golang.org/x/sys
   version: dd2ff4accc098aceecb86b36eaa7829b2a17b1c9
   subpackages:
   - unix
   - windows
+- name: golang.org/x/text
+  version: b7ef84aaf62aa3e70962625c80a571ae7c17cb40
+  subpackages:
+  - secure/bidirule
+  - transform
+  - unicode/bidi
+  - unicode/norm
+- name: google.golang.org/api
+  version: 3caa384156365e545aea85c3dca8c95bc666a94d
+  subpackages:
+  - gensupport
+  - googleapi
+  - googleapi/internal/uritemplates
+  - googleapi/transport
+  - internal
+  - iterator
+  - option
+  - storage/v1
+  - transport/http
 - name: google.golang.org/appengine
   version: a2e0dc829727a4f957a7428b1f322805cfc1f362
   subpackages:
@@ -87,8 +169,47 @@ imports:
   - internal/log
   - internal/modules
   - internal/remote_api
+  - internal/urlfetch
+  - urlfetch
+- name: google.golang.org/genproto
+  version: f676e0f3ac6395ff1a529ae59a6670878a8371a6
+  subpackages:
+  - googleapis/api/annotations
+  - googleapis/iam/v1
+  - googleapis/rpc/status
+- name: google.golang.org/grpc
+  version: 7c5299d71e2b8d403195f6071eecea690bf5622a
+  subpackages:
+  - balancer
+  - balancer/base
+  - balancer/roundrobin
+  - codes
+  - connectivity
+  - credentials
+  - encoding
+  - encoding/proto
+  - grpclb/grpc_lb_v1/messages
+  - grpclog
+  - internal
+  - keepalive
+  - metadata
+  - naming
+  - peer
+  - resolver
+  - resolver/dns
+  - resolver/passthrough
+  - stats
+  - status
+  - tap
+  - transport
 - name: gopkg.in/yaml.v2
   version: d670f9405373e636a5a2765eea47fac0c9bc91a4
+- name: qiniupkg.com/x
+  version: f512abcf45ab4e2ba0fd4784c57b53d495997d66
+  subpackages:
+  - bytes.v7
+  - log.v7
+  - reqid.v7
 testImports:
 - name: github.com/stretchr/testify
   version: 12b6f73e6084dad08a7c6e575284b177ecafbc71
