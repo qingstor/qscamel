@@ -43,7 +43,7 @@ func (c *Client) List(ctx context.Context, p string) (o []model.Object, err erro
 			StartAfter: aws.String(marker),
 		})
 		if err != nil {
-			return
+			return nil, err
 		}
 		for _, v := range resp.Contents {
 			object := model.Object{

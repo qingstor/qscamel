@@ -41,7 +41,7 @@ func (c *Client) List(ctx context.Context, p string) (o []model.Object, err erro
 			break
 		}
 		if err != nil {
-			return
+			return nil, err
 		}
 		if next.Prefix != "" {
 			object := model.Object{
