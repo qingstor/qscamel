@@ -12,10 +12,6 @@ import (
 	"github.com/yunify/qscamel/model"
 )
 
-var (
-	t *model.Task
-)
-
 // Client is the client to visit aliyun oss service.
 type Client struct {
 	Endpoint        string `yaml:"endpoint"`
@@ -30,7 +26,7 @@ type Client struct {
 
 // New will create a client.
 func New(ctx context.Context, et uint8) (c *Client, err error) {
-	t, err = model.GetTask(ctx)
+	t, err := model.GetTask(ctx)
 	if err != nil {
 		return
 	}
