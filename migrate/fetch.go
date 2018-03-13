@@ -61,16 +61,16 @@ func fetchWorker(ctx context.Context, c chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	for p := range c {
-		logrus.Infof("Start copying object %s.", p)
+		logrus.Infof("Start fetching object %s.", p)
 
 		url, err := src.Reach(ctx, p)
 		if err != nil {
-			logrus.Errorf("Src read %s failed for %v.", p, err)
+			logrus.Errorf("Src reach %s failed for %v.", p, err)
 			continue
 		}
 		err = dst.Fetch(ctx, p, url)
 		if err != nil {
-			logrus.Errorf("Dst write %s failed for %v.", p, err)
+			logrus.Errorf("Dst fetch %s failed for %v.", p, err)
 			continue
 		}
 		err = model.DeleteObject(ctx, p)
