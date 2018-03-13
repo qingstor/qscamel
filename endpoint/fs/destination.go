@@ -39,7 +39,7 @@ func (c *Client) Write(ctx context.Context, p string, r io.ReadCloser) (err erro
 }
 
 // Fetch implement destination.Fetch
-func (c *Client) Fetch(ctx context.Context, p string) (err error) {
+func (c *Client) Fetch(ctx context.Context, p, url string) (err error) {
 	return
 }
 
