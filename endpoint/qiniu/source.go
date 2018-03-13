@@ -82,3 +82,14 @@ func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error
 	r = resp.Body
 	return
 }
+
+// Reach implement source.Fetch
+func (c *Client) Reach(ctx context.Context, p string) (url string, err error) {
+	cp := path.Join(c.Path, p)
+	// Trim left "/" to prevent object start with "/"
+	cp = strings.TrimLeft(cp, "/")
+
+	deadline := time.Now().Add(time.Hour).Unix()
+	url = storage.MakePrivateURL(c.mac, c.Domain, cp, deadline)
+	return
+}
