@@ -91,3 +91,8 @@ func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error
 	r = resp.Body
 	return
 }
+
+// Reach implement source.Fetch
+func (c *Client) Reach(ctx context.Context, p string) (url string, err error) {
+	return
+}
