@@ -2,10 +2,12 @@ package migrate
 
 import (
 	"context"
+	"path"
 
 	"github.com/sirupsen/logrus"
 
 	"github.com/yunify/qscamel/constants"
+	"github.com/yunify/qscamel/model"
 )
 
 // Run will execute task run.
@@ -27,6 +29,10 @@ func Run(ctx context.Context) (err error) {
 				t.Src.Type, t.Dst.Type)
 			return
 		}
+		err = Fetch(ctx)
+		if err != nil {
+			return
+		}
 		return
 	case constants.TaskTypeVerify:
 		return
@@ -40,6 +46,89 @@ func Run(ctx context.Context) (err error) {
 	err = t.Save(ctx)
 	if err != nil {
 		logrus.Print(err)
+	}
+
+	return
+}
+
+// List will list objects and send to channel.
+func List(ctx context.Context, c chan string) (err error) {
+	// Get current sequence.
+	seq, err := model.GetSequence(ctx)
+	if err != nil {
+		logrus.Panic(err)
+	}
+
+	// Insert the first node is seq == 0.
+	if seq == 0 {
+		_, err = model.CreateJob(ctx, "/")
+		if err != nil {
+			logrus.Panic(err)
+		}
+		seq++
+	}
+
+	// Traverse already running but not finished job.
+	err = model.ListObject(ctx, func(o *model.Object) {
+		c <- o.Key
+	})
+	if err != nil {
+		logrus.Panic(err)
+	}
+
+	// Get current job IDs.
+	cur, err := model.GetCurrentJobID(ctx)
+	if err != nil {
+		logrus.Panic(err)
+	}
+	for {
+		if seq == cur {
+			break
+		}
+
+		j, err := model.GetJob(ctx, cur+1)
+		if err != nil {
+			logrus.Panic(err)
+		}
+		// Create folder before walking.
+		err = dst.Dir(ctx, j.Path)
+		if err != nil {
+			return err
+		}
+
+		fi, err := src.List(ctx, j.Path)
+		if err != nil {
+			return err
+		}
+		for k, v := range fi {
+			if v.IsDir {
+				_, err = model.CreateJob(ctx, v.Key)
+				if err != nil {
+					return err
+				}
+				// Update bucket sequence.
+				seq++
+
+				logrus.Debugf("Job %s is created.", path.Join(j.Path, v.Key))
+				continue
+			}
+
+			err = model.CreateObject(ctx, &fi[k])
+			if err != nil {
+				return err
+			}
+
+			c <- v.Key
+		}
+
+		// Update current running job.
+		cur++
+		err = model.UpdateCurrentJobID(ctx, cur)
+		if err != nil {
+			logrus.Panic(err)
+		}
+
+		logrus.Debugf("Job %s is finished.", j.Path)
 	}
 
 	return
