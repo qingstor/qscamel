@@ -105,7 +105,7 @@ source:
   # Available value: aliyun, fs, gcs, qingstor, qiniu, s3, upyun.
   type: fs
   # path is the path for endpoint.
-  path: "/home/xuanwo/Downloads/Telegram Desktop"
+  path: "/path/to/source"
 
 # destination is the destination endpoint for current task.
 destination:
@@ -119,11 +119,6 @@ destination:
     bucket_name: example_bucket
     access_key_id: example_access_key_id
     secret_access_key: example_secret_access_key
-
-# ignore_existing will control whether ignore existing object.
-ignore_existing: false
-# ignore_unmodified will control whether ignore unmodified object.
-ignore_unmodified: false
 ```
 
 ### Endpoint aliyun
