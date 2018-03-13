@@ -49,7 +49,21 @@ func (c *Client) Write(ctx context.Context, p string, r io.ReadCloser) (err erro
 }
 
 // Fetch implement destination.Fetch
-func (c *Client) Fetch(ctx context.Context, p string) (err error) {
+func (c *Client) Fetch(ctx context.Context, p, url string) (err error) {
+	cp := path.Join(c.Path, p)
+	cp = strings.TrimLeft(cp, "/")
+	if cp == "" {
+		return
+	}
+
+	_, err = c.client.PutObject(cp, &service.PutObjectInput{
+		XQSFetchSource: convert.String(url),
+	})
+	if err != nil {
+		return
+	}
+
+	logrus.Debugf("QingStor fetched object %s.", cp)
 	return
 }
 
