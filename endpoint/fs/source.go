@@ -22,19 +22,20 @@ func (c *Client) Readable() bool {
 }
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, p string) (o []model.Object, err error) {
+func (c *Client) List(ctx context.Context, p string, rc chan *model.Object) (err error) {
+	defer close(rc)
+
 	cp := path.Join(c.Path, p)
 
 	fi, err := os.Open(cp)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	list, err := fi.Readdir(-1)
 	fi.Close()
 
-	o = make([]model.Object, len(list))
-	for k, v := range list {
-		o[k] = model.Object{
+	for _, v := range list {
+		rc <- &model.Object{
 			Key:   path.Join(p, v.Name()),
 			IsDir: v.IsDir(),
 			Size:  v.Size(),

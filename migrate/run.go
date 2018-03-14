@@ -96,11 +96,11 @@ func List(ctx context.Context, c chan string) (err error) {
 			return err
 		}
 
-		fi, err := src.List(ctx, j.Path)
-		if err != nil {
-			return err
-		}
-		for k, v := range fi {
+		rc := make(chan *model.Object, 1000)
+
+		go src.List(ctx, j.Path, rc)
+
+		for v := range rc {
 			if v.IsDir {
 				_, err = model.CreateJob(ctx, v.Key)
 				if err != nil {
@@ -113,7 +113,7 @@ func List(ctx context.Context, c chan string) (err error) {
 				continue
 			}
 
-			err = model.CreateObject(ctx, &fi[k])
+			err = model.CreateObject(ctx, v)
 			if err != nil {
 				return err
 			}

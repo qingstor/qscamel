@@ -23,8 +23,8 @@ func (c *Client) Readable() bool {
 }
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, p string) (o []model.Object, err error) {
-	o = []model.Object{}
+func (c *Client) List(ctx context.Context, p string, rc chan *model.Object) (err error) {
+	defer close(rc)
 
 	// Add "/" to list specific prefix.
 	cp := path.Join(c.Path, p) + "/"
@@ -41,26 +41,26 @@ func (c *Client) List(ctx context.Context, p string) (o []model.Object, err erro
 			break
 		}
 		if err != nil {
-			return nil, err
+			return err
 		}
 		if next.Prefix != "" {
-			object := model.Object{
+			object := &model.Object{
 				Key:   path.Join(p, path.Base(next.Prefix)),
 				IsDir: true,
 				Size:  0,
 			}
 
-			o = append(o, object)
+			rc <- object
 			continue
 		}
 
-		object := model.Object{
+		object := &model.Object{
 			Key:   path.Join(p, path.Base(next.Name)),
 			IsDir: false,
 			Size:  next.Size,
 		}
 
-		o = append(o, object)
+		rc <- object
 	}
 
 	return
