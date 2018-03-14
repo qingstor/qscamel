@@ -11,6 +11,7 @@ import (
 
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
+	"github.com/yunify/qscamel/utils"
 )
 
 // Client is the client to visit QingStor service.
@@ -98,7 +99,7 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	qc.Protocol = c.Protocol
 	qc.Host = c.Host
 	qc.Port = c.Port
-	qc.Connection = constants.DefaultClient
+	qc.Connection = utils.DefaultClient
 
 	// Set qingstor service.
 	qs, _ := service.Init(qc)
