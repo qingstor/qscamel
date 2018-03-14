@@ -23,8 +23,9 @@ func (c *Client) Readable() bool {
 }
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, p string) (o []model.Object, err error) {
-	o = []model.Object{}
+func (c *Client) List(ctx context.Context, p string, rc chan *model.Object) (err error) {
+	defer close(rc)
+
 	om := make(map[string]struct{})
 
 	// Add "/" to list specific prefix.
@@ -43,31 +44,31 @@ func (c *Client) List(ctx context.Context, p string) (o []model.Object, err erro
 			Delimiter: convert.String("/"),
 		})
 		if err != nil {
-			return nil, err
+			return err
 		}
 		// Both "xxx/" and "xxx" with directory content type should be treated as directory.
 		// And in order to prevent duplicate job, we need to use set to filter them.
 		for _, v := range resp.Keys {
-			object := model.Object{
+			object := &model.Object{
 				Key:   path.Join(p, path.Base(*v.Key)),
 				IsDir: *v.MimeType == DirectoryContentType,
 				Size:  *v.Size,
 			}
 
 			if _, ok := om[object.Key]; !ok {
-				o = append(o, object)
+				rc <- object
 				om[object.Key] = struct{}{}
 			}
 		}
 		for _, v := range resp.CommonPrefixes {
-			object := model.Object{
+			object := &model.Object{
 				Key:   path.Join(p, path.Base(*v)),
 				IsDir: true,
 				Size:  0,
 			}
 
 			if _, ok := om[object.Key]; !ok {
-				o = append(o, object)
+				rc <- object
 				om[object.Key] = struct{}{}
 			}
 		}

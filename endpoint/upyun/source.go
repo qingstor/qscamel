@@ -22,8 +22,8 @@ func (c *Client) Readable() bool {
 }
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, p string) (o []model.Object, err error) {
-	o = []model.Object{}
+func (c *Client) List(ctx context.Context, p string, rc chan *model.Object) (err error) {
+	defer close(rc)
 
 	// Add "/" to list specific prefix.
 	cp := path.Join(c.Path, p) + "/"
@@ -42,11 +42,11 @@ func (c *Client) List(ctx context.Context, p string) (o []model.Object, err erro
 	}
 
 	for obj := range oc {
-		o = append(o, model.Object{
+		rc <- &model.Object{
 			Key:   path.Join(p, path.Base(obj.Name)),
 			IsDir: obj.IsDir,
 			Size:  obj.Size,
-		})
+		}
 	}
 
 	return
