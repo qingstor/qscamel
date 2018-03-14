@@ -29,6 +29,7 @@ type Task struct {
 
 	// Data that only stores in database.
 	Status string `yaml:"-" msgpack:"s"`
+	Marker string `yaml:"-" msgpack:"ma"`
 }
 
 // LoadTask will try to load task from database and file.
