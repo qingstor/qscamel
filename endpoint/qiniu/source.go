@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/qiniu/api.v7/storage"
+	"github.com/sirupsen/logrus"
 
 	"github.com/yunify/qscamel/model"
 )
@@ -23,43 +24,48 @@ func (c *Client) Readable() bool {
 }
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, p string) (o []model.Object, err error) {
-	o = []model.Object{}
+func (c *Client) List(ctx context.Context, p string, rc chan *model.Object) (err error) {
+	defer close(rc)
+
+	t, err := model.GetTask(ctx)
+	if err != nil {
+		return
+	}
 
 	// Add "/" to list specific prefix.
 	cp := path.Join(c.Path, p) + "/"
 	// Trim left "/" to prevent object start with "/"
 	cp = strings.TrimLeft(cp, "/")
 
-	marker := ""
+	marker := t.Marker
 	first := true
 
 	for marker != "" || first {
-		entries, commonPrefix, nextMarker, _, err := c.bucket.ListFiles(c.BucketName, cp, "/", marker, MaxListFileLimit)
+		entries, _, nextMarker, _, err := c.bucket.ListFiles(c.BucketName, cp, "", marker, MaxListFileLimit)
 		if err != nil {
-			return nil, err
+			logrus.Errorf("List files failed for %v.", err)
+			return err
 		}
 		for _, v := range entries {
-			object := model.Object{
-				Key:   path.Join(p, path.Base(v.Key)),
+			object := &model.Object{
+				Key:   strings.TrimLeft(v.Key, c.Path),
 				IsDir: false,
 				Size:  v.Fsize,
 			}
 
-			o = append(o, object)
-		}
-		for _, v := range commonPrefix {
-			object := model.Object{
-				Key:   path.Join(p, path.Base(v)),
-				IsDir: true,
-				Size:  0,
-			}
-
-			o = append(o, object)
+			rc <- object
 		}
 
 		first = false
 		marker = nextMarker
+
+		// Update task content.
+		t.Marker = marker
+		err = t.Save(ctx)
+		if err != nil {
+			logrus.Errorf("Save task failed for %v.", err)
+			return err
+		}
 	}
 
 	return
