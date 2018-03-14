@@ -9,7 +9,7 @@ import:
 
 # SDK for QingStor.
 - package: github.com/yunify/qingstor-sdk-go
-  version: ^2.2.9
+  version: ^2.2.10
 # SDK for aliyun OSS.
 - package: github.com/aliyun/aliyun-oss-go-sdk
   version: ^1.8.0
@@ -19,6 +19,8 @@ import:
 # SDK for qiniu.
 - package: github.com/qiniu/api.v7
   version: ^7.2.3
+- package: qiniupkg.com/x
+  repo: https://github.com/qiniu/x.git
 # SDK for upyun.
 - package: github.com/upyun/go-sdk
   version: ^2.1.0

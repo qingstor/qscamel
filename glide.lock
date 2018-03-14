@@ -1,5 +1,5 @@
-hash: 4d937b8305e7079048dd2419def78418f69cfe5e350fcc6aa3fbb66de625846e
-updated: 2018-03-03T15:45:30.818344607+08:00
+hash: 4001b5b30bb46f873b3e0f164016537fd05aa97f69bfdd6b3fb23cb65512d1d2
+updated: 2018-03-14T23:06:27.209917358+08:00
 imports:
 - name: cloud.google.com/go
   version: 20d4028b8a750c2aca76bf9fefa8ed2d0109b573
@@ -15,7 +15,7 @@ imports:
   subpackages:
   - oss
 - name: github.com/aws/aws-sdk-go
-  version: aace5875a5c3b85a3902c6d72b9caed301d64cce
+  version: 4c9c8e98642a1a5e7c27d7a644cf9140809d49ee
   subpackages:
   - aws
   - aws/awserr
@@ -33,6 +33,7 @@ imports:
   - aws/request
   - aws/session
   - aws/signer/v4
+  - internal/sdkio
   - internal/sdkrand
   - internal/shareddefaults
   - private/protocol
@@ -86,7 +87,7 @@ imports:
   - rpc.v7
   - xlog.v7
 - name: github.com/sirupsen/logrus
-  version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
+  version: c155da19408a8799da419ed3eeb0cb5db0ad5dbc
 - name: github.com/spf13/cobra
   version: 7b2c5ac9fc04fc5efafb60700713d4fa609b777b
 - name: github.com/spf13/pflag
@@ -100,7 +101,7 @@ imports:
   subpackages:
   - codes
 - name: github.com/yunify/qingstor-sdk-go
-  version: 51fa3b6bb3c24f4d646eefff251cd2e6ba716600
+  version: f6fc3668a87b1518fcb8b8f088234a1ca48f5111
   subpackages:
   - config
   - logger
@@ -112,6 +113,20 @@ imports:
   - request/unpacker
   - service
   - utils
+- name: go.opencensus.io
+  version: 137758ec721d3ddd33bce6bdd4a7d85d7adf5b00
+  subpackages:
+  - internal
+  - internal/tagencoding
+  - plugin/ochttp
+  - plugin/ochttp/propagation/b3
+  - plugin/ochttp/propagation/google
+  - stats
+  - stats/internal
+  - stats/view
+  - tag
+  - trace
+  - trace/propagation
 - name: golang.org/x/crypto
   version: bd6f299fb381e4c3393d1c4b1f0b94f5e77650c8
   subpackages:
@@ -128,7 +143,7 @@ imports:
   - lex/httplex
   - trace
 - name: golang.org/x/oauth2
-  version: 2f32c3ac0fa4fb807a0fcefb0b6f2468a0d99bd0
+  version: 7af32f14d0a25aec7873e0683e8e48dcead159a8
   subpackages:
   - google
   - internal
@@ -140,14 +155,14 @@ imports:
   - unix
   - windows
 - name: golang.org/x/text
-  version: b7ef84aaf62aa3e70962625c80a571ae7c17cb40
+  version: 6ddec15f6ad41e5f923285a7f51fb026349034d9
   subpackages:
   - secure/bidirule
   - transform
   - unicode/bidi
   - unicode/norm
 - name: google.golang.org/api
-  version: 3caa384156365e545aea85c3dca8c95bc666a94d
+  version: c24aa0e5ed34558ea50c016e4fb92c5e9aa69f2c
   subpackages:
   - gensupport
   - googleapi
@@ -178,7 +193,7 @@ imports:
   - googleapis/iam/v1
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 7c5299d71e2b8d403195f6071eecea690bf5622a
+  version: 13975c070286c7371aa3a8b3c230e90d7bf029fc
   subpackages:
   - balancer
   - balancer/base
@@ -206,6 +221,7 @@ imports:
   version: d670f9405373e636a5a2765eea47fac0c9bc91a4
 - name: qiniupkg.com/x
   version: f512abcf45ab4e2ba0fd4784c57b53d495997d66
+  repo: https://github.com/qiniu/x.git
   subpackages:
   - bytes.v7
   - log.v7
