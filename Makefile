@@ -39,7 +39,7 @@ lint:
 build: check
 	@echo "build qscamel"
 	@mkdir -p ./bin
-	@go build -o ./bin/qscamel .
+	@go build -tags netgo -o ./bin/qscamel .
 	@echo "ok"
 
 install: build
