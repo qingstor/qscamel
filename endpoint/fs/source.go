@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 
@@ -22,21 +23,23 @@ func (c *Client) Readable() bool {
 }
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, p string, rc chan *model.Object) (err error) {
+func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) {
 	defer close(rc)
 
-	cp := path.Join(c.Path, p)
+	cp := path.Join(c.Path, j.Path)
 
 	fi, err := os.Open(cp)
 	if err != nil {
-		return err
+		logrus.Errorf("Open dir failed for %v.", err)
+		rc <- nil
+		return
 	}
 	list, err := fi.Readdir(-1)
 	fi.Close()
 
 	for _, v := range list {
 		rc <- &model.Object{
-			Key:   path.Join(p, v.Name()),
+			Key:   strings.TrimLeft(v.Name(), c.Path),
 			IsDir: v.IsDir(),
 			Size:  v.Size(),
 		}

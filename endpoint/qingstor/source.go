@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/pengsrc/go-shared/convert"
+	"github.com/sirupsen/logrus"
 	"github.com/yunify/qingstor-sdk-go/service"
 
 	"github.com/yunify/qscamel/model"
@@ -23,20 +24,19 @@ func (c *Client) Readable() bool {
 }
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, p string, rc chan *model.Object) (err error) {
+func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) {
 	defer close(rc)
 
 	om := make(map[string]struct{})
 
 	// Add "/" to list specific prefix.
-	cp := path.Join(c.Path, p) + "/"
+	cp := path.Join(c.Path, j.Path) + "/"
 	// Trim left "/" to prevent object start with "/"
 	cp = strings.TrimLeft(cp, "/")
 
-	marker := ""
-	first := true
+	marker := j.Marker
 
-	for marker != "" || first {
+	for {
 		resp, err := c.client.ListObjects(&service.ListObjectsInput{
 			Prefix:    convert.String(cp),
 			Marker:    convert.String(marker),
@@ -44,13 +44,15 @@ func (c *Client) List(ctx context.Context, p string, rc chan *model.Object) (err
 			Delimiter: convert.String("/"),
 		})
 		if err != nil {
-			return err
+			logrus.Errorf("List objects failed for %v.", err)
+			rc <- nil
+			return
 		}
 		// Both "xxx/" and "xxx" with directory content type should be treated as directory.
 		// And in order to prevent duplicate job, we need to use set to filter them.
 		for _, v := range resp.Keys {
 			object := &model.Object{
-				Key:   path.Join(p, path.Base(*v.Key)),
+				Key:   strings.TrimLeft(*v.Key, c.Path),
 				IsDir: *v.MimeType == DirectoryContentType,
 				Size:  *v.Size,
 			}
@@ -62,7 +64,7 @@ func (c *Client) List(ctx context.Context, p string, rc chan *model.Object) (err
 		}
 		for _, v := range resp.CommonPrefixes {
 			object := &model.Object{
-				Key:   path.Join(p, path.Base(*v)),
+				Key:   strings.TrimLeft(*v, c.Path),
 				IsDir: true,
 				Size:  0,
 			}
@@ -73,8 +75,20 @@ func (c *Client) List(ctx context.Context, p string, rc chan *model.Object) (err
 			}
 		}
 
-		first = false
 		marker = *resp.NextMarker
+
+		// Update task content.
+		j.Marker = marker
+		err = j.Save(ctx)
+		if err != nil {
+			logrus.Errorf("Save task failed for %v.", err)
+			rc <- nil
+			return
+		}
+
+		if marker == "" {
+			break
+		}
 	}
 
 	return

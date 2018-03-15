@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"cloud.google.com/go/storage"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/api/iterator"
 
 	"github.com/yunify/qscamel/model"
@@ -23,11 +24,11 @@ func (c *Client) Readable() bool {
 }
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, p string, rc chan *model.Object) (err error) {
+func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) {
 	defer close(rc)
 
 	// Add "/" to list specific prefix.
-	cp := path.Join(c.Path, p) + "/"
+	cp := path.Join(c.Path, j.Path) + "/"
 	// Trim left "/" to prevent object start with "/"
 	cp = strings.TrimLeft(cp, "/")
 
@@ -41,11 +42,13 @@ func (c *Client) List(ctx context.Context, p string, rc chan *model.Object) (err
 			break
 		}
 		if err != nil {
-			return err
+			logrus.Errorf("List objects failed for %v.", err)
+			rc <- nil
+			return
 		}
 		if next.Prefix != "" {
 			object := &model.Object{
-				Key:   path.Join(p, path.Base(next.Prefix)),
+				Key:   strings.TrimLeft(next.Prefix, c.Path),
 				IsDir: true,
 				Size:  0,
 			}
@@ -55,7 +58,7 @@ func (c *Client) List(ctx context.Context, p string, rc chan *model.Object) (err
 		}
 
 		object := &model.Object{
-			Key:   path.Join(p, path.Base(next.Name)),
+			Key:   strings.TrimLeft(next.Name, c.Path),
 			IsDir: false,
 			Size:  next.Size,
 		}

@@ -24,27 +24,22 @@ func (c *Client) Readable() bool {
 }
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, p string, rc chan *model.Object) (err error) {
+func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) {
 	defer close(rc)
 
-	t, err := model.GetTask(ctx)
-	if err != nil {
-		return
-	}
-
 	// Add "/" to list specific prefix.
-	cp := path.Join(c.Path, p) + "/"
+	cp := path.Join(c.Path, j.Path) + "/"
 	// Trim left "/" to prevent object start with "/"
 	cp = strings.TrimLeft(cp, "/")
 
-	marker := t.Marker
-	first := true
+	marker := j.Marker
 
-	for marker != "" || first {
+	for {
 		entries, _, nextMarker, _, err := c.bucket.ListFiles(c.BucketName, cp, "", marker, MaxListFileLimit)
 		if err != nil {
 			logrus.Errorf("List files failed for %v.", err)
-			return err
+			rc <- nil
+			return
 		}
 		for _, v := range entries {
 			object := &model.Object{
@@ -56,15 +51,19 @@ func (c *Client) List(ctx context.Context, p string, rc chan *model.Object) (err
 			rc <- object
 		}
 
-		first = false
 		marker = nextMarker
 
 		// Update task content.
-		t.Marker = marker
-		err = t.Save(ctx)
+		j.Marker = marker
+		err = j.Save(ctx)
 		if err != nil {
 			logrus.Errorf("Save task failed for %v.", err)
-			return err
+			rc <- nil
+			return
+		}
+
+		if marker == "" {
+			break
 		}
 	}
 
