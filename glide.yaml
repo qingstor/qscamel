@@ -6,6 +6,8 @@ import:
   version: ^0.0.1
 - package: github.com/sirupsen/logrus
   version: ^1.0.4
+- package: github.com/cenkalti/backoff
+  version: ^1.1.0
 
 # SDK for QingStor.
 - package: github.com/yunify/qingstor-sdk-go
