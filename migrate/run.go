@@ -2,8 +2,10 @@ package migrate
 
 import (
 	"context"
+	"errors"
 	"path"
 
+	"github.com/cenkalti/backoff"
 	"github.com/sirupsen/logrus"
 
 	"github.com/yunify/qscamel/constants"
@@ -19,7 +21,7 @@ func Run(ctx context.Context) (err error) {
 				t.Src.Type, t.Dst.Type)
 			return
 		}
-		err = Copy(ctx)
+		err = backoff.Retry(func() error { return Copy(ctx) }, backoff.NewExponentialBackOff())
 		if err != nil {
 			return
 		}
@@ -29,11 +31,10 @@ func Run(ctx context.Context) (err error) {
 				t.Src.Type, t.Dst.Type)
 			return
 		}
-		err = Fetch(ctx)
+		err = backoff.Retry(func() error { return Fetch(ctx) }, backoff.NewExponentialBackOff())
 		if err != nil {
 			return
 		}
-		return
 	case constants.TaskTypeVerify:
 		return
 	default:
@@ -98,9 +99,15 @@ func List(ctx context.Context, c chan string) (err error) {
 
 		rc := make(chan *model.Object, 1000)
 
-		go src.List(ctx, j.Path, rc)
+		go src.List(ctx, j, rc)
 
 		for v := range rc {
+			if v == nil {
+				logrus.Errorf("Something error happened while listing.")
+				err = errors.New("source list failed")
+				return err
+			}
+
 			if v.IsDir {
 				_, err = model.CreateJob(ctx, v.Key)
 				if err != nil {
