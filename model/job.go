@@ -16,7 +16,7 @@ import (
 type Job struct {
 	ID     uint64 `msgpack:"id"`
 	Path   string `msgpack:"p"`
-	Status string `msgpack:"s"`
+	Marker string `msgpack:"m"`
 }
 
 // Save will save current job to DB.
@@ -77,8 +77,9 @@ func CreateJob(ctx context.Context, p string) (j *Job, err error) {
 	}
 
 	j = &Job{
-		ID:   id,
-		Path: p,
+		ID:     id,
+		Path:   p,
+		Marker: "",
 	}
 
 	content, err := msgpack.Marshal(j)
