@@ -82,35 +82,35 @@ func NewConn(c netConn) *Conn {
 
 // SetReadTimeout will set the conn's read timeout.
 func (c *Conn) SetReadTimeout(d time.Duration) {
-	if c.readTimeout > 0 {
-		c.netConn.SetReadDeadline(time.Time{})
-	}
 	c.readTimeout = d
 }
 
 // SetWriteTimeout will set the conn's write timeout.
 func (c *Conn) SetWriteTimeout(d time.Duration) {
-	if c.writeTimeout > 0 {
-		c.netConn.SetWriteDeadline(time.Time{})
-	}
 	c.writeTimeout = d
 }
 
 // Read will read from the conn.
 func (c Conn) Read(buf []byte) (n int, err error) {
 	if c.readTimeout > 0 {
-		c.SetReadDeadline(time.Now().Add(c.readTimeout))
+		c.SetDeadline(time.Now().Add(c.readTimeout))
 	}
 	n, err = c.netConn.Read(buf)
+	if c.readTimeout > 0 {
+		c.SetDeadline(time.Time{}) // clear timeout
+	}
 	return
 }
 
 // Write will write into the conn.
 func (c Conn) Write(buf []byte) (n int, err error) {
 	if c.writeTimeout > 0 {
-		c.SetWriteDeadline(time.Now().Add(c.writeTimeout))
+		c.SetDeadline(time.Now().Add(c.writeTimeout))
 	}
 	n, err = c.netConn.Write(buf)
+	if c.writeTimeout > 0 {
+		c.SetDeadline(time.Time{})
+	}
 	return
 }
 
