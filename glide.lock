@@ -1,5 +1,5 @@
-hash: 4001b5b30bb46f873b3e0f164016537fd05aa97f69bfdd6b3fb23cb65512d1d2
-updated: 2018-03-14T23:06:27.209917358+08:00
+hash: a87e96c5240764ccd92d936a878efe7b796c24288eb43b1763ce8e01727090b0
+updated: 2018-03-15T23:02:09.543868295+08:00
 imports:
 - name: cloud.google.com/go
   version: 20d4028b8a750c2aca76bf9fefa8ed2d0109b573
@@ -15,7 +15,7 @@ imports:
   subpackages:
   - oss
 - name: github.com/aws/aws-sdk-go
-  version: 4c9c8e98642a1a5e7c27d7a644cf9140809d49ee
+  version: 28d0127967e59b0c41cede1e8d548ed85374bbbc
   subpackages:
   - aws
   - aws/awserr
@@ -44,6 +44,8 @@ imports:
   - private/protocol/xml/xmlutil
   - service/s3
   - service/sts
+- name: github.com/cenkalti/backoff
+  version: 61153c768f31ee5f130071d08fc82b85208528de
 - name: github.com/coreos/bbolt
   version: 48ea1b39c25fc1bab3506fbc712ecbaa842c4d2d
 - name: github.com/go-ini/ini
@@ -97,7 +99,7 @@ imports:
   subpackages:
   - upyun
 - name: github.com/vmihailenco/msgpack
-  version: b83fb55e0632418103602b3b23851cabc5d11762
+  version: b5e5f4eb7291af0069327d334ed6d2ed9791243c
   subpackages:
   - codes
 - name: github.com/yunify/qingstor-sdk-go
@@ -114,7 +116,7 @@ imports:
   - service
   - utils
 - name: go.opencensus.io
-  version: 137758ec721d3ddd33bce6bdd4a7d85d7adf5b00
+  version: 67dfb45941af00bd9e91a20bce0222d8a9b8b896
   subpackages:
   - internal
   - internal/tagencoding
@@ -143,7 +145,7 @@ imports:
   - lex/httplex
   - trace
 - name: golang.org/x/oauth2
-  version: 7af32f14d0a25aec7873e0683e8e48dcead159a8
+  version: fdc9e635145ae97e6c2cb777c48305600cf515cb
   subpackages:
   - google
   - internal
@@ -155,7 +157,7 @@ imports:
   - unix
   - windows
 - name: golang.org/x/text
-  version: 6ddec15f6ad41e5f923285a7f51fb026349034d9
+  version: 8c34f848e18c4bd34d02db7f19a0ed1a0a8f5852
   subpackages:
   - secure/bidirule
   - transform
