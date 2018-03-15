@@ -6,6 +6,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/sirupsen/logrus"
 	"github.com/upyun/go-sdk/upyun"
 
 	"github.com/yunify/qscamel/model"
@@ -22,30 +23,32 @@ func (c *Client) Readable() bool {
 }
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, p string, rc chan *model.Object) (err error) {
+func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) {
 	defer close(rc)
 
 	// Add "/" to list specific prefix.
-	cp := path.Join(c.Path, p) + "/"
+	cp := path.Join(c.Path, j.Path) + "/"
 	// Trim left "/" to prevent object start with "/"
 	cp = strings.TrimLeft(cp, "/")
 
 	oc := make(chan *upyun.FileInfo, 100)
 
-	err = c.client.List(&upyun.GetObjectsConfig{
+	err := c.client.List(&upyun.GetObjectsConfig{
 		Path:         cp,
 		MaxListLevel: 1,
 		ObjectsChan:  oc,
 	})
 	if err != nil {
+		logrus.Errorf("List failed for %v.", err)
+		rc <- nil
 		return
 	}
 
-	for obj := range oc {
+	for v := range oc {
 		rc <- &model.Object{
-			Key:   path.Join(p, path.Base(obj.Name)),
-			IsDir: obj.IsDir,
-			Size:  obj.Size,
+			Key:   strings.TrimLeft(v.Name, c.Path),
+			IsDir: v.IsDir,
+			Size:  v.Size,
 		}
 	}
 
