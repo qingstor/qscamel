@@ -2,6 +2,7 @@ package migrate
 
 import (
 	"context"
+	"errors"
 	"sync"
 
 	"github.com/sirupsen/logrus"
@@ -28,6 +29,11 @@ func Fetch(ctx context.Context) (err error) {
 	c := make(chan string)
 	wg := new(sync.WaitGroup)
 
+	// Close channel for no more job.
+	defer close(c)
+	// Wait for all job finished.
+	defer wg.Wait()
+
 	for i := 0; i < contexts.Config.Concurrency; i++ {
 		wg.Add(1)
 		go fetchWorker(ctx, c, wg)
@@ -35,14 +41,9 @@ func Fetch(ctx context.Context) (err error) {
 
 	err = List(ctx, c)
 	if err != nil {
-		return
+		logrus.Errorf("List failed for %v.", err)
+		return err
 	}
-
-	// Close channel for no more job.
-	close(c)
-
-	// Wait for all job finished.
-	wg.Wait()
 
 	ho, err := model.HasObject(ctx)
 	if err != nil {
@@ -50,7 +51,8 @@ func Fetch(ctx context.Context) (err error) {
 	}
 	if ho {
 		logrus.Infof("There are not finished objects, retried.")
-		return Fetch(ctx)
+		err = errors.New("object not finished")
+		return
 	}
 
 	logrus.Infof("Task %s has been finished.", t.Name)
