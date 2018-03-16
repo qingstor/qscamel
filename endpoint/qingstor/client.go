@@ -3,9 +3,12 @@ package qingstor
 import (
 	"context"
 	"errors"
+	"path"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/yunify/qingstor-sdk-go/config"
+	qsErrors "github.com/yunify/qingstor-sdk-go/request/errors"
 	"github.com/yunify/qingstor-sdk-go/service"
 	"gopkg.in/yaml.v2"
 
@@ -109,5 +112,32 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	}
 	c.client, _ = qs.Bucket(c.BucketName, zone)
 
+	return
+}
+
+// Stat implement source.Stat and destination.Stat
+func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error) {
+	cp := path.Join(c.Path, p)
+	// Trim left "/" to prevent object start with "/"
+	cp = strings.TrimLeft(cp, "/")
+
+	resp, err := c.client.HeadObject(cp, nil)
+	if err != nil {
+		if e, ok := err.(*qsErrors.QingStorError); ok {
+			// If object not found, we just need to return a nil object.
+			if e.StatusCode == 404 {
+				return nil, nil
+			}
+		}
+		logrus.Errorf("Stat failed for %v.", err)
+		return
+	}
+	o = &model.Object{
+		Key:          p,
+		IsDir:        *resp.ContentType == DirectoryContentType,
+		Size:         *resp.ContentLength,
+		ContentMD5:   *resp.ETag,
+		LastModified: (*resp.LastModified).Unix(),
+	}
 	return
 }

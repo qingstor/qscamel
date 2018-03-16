@@ -3,6 +3,8 @@ package upyun
 import (
 	"context"
 	"errors"
+	"path"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/upyun/go-sdk/upyun"
@@ -75,5 +77,30 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	}
 	c.client = upyun.NewUpYun(cfg)
 
+	return
+}
+
+// Stat implement source.Stat and destination.Stat
+func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error) {
+	cp := path.Join(c.Path, p)
+	// Trim left "/" to prevent object start with "/"
+	cp = strings.TrimLeft(cp, "/")
+
+	resp, err := c.client.GetInfo(cp)
+	if err != nil {
+		// If not found, upyun sdk will return an error contains "HEAD 404"
+		if strings.Contains(err.Error(), "HEAD 404") {
+			return nil, nil
+		}
+		logrus.Errorf("Get %s info failed for %v.", p, err)
+		return
+	}
+	o = &model.Object{
+		Key:          p,
+		IsDir:        resp.IsDir,
+		Size:         resp.Size,
+		LastModified: resp.Time.Unix(),
+		ContentMD5:   resp.ETag,
+	}
 	return
 }

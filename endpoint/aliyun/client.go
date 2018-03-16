@@ -3,8 +3,12 @@ package aliyun
 import (
 	"context"
 	"errors"
+	"path"
+	"strconv"
+	"strings"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/pengsrc/go-shared/convert"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 
@@ -87,5 +91,42 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 		return
 	}
 
+	return
+}
+
+// Stat implement source.Stat and destination.Stat
+func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error) {
+	cp := path.Join(c.Path, p)
+	// Trim left "/" to prevent object start with "/"
+	cp = strings.TrimLeft(cp, "/")
+
+	resp, err := c.client.GetObjectMeta(cp)
+	if err != nil {
+		if e, ok := err.(*oss.ServiceError); ok {
+			// If object not found, we just need to return a nil object.
+			if e.StatusCode == 404 {
+				return nil, nil
+			}
+		}
+		logrus.Errorf("Stat failed for %v.", err)
+		return
+	}
+
+	// Parse content length.
+	size, err := strconv.ParseInt(resp.Get("Content-Length"), 10, 64)
+	if err != nil {
+		logrus.Errorf("Content length parsed failed for %v.", err)
+		return
+	}
+	// Parse last modified.
+	lastModified := convert.StringToUnixTimestamp(resp.Get("Last-Modified"), convert.RFC822)
+
+	o = &model.Object{
+		Key:          p,
+		IsDir:        strings.HasSuffix(p, "/"),
+		Size:         size,
+		LastModified: lastModified,
+		ContentMD5:   resp.Get("ETag"),
+	}
 	return
 }

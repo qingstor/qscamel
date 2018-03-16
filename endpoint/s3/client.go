@@ -3,8 +3,11 @@ package s3
 import (
 	"context"
 	"errors"
+	"path"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -90,5 +93,34 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	}
 	c.client = s3.New(sess)
 
+	return
+}
+
+// Stat implement source.Stat and destination.Stat
+func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error) {
+	cp := path.Join(c.Path, p)
+	// Trim left "/" to prevent object start with "/"
+	cp = strings.TrimLeft(cp, "/")
+
+	resp, err := c.client.HeadObject(&s3.HeadObjectInput{
+		Bucket: aws.String(c.BucketName),
+		Key:    aws.String(cp),
+	})
+	if err != nil {
+		if e, ok := err.(awserr.Error); ok {
+			if e.Code() == "NoSuchKey" {
+				return nil, nil
+			}
+		}
+		logrus.Errorf("Head object %s failed for %v.", err)
+		return
+	}
+	o = &model.Object{
+		Key:          p,
+		IsDir:        strings.HasSuffix(p, "/"),
+		Size:         *resp.ContentLength,
+		ContentMD5:   *resp.ETag,
+		LastModified: (*resp.LastModified).Unix(),
+	}
 	return
 }

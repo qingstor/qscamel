@@ -4,9 +4,12 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"path"
+	"strings"
 
 	"github.com/qiniu/api.v7/auth/qbox"
 	"github.com/qiniu/api.v7/storage"
+	"github.com/qiniu/x/rpc.v7"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 
@@ -99,5 +102,32 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	c.bucket = storage.NewBucketManager(c.mac, cfg)
 	c.client = utils.DefaultClient
 
+	return
+}
+
+// Stat implement source.Stat and destination.Stat
+func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error) {
+	cp := path.Join(c.Path, p)
+	// Trim left "/" to prevent object start with "/"
+	cp = strings.TrimLeft(cp, "/")
+
+	fi, err := c.bucket.Stat(c.BucketName, p)
+	if err != nil {
+		if e, ok := err.(*rpc.ErrorInfo); ok {
+			// If object not found, we just need to return a nil object.
+			if e.Code == ErrorCodeNotFound {
+				return nil, nil
+			}
+		}
+		logrus.Errorf("Stat failed for %v.", err)
+		return
+	}
+	// qiniu use their own hash algorithm instead of md5, so we can't support it.
+	o = &model.Object{
+		Key:          p,
+		IsDir:        strings.HasSuffix(p, "/"),
+		Size:         fi.Fsize,
+		LastModified: fi.PutTime,
+	}
 	return
 }

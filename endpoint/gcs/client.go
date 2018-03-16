@@ -3,6 +3,8 @@ package gcs
 import (
 	"context"
 	"errors"
+	"path"
+	"strings"
 
 	"cloud.google.com/go/storage"
 	"github.com/sirupsen/logrus"
@@ -67,5 +69,29 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 		return
 	}
 	c.client = svc.Bucket(c.BucketName)
+	return
+}
+
+// Stat implement source.Stat and destination.Stat
+func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error) {
+	cp := path.Join(c.Path, p)
+	// Trim left "/" to prevent object start with "/"
+	cp = strings.TrimLeft(cp, "/")
+
+	resp, err := c.client.Object(cp).Attrs(ctx)
+	if err != nil {
+		if err == storage.ErrObjectNotExist {
+			return nil, nil
+		}
+		logrus.Errorf("Stat object %s failed for %v.", p, err)
+		return
+	}
+	o = &model.Object{
+		Key:          p,
+		IsDir:        strings.HasSuffix(p, "/"),
+		Size:         resp.Size,
+		LastModified: resp.Updated.Unix(),
+		ContentMD5:   string(resp.MD5),
+	}
 	return
 }
