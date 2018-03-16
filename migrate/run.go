@@ -83,7 +83,7 @@ func List(ctx context.Context, c chan string) (err error) {
 		logrus.Panic(err)
 	}
 	for {
-		if seq == cur {
+		if seq <= cur {
 			break
 		}
 
@@ -97,7 +97,7 @@ func List(ctx context.Context, c chan string) (err error) {
 			return err
 		}
 
-		rc := make(chan *model.Object, 1000)
+		rc := make(chan *model.Object)
 
 		go src.List(ctx, j, rc)
 
