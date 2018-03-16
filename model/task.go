@@ -23,9 +23,7 @@ type Task struct {
 	Src *Endpoint `yaml:"source" msgpack:"src"`
 	Dst *Endpoint `yaml:"destination" msgpack:"dst"`
 
-	Overwrite        bool `yaml:"overwrite" msgpack:"o"`
-	IgnoreExisting   bool `yaml:"ignore_existing" msgpack:"ie"`
-	IgnoreUnmodified bool `yaml:"ignore_unmodified" msgpack:"iu"`
+	IgnoreExisting bool `yaml:"ignore_existing" msgpack:"ie"`
 
 	// Data that only stores in database.
 	Status string `yaml:"-" msgpack:"s"`
