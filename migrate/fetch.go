@@ -29,10 +29,10 @@ func Fetch(ctx context.Context) (err error) {
 	c := make(chan string)
 	wg := new(sync.WaitGroup)
 
-	// Close channel for no more job.
-	defer close(c)
 	// Wait for all job finished.
 	defer wg.Wait()
+	// Close channel for no more job.
+	defer close(c)
 
 	for i := 0; i < contexts.Config.Concurrency; i++ {
 		wg.Add(1)
@@ -62,7 +62,41 @@ func Fetch(ctx context.Context) (err error) {
 func fetchWorker(ctx context.Context, c chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
+	t, err := model.GetTask(ctx)
+	if err != nil {
+		logrus.Errorf("Get task failed.")
+		return
+	}
+
 	for p := range c {
+		if t.IgnoreExisting {
+			so, err := src.Stat(ctx, p)
+			if err != nil {
+				logrus.Errorf("Src stat %s failed for %v.", p, err)
+				continue
+			}
+			if so == nil {
+				logrus.Warnf("Src object %s is not found.", p)
+				continue
+			}
+
+			do, err := dst.Stat(ctx, p)
+			if err != nil {
+				logrus.Errorf("Dst stat %s failed for %v.", p, err)
+				continue
+			}
+			if do != nil {
+				logrus.Warnf("Dst object %s exists, ignore.", p)
+
+				err = model.DeleteObject(ctx, p)
+				if err != nil {
+					logrus.Panicf("DeleteRunningObject failed for %v.", err)
+					continue
+				}
+				continue
+			}
+		}
+
 		logrus.Infof("Start fetching object %s.", p)
 
 		url, err := src.Reach(ctx, p)
@@ -75,6 +109,7 @@ func fetchWorker(ctx context.Context, c chan string, wg *sync.WaitGroup) {
 			logrus.Errorf("Dst fetch %s failed for %v.", p, err)
 			continue
 		}
+
 		err = model.DeleteObject(ctx, p)
 		if err != nil {
 			logrus.Panicf("DeleteRunningObject failed for %v.", err)
