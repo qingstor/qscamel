@@ -112,7 +112,7 @@ func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error
 				return nil, nil
 			}
 		}
-		logrus.Errorf("Head object %s failed for %v.", err)
+		logrus.Errorf("Head object %s failed for %v.", p, err)
 		return
 	}
 	o = &model.Object{
