@@ -91,11 +91,6 @@ func List(ctx context.Context, c chan string) (err error) {
 		if err != nil {
 			logrus.Panic(err)
 		}
-		// Create folder before walking.
-		err = dst.Dir(ctx, j.Path)
-		if err != nil {
-			return err
-		}
 
 		rc := make(chan *model.Object)
 
