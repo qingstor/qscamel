@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"path"
 	"strings"
 
 	"github.com/qiniu/api.v7/auth/qbox"
@@ -107,11 +106,9 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 
 // Stat implement source.Stat and destination.Stat
 func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error) {
-	cp := path.Join(c.Path, p)
-	// Trim left "/" to prevent object start with "/"
-	cp = strings.TrimLeft(cp, "/")
+	cp := utils.Join(c.Path, p)
 
-	fi, err := c.bucket.Stat(c.BucketName, p)
+	fi, err := c.bucket.Stat(c.BucketName, cp)
 	if err != nil {
 		if e, ok := err.(*rpc.ErrorInfo); ok {
 			// If object not found, we just need to return a nil object.
