@@ -2,14 +2,12 @@ package upyun
 
 import (
 	"context"
-	"io"
-	"path"
-	"strings"
-
 	"github.com/sirupsen/logrus"
 	"github.com/upyun/go-sdk/upyun"
+	"io"
 
 	"github.com/yunify/qscamel/model"
+	"github.com/yunify/qscamel/utils"
 )
 
 // Reachable implement source.Reachable
@@ -26,10 +24,7 @@ func (c *Client) Readable() bool {
 func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) {
 	defer close(rc)
 
-	// Add "/" to list specific prefix.
-	cp := path.Join(c.Path, j.Path) + "/"
-	// Trim left "/" to prevent object start with "/"
-	cp = strings.TrimLeft(cp, "/")
+	cp := utils.Join(c.Path, j.Path) + "/"
 
 	oc := make(chan *upyun.FileInfo, 100)
 
@@ -46,7 +41,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 
 	for v := range oc {
 		rc <- &model.Object{
-			Key:   strings.TrimLeft(v.Name, c.Path),
+			Key:   utils.Relative(v.Name, c.Path),
 			IsDir: v.IsDir,
 			Size:  v.Size,
 		}
@@ -57,9 +52,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 
 // Read implement source.Read
 func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error) {
-	cp := path.Join(c.Path, p)
-	// Trim left "/" to prevent object start with "/"
-	cp = strings.TrimLeft(cp, "/")
+	cp := utils.Join(c.Path, p)
 
 	r, w := io.Pipe()
 

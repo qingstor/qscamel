@@ -3,7 +3,6 @@ package upyun
 import (
 	"context"
 	"errors"
-	"path"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
+	"github.com/yunify/qscamel/utils"
 )
 
 // Client is the client to visit service.
@@ -82,9 +82,7 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 
 // Stat implement source.Stat and destination.Stat
 func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error) {
-	cp := path.Join(c.Path, p)
-	// Trim left "/" to prevent object start with "/"
-	cp = strings.TrimLeft(cp, "/")
+	cp := utils.Join(c.Path, p)
 
 	resp, err := c.client.GetInfo(cp)
 	if err != nil {

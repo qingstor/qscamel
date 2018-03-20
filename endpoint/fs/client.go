@@ -3,12 +3,12 @@ package fs
 import (
 	"context"
 	"os"
-	"path"
 
 	"github.com/sirupsen/logrus"
 
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
+	"github.com/yunify/qscamel/utils"
 )
 
 // Client is the struct for POSIX file system endpoint.
@@ -38,7 +38,7 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 
 // Stat implement source.Stat and destination.Stat
 func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error) {
-	cp := path.Join(c.Path, p)
+	cp := utils.Join(c.Path, p)
 
 	fi, err := os.Stat(cp)
 	if err != nil {

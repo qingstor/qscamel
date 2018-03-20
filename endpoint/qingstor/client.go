@@ -3,9 +3,6 @@ package qingstor
 import (
 	"context"
 	"errors"
-	"path"
-	"strings"
-
 	"github.com/sirupsen/logrus"
 	"github.com/yunify/qingstor-sdk-go/config"
 	qsErrors "github.com/yunify/qingstor-sdk-go/request/errors"
@@ -117,9 +114,7 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 
 // Stat implement source.Stat and destination.Stat
 func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error) {
-	cp := path.Join(c.Path, p)
-	// Trim left "/" to prevent object start with "/"
-	cp = strings.TrimLeft(cp, "/")
+	cp := utils.Join(c.Path, p)
 
 	resp, err := c.client.HeadObject(cp, nil)
 	if err != nil {
