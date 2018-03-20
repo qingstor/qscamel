@@ -4,12 +4,11 @@ import (
 	"context"
 	"io"
 	"os"
-	"path"
-	"strings"
 
 	"github.com/sirupsen/logrus"
 
 	"github.com/yunify/qscamel/model"
+	"github.com/yunify/qscamel/utils"
 )
 
 // Reachable implement source.Reachable
@@ -26,7 +25,7 @@ func (c *Client) Readable() bool {
 func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) {
 	defer close(rc)
 
-	cp := path.Join(c.Path, j.Path)
+	cp := utils.Join(c.Path, j.Path)
 
 	fi, err := os.Open(cp)
 	if err != nil {
@@ -39,7 +38,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 
 	for _, v := range list {
 		rc <- &model.Object{
-			Key:   strings.TrimLeft(v.Name(), c.Path),
+			Key:   utils.Relative(v.Name(), c.Path),
 			IsDir: v.IsDir(),
 			Size:  v.Size(),
 		}
@@ -50,7 +49,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 
 // Read implement source.Read
 func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error) {
-	cp := path.Join(c.Path, p)
+	cp := utils.Join(c.Path, p)
 
 	r, err = os.Open(cp)
 	if err != nil {

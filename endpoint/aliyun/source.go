@@ -3,13 +3,12 @@ package aliyun
 import (
 	"context"
 	"io"
-	"path"
-	"strings"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/sirupsen/logrus"
 
 	"github.com/yunify/qscamel/model"
+	"github.com/yunify/qscamel/utils"
 )
 
 // Reachable implement source.Reachable
@@ -26,10 +25,7 @@ func (c *Client) Readable() bool {
 func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) {
 	defer close(rc)
 
-	// Add "/" to list specific prefix.
-	cp := path.Join(c.Path, j.Path) + "/"
-	// Trim left "/" to prevent object start with "/"
-	cp = strings.TrimLeft(cp, "/")
+	cp := utils.Join(c.Path, j.Path) + "/"
 
 	marker := j.Marker
 
@@ -47,7 +43,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 		}
 		for _, v := range resp.Objects {
 			object := &model.Object{
-				Key:   strings.TrimLeft(v.Key, c.Path),
+				Key:   utils.Relative(v.Key, c.Path),
 				IsDir: false,
 				Size:  v.Size,
 			}
@@ -56,7 +52,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 		}
 		for _, v := range resp.CommonPrefixes {
 			object := &model.Object{
-				Key:   strings.TrimLeft(v, c.Path),
+				Key:   utils.Relative(v, c.Path),
 				IsDir: true,
 				Size:  0,
 			}
@@ -85,9 +81,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 
 // Read implement source.Read
 func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error) {
-	cp := path.Join(c.Path, p)
-	// Trim left "/" to prevent object start with "/"
-	cp = strings.TrimLeft(cp, "/")
+	cp := utils.Join(c.Path, p)
 
 	r, err = c.client.GetObject(cp)
 	if err != nil {

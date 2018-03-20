@@ -4,13 +4,13 @@ import (
 	"context"
 	"io"
 	"path"
-	"strings"
 
 	"cloud.google.com/go/storage"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/api/iterator"
 
 	"github.com/yunify/qscamel/model"
+	"github.com/yunify/qscamel/utils"
 )
 
 // Reachable implement source.Reachable
@@ -27,10 +27,7 @@ func (c *Client) Readable() bool {
 func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) {
 	defer close(rc)
 
-	// Add "/" to list specific prefix.
 	cp := path.Join(c.Path, j.Path) + "/"
-	// Trim left "/" to prevent object start with "/"
-	cp = strings.TrimLeft(cp, "/")
 
 	it := c.client.Objects(ctx, &storage.Query{
 		Delimiter: "/",
@@ -48,7 +45,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 		}
 		if next.Prefix != "" {
 			object := &model.Object{
-				Key:   strings.TrimLeft(next.Prefix, c.Path),
+				Key:   utils.Relative(next.Prefix, c.Path),
 				IsDir: true,
 				Size:  0,
 			}
@@ -58,7 +55,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 		}
 
 		object := &model.Object{
-			Key:   strings.TrimLeft(next.Name, c.Path),
+			Key:   utils.Relative(next.Name, c.Path),
 			IsDir: false,
 			Size:  next.Size,
 		}
@@ -71,9 +68,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 
 // Read implement source.Read
 func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error) {
-	cp := path.Join(c.Path, p)
-	// Trim left "/" to prevent object start with "/"
-	cp = strings.TrimLeft(cp, "/")
+	cp := utils.Join(c.Path, p)
 
 	o := c.client.Object(cp)
 
