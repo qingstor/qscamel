@@ -29,6 +29,9 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 	om := make(map[string]struct{})
 
 	cp := utils.Join(c.Path, j.Path) + "/"
+	if cp == "/" {
+		cp = ""
+	}
 
 	marker := j.Marker
 
