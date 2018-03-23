@@ -3,9 +3,10 @@ package constants
 import "runtime"
 
 // DefaultConfigContent is the default config config.
-const DefaultConfigContent = `thread_num: 100
+const DefaultConfigContent = `concurrency: 0
 log_file: ~/.qscamel/qscamel.log
 log_level: error
+pid_file: ~/.qscamel/qscamel.pid
 database_file: ~/.qscamel/qscamel.db
 `
 
