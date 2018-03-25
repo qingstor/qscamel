@@ -19,6 +19,7 @@ package migrate
 import (
 	"context"
 	"errors"
+	"sync"
 
 	"github.com/sirupsen/logrus"
 
@@ -36,6 +37,10 @@ import (
 
 var (
 	t *model.Task
+
+	oc chan *model.Object
+	jc chan *model.Job
+	wg *sync.WaitGroup
 
 	src endpoint.Source
 	dst endpoint.Destination
