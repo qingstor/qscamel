@@ -4,9 +4,10 @@ import "github.com/pengsrc/go-shared/buffer"
 
 // Constants for task type.
 const (
-	TaskTypeCopy   = "copy"
-	TaskTypeFetch  = "fetch"
-	TaskTypeVerify = "verify"
+	TaskTypeCopy        = "copy"
+	TaskTypeFetch       = "fetch"
+	TaskTypeVerifyCopy  = "verify+copy"
+	TaskTypeVerifyFetch = "verify+fetch"
 )
 
 // Constants for task status.
