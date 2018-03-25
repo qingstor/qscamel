@@ -21,30 +21,30 @@ func (c *Client) Readable() bool {
 }
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) {
-	defer close(rc)
+func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object)) (err error) {
 
 	cp := utils.Join(c.Path, j.Path) + "/"
 
 	oc := make(chan *upyun.FileInfo, 100)
 
-	err := c.client.List(&upyun.GetObjectsConfig{
+	err = c.client.List(&upyun.GetObjectsConfig{
 		Path:         cp,
 		MaxListLevel: 1,
 		ObjectsChan:  oc,
 	})
 	if err != nil {
 		logrus.Errorf("List failed for %v.", err)
-		rc <- nil
-		return
+		return err
 	}
 
 	for v := range oc {
-		rc <- &model.Object{
+		o := &model.Object{
 			Key:   utils.Relative(v.Name, c.Path),
 			IsDir: v.IsDir,
 			Size:  v.Size,
 		}
+
+		fn(o)
 	}
 
 	return

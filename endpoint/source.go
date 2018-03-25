@@ -12,7 +12,7 @@ type Source interface {
 	Reachable() bool
 	Readable() bool
 
-	List(ctx context.Context, j *model.Job, rc chan *model.Object)
+	List(ctx context.Context, j *model.Job, fn func(*model.Object)) (err error)
 
 	Read(ctx context.Context, p string) (r io.ReadCloser, err error)
 	Reach(ctx context.Context, p string) (url string, err error)

@@ -22,9 +22,7 @@ func (c *Client) Readable() bool {
 }
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) {
-	defer close(rc)
-
+func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object)) (err error) {
 	cp := utils.Join(c.Path, j.Path) + "/"
 
 	marker := j.Marker
@@ -39,8 +37,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 		})
 		if err != nil {
 			logrus.Errorf("List objects failed for %v.", err)
-			rc <- nil
-			return
+			return err
 		}
 		for _, v := range resp.Contents {
 			object := &model.Object{
@@ -49,7 +46,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 				Size:  *v.Size,
 			}
 
-			rc <- object
+			fn(object)
 		}
 		for _, v := range resp.CommonPrefixes {
 			object := &model.Object{
@@ -58,7 +55,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 				Size:  0,
 			}
 
-			rc <- object
+			fn(object)
 		}
 
 		marker = *resp.NextContinuationToken
@@ -71,8 +68,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 		err = j.Save(ctx)
 		if err != nil {
 			logrus.Errorf("Save task failed for %v.", err)
-			rc <- nil
-			return
+			return err
 		}
 
 		if marker == "" {

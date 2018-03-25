@@ -23,9 +23,7 @@ func (c *Client) Readable() bool {
 }
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) {
-	defer close(rc)
-
+func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object)) (err error) {
 	cp := utils.Join(c.Path, j.Path) + "/"
 
 	marker := j.Marker
@@ -34,8 +32,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 		entries, _, nextMarker, _, err := c.bucket.ListFiles(c.BucketName, cp, "", marker, MaxListFileLimit)
 		if err != nil {
 			logrus.Errorf("List files failed for %v.", err)
-			rc <- nil
-			return
+			return err
 		}
 		for _, v := range entries {
 			object := &model.Object{
@@ -44,7 +41,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 				Size:  v.Fsize,
 			}
 
-			rc <- object
+			fn(object)
 		}
 
 		marker = nextMarker
@@ -54,8 +51,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 		err = j.Save(ctx)
 		if err != nil {
 			logrus.Errorf("Save task failed for %v.", err)
-			rc <- nil
-			return
+			return err
 		}
 
 		if marker == "" {

@@ -23,9 +23,7 @@ func (c *Client) Readable() bool {
 }
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) {
-	defer close(rc)
-
+func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object)) (err error) {
 	om := make(map[string]struct{})
 
 	cp := utils.Join(c.Path, j.Path) + "/"
@@ -44,8 +42,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 		})
 		if err != nil {
 			logrus.Errorf("List objects failed for %v.", err)
-			rc <- nil
-			return
+			return err
 		}
 		// Both "xxx/" and "xxx" with directory content type should be treated as directory.
 		// And in order to prevent duplicate job, we need to use set to filter them.
@@ -57,7 +54,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 			}
 
 			if _, ok := om[object.Key]; !ok {
-				rc <- object
+				fn(object)
 				om[object.Key] = struct{}{}
 			}
 		}
@@ -69,7 +66,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 			}
 
 			if _, ok := om[object.Key]; !ok {
-				rc <- object
+				fn(object)
 				om[object.Key] = struct{}{}
 			}
 		}
@@ -81,8 +78,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 		err = j.Save(ctx)
 		if err != nil {
 			logrus.Errorf("Save task failed for %v.", err)
-			rc <- nil
-			return
+			return err
 		}
 
 		if marker == "" {
