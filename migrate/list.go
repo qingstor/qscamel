@@ -10,11 +10,11 @@ import (
 
 // List will list objects and send to channel.
 func List(ctx context.Context) (err error) {
-	hj, err := model.HasJob(ctx)
+	seq, err := model.GetSequence(ctx)
 	if err != nil {
 		logrus.Panic(err)
 	}
-	if !hj {
+	if seq == 0 {
 		_, err = model.CreateJob(ctx, "/")
 		if err != nil {
 			logrus.Panic(err)
@@ -62,7 +62,7 @@ func headObject(ctx context.Context, p string) (exist bool, err error) {
 		return
 	}
 	if do == nil {
-		logrus.Warnf("Dst object %s is not found, excuate.", p)
+		logrus.Warnf("Dst object %s is not found, execute.", p)
 		return
 	}
 
@@ -76,21 +76,20 @@ func headObject(ctx context.Context, p string) (exist bool, err error) {
 	return
 }
 
-func listJob(
-	ctx context.Context, j *model.Job) (err error) {
+func listJob(ctx context.Context, j *model.Job) (err error) {
 	defer wg.Done()
 
 	err = src.List(ctx, j, func(o *model.Object) {
 		if o.IsDir {
-			j, err = model.CreateJob(ctx, o.Key)
+			nj, err := model.CreateJob(ctx, o.Key)
 			if err != nil {
 				// Panic a db error
 				logrus.Panic(err)
 			}
 
-			logrus.Infof("Job %s is created.", utils.Join(j.Path, o.Key))
+			logrus.Infof("Job %s is created.", utils.Join(nj.Path, o.Key))
 			wg.Add(1)
-			jc <- j
+			jc <- nj
 
 			return
 		}

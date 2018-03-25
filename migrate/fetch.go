@@ -2,7 +2,6 @@ package migrate
 
 import (
 	"context"
-	"errors"
 	"sync"
 
 	"github.com/sirupsen/logrus"
@@ -47,17 +46,6 @@ func Fetch(ctx context.Context) (err error) {
 		return err
 	}
 
-	ho, err := model.HasObject(ctx)
-	if err != nil {
-		logrus.Panic(err)
-	}
-	if ho {
-		logrus.Infof("There are not finished objects, retried.")
-		err = errors.New("object not finished")
-		return
-	}
-
-	logrus.Infof("Task %s has been finished.", t.Name)
 	return
 }
 
@@ -125,7 +113,7 @@ func fetchObject(ctx context.Context, p string) (err error) {
 
 	err = model.DeleteObject(ctx, p)
 	if err != nil {
-		logrus.Panicf("DeleteRunningObject failed for %v.", err)
+		logrus.Panicf("DeleteObject failed for %v.", err)
 		return err
 	}
 	return

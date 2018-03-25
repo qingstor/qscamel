@@ -6,7 +6,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/contexts"
 	"github.com/yunify/qscamel/model"
 )
@@ -45,15 +44,6 @@ func Copy(ctx context.Context) (err error) {
 	if err != nil {
 		logrus.Errorf("List failed for %v.", err)
 		return err
-	}
-
-	ho, err := model.HasObject(ctx)
-	if err != nil {
-		logrus.Panic(err)
-	}
-	if ho {
-		logrus.Infof("There are not finished objects, retried.")
-		return constants.ErrNotFinishedObject
 	}
 
 	return
