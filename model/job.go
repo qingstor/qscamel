@@ -1,8 +1,8 @@
 package model
 
 import (
+	"bytes"
 	"context"
-	"strconv"
 
 	"github.com/sirupsen/logrus"
 	"github.com/vmihailenco/msgpack"
@@ -95,6 +95,27 @@ func CreateJob(ctx context.Context, p string) (j *Job, err error) {
 	return
 }
 
+// DeleteJob will delete a job.
+func DeleteJob(ctx context.Context, id uint64) (err error) {
+	t := utils.FromTaskContext(ctx)
+
+	tx := utils.FromTxContext(ctx)
+	if tx == nil {
+		tx, err = contexts.DB.Begin(true)
+		if err != nil {
+			logrus.Errorf("Start transaction failed for %v.", err)
+			return
+		}
+		defer func() {
+			CloseTx(tx, err)
+		}()
+	}
+
+	b := tx.Bucket(constants.FormatTaskKey(t))
+
+	return b.Delete(constants.FormatJobKey(id))
+}
+
 // GetJob will get a job by it's ID.
 func GetJob(ctx context.Context, id uint64) (j *Job, err error) {
 	t := utils.FromTaskContext(ctx)
@@ -123,8 +144,8 @@ func GetJob(ctx context.Context, id uint64) (j *Job, err error) {
 	return
 }
 
-// GetCurrentJobID will get current job ID.
-func GetCurrentJobID(ctx context.Context) (id uint64, err error) {
+// HasJob will check whether db has not finished job.
+func HasJob(ctx context.Context) (b bool, err error) {
 	t := utils.FromTaskContext(ctx)
 
 	tx := utils.FromTxContext(ctx)
@@ -139,26 +160,23 @@ func GetCurrentJobID(ctx context.Context) (id uint64, err error) {
 		}()
 	}
 
-	b := tx.Bucket(constants.FormatTaskKey(t))
+	c := tx.Bucket(constants.FormatTaskKey(t)).Cursor()
 
-	val := b.Get([]byte(constants.KeyCurrentJob))
-	if val == nil {
-		return 0, nil
-	}
-	id, err = strconv.ParseUint(string(val), 10, 64)
-	if err != nil {
-		logrus.Panic("ParseUint failed for %v.", err)
+	k, _ := c.Seek([]byte(constants.KeyJobPrefix))
+
+	if k != nil && bytes.HasPrefix(k, []byte(constants.KeyJobPrefix)) {
+		return true, nil
 	}
 	return
 }
 
-// UpdateCurrentJobID will update current job ID.
-func UpdateCurrentJobID(ctx context.Context, n uint64) (err error) {
+// ListJob will list current task's job.
+func ListJob(ctx context.Context, fn func(*Job)) (err error) {
 	t := utils.FromTaskContext(ctx)
 
 	tx := utils.FromTxContext(ctx)
 	if tx == nil {
-		tx, err = contexts.DB.Begin(true)
+		tx, err = contexts.DB.Begin(false)
 		if err != nil {
 			logrus.Errorf("Start transaction failed for %v.", err)
 			return
@@ -168,7 +186,20 @@ func UpdateCurrentJobID(ctx context.Context, n uint64) (err error) {
 		}()
 	}
 
-	b := tx.Bucket(constants.FormatTaskKey(t))
+	c := tx.Bucket(constants.FormatTaskKey(t)).Cursor()
+	j := &Job{}
 
-	return b.Put([]byte(constants.KeyCurrentJob), []byte(strconv.FormatUint(n, 10)))
+	k, v := c.Seek([]byte(constants.KeyJobPrefix))
+	for k != nil && bytes.HasPrefix(k, []byte(constants.KeyJobPrefix)) {
+		err = msgpack.Unmarshal(v, j)
+		if err != nil {
+			logrus.Panicf("Msgpack unmarshal failed for %v.", err)
+		}
+
+		fn(j)
+
+		k, v = c.Next()
+	}
+
+	return
 }
