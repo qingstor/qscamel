@@ -24,8 +24,7 @@ func (c *Client) Readable() bool {
 }
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) {
-	defer close(rc)
+func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object)) (err error) {
 
 	cp := path.Join(c.Path, j.Path) + "/"
 
@@ -40,8 +39,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 		}
 		if err != nil {
 			logrus.Errorf("List objects failed for %v.", err)
-			rc <- nil
-			return
+			return err
 		}
 		if next.Prefix != "" {
 			object := &model.Object{
@@ -50,7 +48,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 				Size:  0,
 			}
 
-			rc <- object
+			fn(object)
 			continue
 		}
 
@@ -60,7 +58,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, rc chan *model.Object) 
 			Size:  next.Size,
 		}
 
-		rc <- object
+		fn(object)
 	}
 
 	return
