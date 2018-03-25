@@ -145,10 +145,10 @@ func ListObject(ctx context.Context, fn func(*Object)) (err error) {
 	}
 
 	c := tx.Bucket(constants.FormatTaskKey(t)).Cursor()
-	o := &Object{}
 
 	k, v := c.Seek([]byte(constants.KeyObjectPrefix))
 	for k != nil && bytes.HasPrefix(k, []byte(constants.KeyObjectPrefix)) {
+		o := &Object{}
 		err = msgpack.Unmarshal(v, o)
 		if err != nil {
 			logrus.Panicf("Msgpack unmarshal failed for %v.", err)
