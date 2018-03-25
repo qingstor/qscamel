@@ -3,6 +3,7 @@ package qingstor
 import (
 	"context"
 	"io"
+	"strings"
 
 	"github.com/pengsrc/go-shared/convert"
 	"github.com/sirupsen/logrus"
@@ -48,9 +49,11 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 		// And in order to prevent duplicate job, we need to use set to filter them.
 		for _, v := range resp.Keys {
 			object := &model.Object{
-				Key:   utils.Relative(*v.Key, c.Path),
-				IsDir: *v.MimeType == DirectoryContentType,
-				Size:  *v.Size,
+				Key:          utils.Relative(*v.Key, c.Path),
+				IsDir:        *v.MimeType == DirectoryContentType,
+				Size:         *v.Size,
+				LastModified: int64(*v.Modified),
+				MD5:          strings.Trim(*v.Etag, "\""),
 			}
 
 			if _, ok := om[object.Key]; !ok {

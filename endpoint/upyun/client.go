@@ -97,7 +97,12 @@ func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error
 		IsDir:        resp.IsDir,
 		Size:         resp.Size,
 		LastModified: resp.Time.Unix(),
-		ContentMD5:   resp.ETag,
+		MD5:          resp.ETag,
 	}
+	return
+}
+
+// MD5 implement source.MD5 and destination.MD5
+func (c *Client) MD5(ctx context.Context, p string) (b string, err error) {
 	return
 }

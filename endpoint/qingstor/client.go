@@ -12,6 +12,7 @@ import (
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
 	"github.com/yunify/qscamel/utils"
+	"strings"
 )
 
 // Client is the client to visit QingStor service.
@@ -131,8 +132,13 @@ func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error
 		Key:          p,
 		IsDir:        *resp.ContentType == DirectoryContentType,
 		Size:         *resp.ContentLength,
-		ContentMD5:   *resp.ETag,
+		MD5:          strings.Trim(*resp.ETag, "\""),
 		LastModified: (*resp.LastModified).Unix(),
 	}
+	return
+}
+
+// MD5 implement source.MD5 and destination.MD5
+func (c *Client) MD5(ctx context.Context, p string) (b string, err error) {
 	return
 }

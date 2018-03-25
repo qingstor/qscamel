@@ -18,4 +18,6 @@ type Source interface {
 	Reach(ctx context.Context, p string) (url string, err error)
 
 	Stat(ctx context.Context, p string) (o *model.Object, err error)
+
+	MD5(ctx context.Context, p string) (b string, err error)
 }
