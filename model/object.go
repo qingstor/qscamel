@@ -19,7 +19,7 @@ type Object struct {
 	IsDir        bool   `msgpack:"id"`
 	Size         int64  `msgpack:"s"`
 	LastModified int64  `msgpack:"lm"`
-	ContentMD5   string `msgpack:"cm"`
+	MD5          string `msgpack:"cm"`
 }
 
 // CreateObject will create an object in db.
