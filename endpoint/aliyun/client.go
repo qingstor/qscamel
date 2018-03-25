@@ -2,7 +2,6 @@ package aliyun
 
 import (
 	"context"
-	"errors"
 	"strconv"
 	"strings"
 
@@ -54,28 +53,28 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	// Set endpoint
 	if c.Endpoint == "" {
 		logrus.Error("Aliyun OSS's endpoint can't be empty.")
-		err = errors.New("aliyun oss endpoint is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 
 	// Set bucket name.
 	if c.BucketName == "" {
 		logrus.Error("Aliyun OSS's bucket name can't be empty.")
-		err = errors.New("aliyun oss bucket name is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 
 	// Set access key.
 	if c.AccessKeyID == "" {
 		logrus.Error("Aliyun OSS's access key id can't be empty.")
-		err = errors.New("aliyun oss access key is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 
 	// Set secret key.
 	if c.AccessKeySecret == "" {
 		logrus.Error("Aliyun OSS's access key secret can't be empty.")
-		err = errors.New("aliyun oss access key secret is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 

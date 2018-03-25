@@ -2,7 +2,6 @@ package qiniu
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"strings"
 
@@ -59,28 +58,28 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	// Set bucket name.
 	if c.BucketName == "" {
 		logrus.Error("Qiniu's bucket name can't be empty.")
-		err = errors.New("qiniu bucket name is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 
 	// Set access key.
 	if c.AccessKey == "" {
 		logrus.Error("Qiniu's access key can't be empty.")
-		err = errors.New("qiniu access key is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 
 	// Set secret key.
 	if c.SecretKey == "" {
 		logrus.Error("Qiniu's secret key can't be empty.")
-		err = errors.New("qiniu secret key is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 
 	// Set domain.
 	if c.Domain == "" {
 		logrus.Error("Qiniu's domain can't be empty.")
-		err = errors.New("qiniu domain is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 
