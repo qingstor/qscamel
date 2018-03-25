@@ -2,8 +2,6 @@ package migrate
 
 import (
 	"context"
-	"sync"
-
 	"github.com/sirupsen/logrus"
 
 	"github.com/yunify/qscamel/model"
@@ -11,7 +9,7 @@ import (
 )
 
 // List will list objects and send to channel.
-func List(ctx context.Context, oc chan *model.Object, jc chan *model.Job, wg *sync.WaitGroup) (err error) {
+func List(ctx context.Context) (err error) {
 	hj, err := model.HasJob(ctx)
 	if err != nil {
 		logrus.Panic(err)
@@ -79,8 +77,7 @@ func headObject(ctx context.Context, p string) (exist bool, err error) {
 }
 
 func listJob(
-	ctx context.Context, j *model.Job, oc chan *model.Object, jc chan *model.Job, wg *sync.WaitGroup,
-) (err error) {
+	ctx context.Context, j *model.Job) (err error) {
 	defer wg.Done()
 
 	err = src.List(ctx, j, func(o *model.Object) {

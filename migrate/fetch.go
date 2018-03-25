@@ -26,9 +26,9 @@ func CanFetch() bool {
 
 // Fetch will do fetch job between src and dst.
 func Fetch(ctx context.Context) (err error) {
-	oc := make(chan *model.Object)
-	jc := make(chan *model.Job)
-	wg := new(sync.WaitGroup)
+	oc = make(chan *model.Object)
+	jc = make(chan *model.Job)
+	wg = new(sync.WaitGroup)
 
 	// Close channel for no more object.
 	defer close(oc)
@@ -38,10 +38,10 @@ func Fetch(ctx context.Context) (err error) {
 	defer wg.Wait()
 
 	for i := 0; i < contexts.Config.Concurrency; i++ {
-		go fetchWorker(ctx, oc, jc, wg)
+		go fetchWorker(ctx)
 	}
 
-	err = List(ctx, oc, jc, wg)
+	err = List(ctx)
 	if err != nil {
 		logrus.Errorf("List failed for %v.", err)
 		return err
@@ -61,7 +61,7 @@ func Fetch(ctx context.Context) (err error) {
 	return
 }
 
-func fetchWorker(ctx context.Context, oc chan *model.Object, jc chan *model.Job, wg *sync.WaitGroup) {
+func fetchWorker(ctx context.Context) {
 	for {
 		select {
 		case o, ok := <-oc:
@@ -80,7 +80,7 @@ func fetchWorker(ctx context.Context, oc chan *model.Object, jc chan *model.Job,
 
 			logrus.Infof("Start fetching object %s.", o.Key)
 
-			err := fetchObject(ctx, o.Key, wg)
+			err := fetchObject(ctx, o.Key)
 			if err != nil {
 				continue
 			}
@@ -94,7 +94,7 @@ func fetchWorker(ctx context.Context, oc chan *model.Object, jc chan *model.Job,
 
 			logrus.Infof("Start list job %s.", j.Path)
 
-			err := listJob(ctx, j, oc, jc, wg)
+			err := listJob(ctx, j)
 			if err != nil {
 				continue
 			}
@@ -109,7 +109,7 @@ func fetchWorker(ctx context.Context, oc chan *model.Object, jc chan *model.Job,
 }
 
 // fetchObject will do a real fetch.
-func fetchObject(ctx context.Context, p string, wg *sync.WaitGroup) (err error) {
+func fetchObject(ctx context.Context, p string) (err error) {
 	defer wg.Done()
 
 	url, err := src.Reach(ctx, p)
