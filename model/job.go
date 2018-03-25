@@ -187,10 +187,10 @@ func ListJob(ctx context.Context, fn func(*Job)) (err error) {
 	}
 
 	c := tx.Bucket(constants.FormatTaskKey(t)).Cursor()
-	j := &Job{}
 
 	k, v := c.Seek([]byte(constants.KeyJobPrefix))
 	for k != nil && bytes.HasPrefix(k, []byte(constants.KeyJobPrefix)) {
+		j := &Job{}
 		err = msgpack.Unmarshal(v, j)
 		if err != nil {
 			logrus.Panicf("Msgpack unmarshal failed for %v.", err)
