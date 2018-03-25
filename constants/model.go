@@ -20,8 +20,7 @@ const (
 	KeyTaskList   = "t"
 	KeyTaskPrefix = "t:"
 
-	KeyCurrentJob = "cj"
-	KeyJobPrefix  = "j:"
+	KeyJobPrefix = "j:"
 
 	KeyObjectPrefix = "o:"
 )
