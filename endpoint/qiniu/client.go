@@ -127,3 +127,8 @@ func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error
 	}
 	return
 }
+
+// MD5 implement source.MD5 and destination.MD5
+func (c *Client) MD5(ctx context.Context, p string) (b string, err error) {
+	return
+}

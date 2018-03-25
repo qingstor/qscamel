@@ -2,6 +2,9 @@ package fs
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/hex"
+	"io"
 	"os"
 
 	"github.com/sirupsen/logrus"
@@ -38,7 +41,7 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 
 // Stat implement source.Stat and destination.Stat
 func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error) {
-	cp := utils.Join(c.Path, p)
+	cp := "/" + utils.Join(c.Path, p)
 
 	fi, err := os.Stat(cp)
 	if err != nil {
@@ -56,4 +59,21 @@ func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error
 		LastModified: fi.ModTime().Unix(),
 	}
 	return
+}
+
+// MD5 implement source.MD5 and destination.MD5
+func (c *Client) MD5(ctx context.Context, p string) (b string, err error) {
+	r, err := c.Read(ctx, p)
+	if err != nil {
+		return
+	}
+	defer r.Close()
+
+	h := md5.New()
+	if _, err := io.Copy(h, r); err != nil {
+		return "", err
+	}
+	sum := h.Sum(nil)
+
+	return hex.EncodeToString(sum[:]), nil
 }
