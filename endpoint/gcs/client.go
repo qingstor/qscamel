@@ -2,7 +2,6 @@ package gcs
 
 import (
 	"context"
-	"errors"
 	"strings"
 
 	"cloud.google.com/go/storage"
@@ -51,13 +50,13 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	// Set bucket name.
 	if c.BucketName == "" {
 		logrus.Error("Google cloud storage bucket name can't be empty.")
-		err = errors.New("google cloud storage bucket name is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 	// Set api key
 	if c.APIKey == "" {
 		logrus.Error("Google cloud storage API key can't be empty.")
-		err = errors.New("google cloud storage api key is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 

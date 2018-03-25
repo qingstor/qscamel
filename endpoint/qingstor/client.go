@@ -2,7 +2,7 @@ package qingstor
 
 import (
 	"context"
-	"errors"
+
 	"github.com/sirupsen/logrus"
 	"github.com/yunify/qingstor-sdk-go/config"
 	qsErrors "github.com/yunify/qingstor-sdk-go/request/errors"
@@ -73,21 +73,21 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	// Set bucket name.
 	if c.BucketName == "" {
 		logrus.Error("QingStor's bucket name can't be empty.")
-		err = errors.New("qingstor bucket name is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 
 	// Set access key.
 	if c.AccessKeyID == "" {
 		logrus.Error("QingStor's access key id can't be empty.")
-		err = errors.New("qingstor access key is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 
 	// Set secret key.
 	if c.SecretAccessKey == "" {
 		logrus.Error("QingStor's secret access key can't be empty.")
-		err = errors.New("qingstor secret access key is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 

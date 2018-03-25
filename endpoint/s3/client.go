@@ -2,7 +2,6 @@ package s3
 
 import (
 	"context"
-	"errors"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -59,21 +58,21 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	// Set bucket name.
 	if c.BucketName == "" {
 		logrus.Error("AWS bucket name can't be empty.")
-		err = errors.New("aws bucket name is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 
 	// Set access key.
 	if c.AccessKeyID == "" {
 		logrus.Error("AWS access key id can't be empty.")
-		err = errors.New("aws access key is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 
 	// Set secret key.
 	if c.SecretAccessKey == "" {
 		logrus.Error("AWS's secret access key can't be empty.")
-		err = errors.New("aws secret access key is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 

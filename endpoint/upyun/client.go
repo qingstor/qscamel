@@ -2,7 +2,6 @@ package upyun
 
 import (
 	"context"
-	"errors"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -51,19 +50,19 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	// Set bucket name.
 	if c.BucketName == "" {
 		logrus.Error("upyun bucket name can't be empty.")
-		err = errors.New("upyun bucket name is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 	// Set operator.
 	if c.Operator == "" {
 		logrus.Error("upyun operator can't be empty.")
-		err = errors.New("upyun operator is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 	// Set password.
 	if c.Password == "" {
 		logrus.Error("upyun password can't be empty.")
-		err = errors.New("upyun password is empty")
+		err = constants.ErrEndpointInvalid
 		return
 	}
 
