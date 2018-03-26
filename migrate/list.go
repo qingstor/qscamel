@@ -5,7 +5,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/yunify/qscamel/model"
-	"github.com/yunify/qscamel/utils"
 )
 
 // List will list objects and send to channel.
@@ -87,9 +86,15 @@ func listJob(ctx context.Context, j *model.Job) (err error) {
 				logrus.Panic(err)
 			}
 
-			logrus.Infof("Job %s is created.", utils.Join(nj.Path, o.Key))
+			logrus.Infof("Job %s is created.", o.Key)
+
 			wg.Add(1)
-			jc <- nj
+			select {
+			case jc <- nj:
+			default:
+				wg.Done()
+				break
+			}
 
 			return
 		}
@@ -100,7 +105,12 @@ func listJob(ctx context.Context, j *model.Job) (err error) {
 		}
 
 		wg.Add(1)
-		oc <- o
+		select {
+		case oc <- o:
+		default:
+			wg.Done()
+			break
+		}
 	})
 	if err != nil {
 		logrus.Errorf("Src list failed for %v.", err)

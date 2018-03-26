@@ -64,23 +64,22 @@ func copyTask(ctx context.Context) (err error) {
 		return
 	}
 	logrus.Debugf("Start copy task.")
+
+	bo := backoff.NewExponentialBackOff()
+
 	return backoff.Retry(func() error {
 		err := Copy(ctx)
 		if err != nil {
 			return err
 		}
 
-		ho, err := model.HasObject(ctx)
-		if err != nil {
-			logrus.Panic(err)
-		}
-		if ho {
-			logrus.Infof("There are not finished objects, retried.")
-			return constants.ErrNotFinishedObject
+		if !isFinished(ctx) {
+			bo.Reset()
+			return constants.ErrTaskNotFinished
 		}
 
 		return nil
-	}, backoff.NewExponentialBackOff())
+	}, bo)
 }
 
 func fetchTask(ctx context.Context) (err error) {
@@ -90,23 +89,22 @@ func fetchTask(ctx context.Context) (err error) {
 		return
 	}
 	logrus.Debugf("Start fetch task.")
+
+	bo := backoff.NewExponentialBackOff()
+
 	return backoff.Retry(func() error {
 		err := Fetch(ctx)
 		if err != nil {
 			return err
 		}
 
-		ho, err := model.HasObject(ctx)
-		if err != nil {
-			logrus.Panic(err)
-		}
-		if ho {
-			logrus.Infof("There are not finished objects, retried.")
-			return constants.ErrNotFinishedObject
+		if !isFinished(ctx) {
+			bo.Reset()
+			return constants.ErrTaskNotFinished
 		}
 
 		return nil
-	}, backoff.NewExponentialBackOff())
+	}, bo)
 }
 
 func verifyTask(ctx context.Context) (err error) {
@@ -132,4 +130,27 @@ func verifyTask(ctx context.Context) (err error) {
 		}
 		return nil
 	}, backoff.NewExponentialBackOff())
+}
+
+// isFinished will check whether current task has been finished.
+func isFinished(ctx context.Context) bool {
+	ho, err := model.HasObject(ctx)
+	if err != nil {
+		logrus.Panic(err)
+	}
+	if ho {
+		logrus.Infof("There are not finished objects.")
+		return false
+	}
+
+	hj, err := model.HasJob(ctx)
+	if err != nil {
+		logrus.Panic(err)
+	}
+	if hj {
+		logrus.Infof("There are not finished jobs.")
+		return false
+	}
+
+	return true
 }
