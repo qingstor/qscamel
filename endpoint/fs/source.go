@@ -35,7 +35,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 
 	for _, v := range list {
 		o := &model.Object{
-			Key:   utils.Relative(v.Name(), c.Path),
+			Key:   "/" + utils.Join(j.Path, v.Name()),
 			IsDir: v.IsDir(),
 			Size:  v.Size(),
 		}
