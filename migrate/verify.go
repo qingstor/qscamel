@@ -2,10 +2,12 @@ package migrate
 
 import (
 	"context"
+	"sync"
+
 	"github.com/sirupsen/logrus"
+
 	"github.com/yunify/qscamel/contexts"
 	"github.com/yunify/qscamel/model"
-	"sync"
 )
 
 // Verify will do verify job between src and dst.
