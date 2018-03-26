@@ -11,6 +11,7 @@ qscamel 是一个用于在不同的端点 (Endpoint) 中高效迁移数据的工
 - 完全自动化的重试机制
 - 基于 Goroutine 池实现的并发机制
 - 同时支持 **copy** 与 **fetch** 两种迁移机制
+- 支持数据校验
 - 多端点支持
 
   - 符合 POSIX 标准的文件系统 _(local fs, nfs, s3fs 等)_
@@ -96,9 +97,11 @@ qscamel run example-task -c /path/to/config/file
 # name 是任务的唯一标识，qscamel 将会使用它来区分不同的任务。
 name: example-task
 # type 是任务的类型。
-# 可选值: copy, fetch.
+# 可选值: copy, fetch, verify+copy, verify+fetch.
 # copy 将会从 source 处读取文件，并写入到 destination。
 # fetch 将会从 source 处获取文件的下载链接，并使用 destination 的 fetch 功能进行拉取。
+# verify+copy 将会验证文件是否已经正确的写入到 destination 并尝试使用 copy 来进行修复。
+# verify+fetch 将会验证文件是否已经正确的拉取到 destination 并尝试使用 fetch 来进行修复。
 type: copy
 
 # source 是任务的 source 端点。
