@@ -17,4 +17,4 @@
 package constants
 
 // Version number string.
-const Version = "2.0.0-beta.6"
+const Version = "2.0.0-beta.7"
