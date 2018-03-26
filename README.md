@@ -11,6 +11,7 @@ qscamel is a command line tool to migrate data between different endpoint effici
 - Automatic retry mechanism
 - Concurrent migrating with goroutine pool
 - Support both **copy** and **fetch** migrating methods
+- Supoort data verify
 - Mutiple endpoint support
 
   - POSIX File System _(local fs, nfs, s3fs and so on)_
@@ -96,7 +97,7 @@ Task file will define a task, and the task has following options:
 # different tasks.
 name: example-task
 # type is the type for current task.
-# Available value: copy, fetch, verify.
+# Available value: copy, fetch, verify+copy, verify+fetch.
 type: copy
 
 # source is the source endpoint for current task.
