@@ -2,6 +2,7 @@ package migrate
 
 import (
 	"context"
+
 	"github.com/sirupsen/logrus"
 
 	"github.com/yunify/qscamel/model"
@@ -80,22 +81,13 @@ func listJob(ctx context.Context, j *model.Job) (err error) {
 
 	err = src.List(ctx, j, func(o *model.Object) {
 		if o.IsDir {
-			nj, err := model.CreateJob(ctx, o.Key)
+			_, err := model.CreateJob(ctx, o.Key)
 			if err != nil {
 				// Panic a db error
 				logrus.Panic(err)
 			}
 
 			logrus.Infof("Job %s is created.", o.Key)
-
-			wg.Add(1)
-			select {
-			case jc <- nj:
-			default:
-				wg.Done()
-				break
-			}
-
 			return
 		}
 
@@ -105,12 +97,7 @@ func listJob(ctx context.Context, j *model.Job) (err error) {
 		}
 
 		wg.Add(1)
-		select {
-		case oc <- o:
-		default:
-			wg.Done()
-			break
-		}
+		oc <- o
 	})
 	if err != nil {
 		logrus.Errorf("Src list failed for %v.", err)
