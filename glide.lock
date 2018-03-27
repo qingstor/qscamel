@@ -1,13 +1,14 @@
-hash: a87e96c5240764ccd92d936a878efe7b796c24288eb43b1763ce8e01727090b0
-updated: 2018-03-15T23:02:09.543868295+08:00
+hash: 32a4b3c6fd27888b33d80c943a3aeeb0b20edaf4d9c5ea4c594b762dcd069b3f
+updated: 2018-03-28T05:04:33.713789558+08:00
 imports:
 - name: cloud.google.com/go
-  version: 20d4028b8a750c2aca76bf9fefa8ed2d0109b573
+  version: 4b98a6370e36d7a85192e7bad08a4ebd82eac2a8
   subpackages:
   - compute/metadata
   - iam
   - internal
   - internal/optional
+  - internal/trace
   - internal/version
   - storage
 - name: github.com/aliyun/aliyun-oss-go-sdk
@@ -15,7 +16,7 @@ imports:
   subpackages:
   - oss
 - name: github.com/aws/aws-sdk-go
-  version: 28d0127967e59b0c41cede1e8d548ed85374bbbc
+  version: 851c8ce700ee981b0ce28634721c2a925c6f3d0b
   subpackages:
   - aws
   - aws/awserr
@@ -99,7 +100,7 @@ imports:
   subpackages:
   - upyun
 - name: github.com/vmihailenco/msgpack
-  version: b5e5f4eb7291af0069327d334ed6d2ed9791243c
+  version: 7eb5d7335e1aa947b407fdae890e6f55ff8debb6
   subpackages:
   - codes
 - name: github.com/yunify/qingstor-sdk-go
@@ -116,13 +117,13 @@ imports:
   - service
   - utils
 - name: go.opencensus.io
-  version: 67dfb45941af00bd9e91a20bce0222d8a9b8b896
+  version: 8c142815a0fc8260acb05b03c75cb00f02ada340
   subpackages:
+  - exporter/stackdriver/propagation
   - internal
   - internal/tagencoding
   - plugin/ochttp
   - plugin/ochttp/propagation/b3
-  - plugin/ochttp/propagation/google
   - stats
   - stats/internal
   - stats/view
@@ -157,14 +158,14 @@ imports:
   - unix
   - windows
 - name: golang.org/x/text
-  version: 8c34f848e18c4bd34d02db7f19a0ed1a0a8f5852
+  version: ece95c760240037f89ebcbdd7155ac8cb52e38fa
   subpackages:
   - secure/bidirule
   - transform
   - unicode/bidi
   - unicode/norm
 - name: google.golang.org/api
-  version: c24aa0e5ed34558ea50c016e4fb92c5e9aa69f2c
+  version: e4126357c891acdef6dcd7805daa4c6533be6544
   subpackages:
   - gensupport
   - googleapi
@@ -193,9 +194,10 @@ imports:
   subpackages:
   - googleapis/api/annotations
   - googleapis/iam/v1
+  - googleapis/rpc/code
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 13975c070286c7371aa3a8b3c230e90d7bf029fc
+  version: f2620c38031ebba5563c151b8761b70e932ffb3d
   subpackages:
   - balancer
   - balancer/base
@@ -219,6 +221,8 @@ imports:
   - status
   - tap
   - transport
+- name: gopkg.in/natefinch/lumberjack.v2
+  version: a96e63847dc3c67d17befa69c303767e2f84e54f
 - name: gopkg.in/yaml.v2
   version: d670f9405373e636a5a2765eea47fac0c9bc91a4
 - name: qiniupkg.com/x
@@ -229,6 +233,14 @@ imports:
   - log.v7
   - reqid.v7
 testImports:
+- name: github.com/davecgh/go-spew
+  version: 346938d642f2ec3594ed81d874461961cd0faa76
+  subpackages:
+  - spew
+- name: github.com/pmezard/go-difflib
+  version: 792786c7400a136282c1664665ae0a8db921c6c2
+  subpackages:
+  - difflib
 - name: github.com/stretchr/testify
   version: 12b6f73e6084dad08a7c6e575284b177ecafbc71
   subpackages:

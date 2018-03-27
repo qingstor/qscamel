@@ -1,9 +1,11 @@
 package contexts
 
 import (
-	"github.com/sirupsen/logrus"
 	"io"
 	"os"
+
+	"github.com/sirupsen/logrus"
+	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/yunify/qscamel/config"
 	"github.com/yunify/qscamel/db"
@@ -34,9 +36,11 @@ func SetupContexts(c *config.Config) (err error) {
 		ForceColors:   true,
 	})
 	// Set output.
-	f, err := os.OpenFile(c.LogFile, os.O_WRONLY|os.O_APPEND, 0600)
-	if err != nil {
-		return err
+	f := &lumberjack.Logger{
+		Filename:  c.LogFile,
+		MaxSize:   1024,
+		LocalTime: true,
+		Compress:  true,
 	}
 	logrus.SetOutput(io.MultiWriter(os.Stdout, f))
 
