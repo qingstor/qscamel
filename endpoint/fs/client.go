@@ -77,3 +77,8 @@ func (c *Client) MD5(ctx context.Context, p string) (b string, err error) {
 
 	return hex.EncodeToString(sum[:]), nil
 }
+
+// MD5able implement source MD5able and destination MD5able.
+func (c *Client) MD5able() bool {
+	return true
+}

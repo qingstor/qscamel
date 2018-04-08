@@ -11,6 +11,7 @@ import (
 type Source interface {
 	Reachable() bool
 	Readable() bool
+	MD5able() bool
 
 	List(ctx context.Context, j *model.Job, fn func(*model.Object)) (err error)
 
