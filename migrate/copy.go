@@ -6,6 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/contexts"
 	"github.com/yunify/qscamel/model"
 )
@@ -36,8 +37,12 @@ func Copy(ctx context.Context) (err error) {
 	// Wait for all job finished.
 	defer wg.Wait()
 
-	for i := 0; i < contexts.Config.Concurrency; i++ {
-		go copyWorker(ctx)
+	migrateWorkers := int(float64(contexts.Config.Concurrency) * constants.DefaultWorkerRatio)
+	for i := 0; i < migrateWorkers; i++ {
+		go migrateWorker(ctx)
+	}
+	for i := 0; i < contexts.Config.Concurrency-migrateWorkers; i++ {
+		go listWorker(ctx)
 	}
 
 	err = List(ctx)
@@ -47,53 +52,6 @@ func Copy(ctx context.Context) (err error) {
 	}
 
 	return
-}
-
-func copyWorker(ctx context.Context) {
-	for {
-		select {
-		case o, ok := <-oc:
-			if !ok {
-				oc = nil
-				continue
-			}
-
-			if t.IgnoreExisting {
-				exist, err := headObject(ctx, o.Key)
-				if err != nil || exist {
-					wg.Done()
-					continue
-				}
-			}
-
-			logrus.Infof("Start copying object %s.", o.Key)
-
-			err := copyObject(ctx, o.Key)
-			if err != nil {
-				continue
-			}
-
-			logrus.Infof("Object %s copied.", o.Key)
-		case j, ok := <-jc:
-			if !ok {
-				jc = nil
-				continue
-			}
-
-			logrus.Infof("Start list job %s.", j.Path)
-
-			err := listJob(ctx, j)
-			if err != nil {
-				continue
-			}
-
-			logrus.Infof("Job %s listed.", j.Path)
-		}
-		// Check and exit while all channel closed.
-		if oc == nil && jc == nil {
-			break
-		}
-	}
 }
 
 // copyObject will do a real copy.

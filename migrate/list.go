@@ -5,6 +5,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
 )
 
@@ -42,9 +43,13 @@ func List(ctx context.Context) (err error) {
 	return
 }
 
-// headObject will head an object.
-func headObject(ctx context.Context, p string) (exist bool, err error) {
-	exist = false
+// checkObject will tell whether an object is ok.
+func checkObject(ctx context.Context, p string) (ok bool, err error) {
+	if !t.IgnoreExisting {
+		return true, nil
+	}
+
+	logrus.Infof("Start checking object %s.", p)
 
 	so, err := src.Stat(ctx, p)
 	if err != nil {
@@ -61,19 +66,46 @@ func headObject(ctx context.Context, p string) (exist bool, err error) {
 		logrus.Errorf("Dst stat %s failed for %v.", p, err)
 		return
 	}
+	// Check existence.
 	if do == nil {
-		logrus.Warnf("Dst object %s is not found, execute.", p)
+		logrus.Infof("Dst object %s is not found, should execute an operation on it.", p)
 		return
 	}
+	// Check size.
+	if so.Size != do.Size {
+		logrus.Infof("Dst object %s size is not match, should execute an operation on it.", p)
+		return
+	}
+	// Check content md5.
+	if src.MD5able() && dst.MD5able() {
+		sm := so.MD5
+		dm := do.MD5
+		if len(sm) != 32 {
+			sm, err = src.MD5(ctx, p)
+			if err != nil {
+				logrus.Errorf("Src md5 sum failed for %v.", err)
+				return
+			}
+		}
+		if len(dm) != 32 {
+			dm, err = dst.MD5(ctx, p)
+			if err != nil {
+				logrus.Errorf("Dst md5 sum failed for %v.", err)
+				return
+			}
+		}
+		if sm != dm {
+			logrus.Infof("Dst object %s md5 is not match, should execute an operation on it.", p)
+			return
+		}
+	}
 
-	exist = true
-	logrus.Warnf("Dst object %s exists, ignore.", p)
-
+	// Delete this object if every thing check passed.
 	err = model.DeleteObject(ctx, p)
 	if err != nil {
-		logrus.Panicf("DeleteRunningObject failed for %v.", err)
+		logrus.Panicf("DeleteObject failed for %v.", err)
 	}
-	return
+	return true, nil
 }
 
 func listJob(ctx context.Context, j *model.Job) (err error) {
@@ -98,6 +130,7 @@ func listJob(ctx context.Context, j *model.Job) (err error) {
 
 		wg.Add(1)
 		oc <- o
+		logrus.Infof("Object %s is created.", o.Key)
 	})
 	if err != nil {
 		logrus.Errorf("Src list failed for %v.", err)
@@ -109,4 +142,92 @@ func listJob(ctx context.Context, j *model.Job) (err error) {
 		logrus.Panic(err)
 	}
 	return
+}
+
+// listWorker will do both list and copy work.
+func listWorker(ctx context.Context) {
+	for {
+		select {
+		case o, ok := <-oc:
+			if !ok {
+				oc = nil
+				continue
+			}
+
+			ok, err := checkObject(ctx, o.Key)
+			if err != nil || ok {
+				wg.Done()
+				continue
+			}
+
+			switch t.Type {
+			case constants.TaskTypeCopy:
+				logrus.Infof("Start copying object %s.", o.Key)
+				err = copyObject(ctx, o.Key)
+				if err != nil {
+					continue
+				}
+
+				logrus.Infof("Object %s copied.", o.Key)
+			case constants.TaskTypeFetch:
+				logrus.Infof("Start fetching object %s.", o.Key)
+
+				err = fetchObject(ctx, o.Key)
+				if err != nil {
+					continue
+				}
+
+				logrus.Infof("Object %s fetched.", o.Key)
+			}
+		case j, ok := <-jc:
+			if !ok {
+				jc = nil
+				continue
+			}
+
+			logrus.Infof("Start list job %s.", j.Path)
+
+			err := listJob(ctx, j)
+			if err != nil {
+				continue
+			}
+
+			logrus.Infof("Job %s listed.", j.Path)
+		}
+		// Check and exit while all channel closed.
+		if oc == nil && jc == nil {
+			break
+		}
+	}
+}
+
+// migrateWorker will only do migrate work.
+func migrateWorker(ctx context.Context) {
+	for o := range oc {
+		ok, err := checkObject(ctx, o.Key)
+		if err != nil || ok {
+			wg.Done()
+			continue
+		}
+
+		switch t.Type {
+		case constants.TaskTypeCopy:
+			logrus.Infof("Start copying object %s.", o.Key)
+			err = copyObject(ctx, o.Key)
+			if err != nil {
+				continue
+			}
+
+			logrus.Infof("Object %s copied.", o.Key)
+		case constants.TaskTypeFetch:
+			logrus.Infof("Start fetching object %s.", o.Key)
+
+			err = fetchObject(ctx, o.Key)
+			if err != nil {
+				continue
+			}
+
+			logrus.Infof("Object %s fetched.", o.Key)
+		}
+	}
 }
