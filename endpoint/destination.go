@@ -11,6 +11,7 @@ import (
 type Destination interface {
 	Fetchable() bool
 	Writable() bool
+	MD5able() bool
 
 	Write(ctx context.Context, path string, r io.ReadCloser) (err error)
 	Fetch(ctx context.Context, path, url string) (err error)

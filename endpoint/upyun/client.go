@@ -106,3 +106,8 @@ func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error
 func (c *Client) MD5(ctx context.Context, p string) (b string, err error) {
 	return
 }
+
+// MD5able implement source MD5able and destination MD5able.
+func (c *Client) MD5able() bool {
+	return true
+}
