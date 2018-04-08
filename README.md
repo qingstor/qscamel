@@ -97,7 +97,7 @@ Task file will define a task, and the task has following options:
 # different tasks.
 name: example-task
 # type is the type for current task.
-# Available value: copy, fetch, verify+copy, verify+fetch.
+# Available value: copy, fetch
 type: copy
 
 # source is the source endpoint for current task.

@@ -97,11 +97,9 @@ qscamel run example-task -c /path/to/config/file
 # name 是任务的唯一标识，qscamel 将会使用它来区分不同的任务。
 name: example-task
 # type 是任务的类型。
-# 可选值: copy, fetch, verify+copy, verify+fetch.
+# 可选值: copy, fetch
 # copy 将会从 source 处读取文件，并写入到 destination。
 # fetch 将会从 source 处获取文件的下载链接，并使用 destination 的 fetch 功能进行拉取。
-# verify+copy 将会验证文件是否已经正确的写入到 destination 并尝试使用 copy 来进行修复。
-# verify+fetch 将会验证文件是否已经正确的拉取到 destination 并尝试使用 fetch 来进行修复。
 type: copy
 
 # source 是任务的 source 端点。
@@ -124,6 +122,12 @@ destination:
     bucket_name: example_bucket
     access_key_id: example_access_key_id
     secret_access_key: example_secret_access_key
+
+# ignore_existing 控制是否跳过已经存在的文件。
+# 如果设置为 true，qscamel 将会检查该文件是否存在。
+# 如果存在且大小和 MD5 均匹配，则会跳过。
+# 否则，将会执行任务类型所对应的操作。
+ignore_existing: false
 ```
 
 ### Endpoint aliyun
