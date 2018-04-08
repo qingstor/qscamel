@@ -2,7 +2,9 @@ package qingstor
 
 import (
 	"context"
+	"strings"
 
+	"github.com/pengsrc/go-shared/convert"
 	"github.com/sirupsen/logrus"
 	"github.com/yunify/qingstor-sdk-go/config"
 	qsErrors "github.com/yunify/qingstor-sdk-go/request/errors"
@@ -12,7 +14,6 @@ import (
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
 	"github.com/yunify/qscamel/utils"
-	"strings"
 )
 
 // Client is the client to visit QingStor service.
@@ -129,11 +130,13 @@ func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error
 		return
 	}
 	o = &model.Object{
-		Key:          p,
-		IsDir:        *resp.ContentType == DirectoryContentType,
-		Size:         *resp.ContentLength,
-		MD5:          strings.Trim(*resp.ETag, "\""),
-		LastModified: (*resp.LastModified).Unix(),
+		Key:   p,
+		IsDir: convert.StringValue(resp.ContentType) == DirectoryContentType,
+		Size:  convert.Int64Value(resp.ContentLength),
+		MD5:   strings.Trim(convert.StringValue(resp.ETag), "\""),
+	}
+	if resp.LastModified != nil {
+		o.LastModified = (*resp.LastModified).Unix()
 	}
 	return
 }
