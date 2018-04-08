@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/qiniu/api.v7/storage"
+	"github.com/qiniu/x/rpc.v7"
 	"github.com/sirupsen/logrus"
 
 	"github.com/yunify/qscamel/model"
@@ -31,6 +32,24 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 	for {
 		entries, _, nextMarker, _, err := c.bucket.ListFiles(c.BucketName, cp, "", marker, MaxListFileLimit)
 		if err != nil {
+			if e, ok := err.(*rpc.ErrorInfo); ok {
+				// If object not found, we just need to return a nil object.
+				if e.Code == ErrorCodeInvalidMarker {
+					marker = ""
+
+					// Update task content.
+					j.Marker = marker
+					err = j.Save(ctx)
+					if err != nil {
+						logrus.Errorf("Save task failed for %v.", err)
+						return err
+					}
+
+					logrus.Warn("Qiniu's marker has been invalid, rescan for now.")
+					continue
+				}
+			}
+
 			logrus.Errorf("List files failed for %v.", err)
 			return err
 		}
