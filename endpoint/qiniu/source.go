@@ -25,7 +25,10 @@ func (c *Client) Readable() bool {
 
 // List implement source.List
 func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object)) (err error) {
-	cp := utils.Join(c.Path, j.Path) + "/"
+	cp := utils.Join(c.Path, j.Path)
+	if cp != "" {
+		cp += "/"
+	}
 
 	marker := j.Marker
 
