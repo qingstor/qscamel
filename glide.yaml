@@ -13,7 +13,7 @@ import:
 
 # SDK for QingStor.
 - package: github.com/yunify/qingstor-sdk-go
-  version: ^2.2.10
+  version: ^2.2.11
 # SDK for aliyun OSS.
 - package: github.com/aliyun/aliyun-oss-go-sdk
   version: ^1.8.0
