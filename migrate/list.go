@@ -57,8 +57,8 @@ func checkObject(ctx context.Context, p string) (ok bool, err error) {
 		return
 	}
 	if so == nil {
-		logrus.Warnf("Src object %s is not found.", p)
-		return
+		logrus.Warnf("Src object %s is not found, ignored.", p)
+		return true, nil
 	}
 
 	do, err := dst.Stat(ctx, p)
