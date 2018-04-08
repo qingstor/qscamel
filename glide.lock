@@ -1,5 +1,5 @@
-hash: 32a4b3c6fd27888b33d80c943a3aeeb0b20edaf4d9c5ea4c594b762dcd069b3f
-updated: 2018-03-28T05:04:33.713789558+08:00
+hash: b4a3372084594a6da13627bfcee11c6618730de4d57578becb79943caec4365c
+updated: 2018-04-08T11:03:48.017009788+08:00
 imports:
 - name: cloud.google.com/go
   version: 4b98a6370e36d7a85192e7bad08a4ebd82eac2a8
@@ -16,7 +16,7 @@ imports:
   subpackages:
   - oss
 - name: github.com/aws/aws-sdk-go
-  version: 851c8ce700ee981b0ce28634721c2a925c6f3d0b
+  version: 61ac2e639a3e5f940b62693f2f1db515e4f0325e
   subpackages:
   - aws
   - aws/awserr
@@ -61,7 +61,7 @@ imports:
   - ptypes/duration
   - ptypes/timestamp
 - name: github.com/googleapis/gax-go
-  version: 317e0006254c44a0ac427cc52a0e083ff0b9622f
+  version: de2cc08e690b99dd3f7d19937d80d3d54e04682f
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/jmespath/go-jmespath
@@ -92,7 +92,7 @@ imports:
 - name: github.com/sirupsen/logrus
   version: c155da19408a8799da419ed3eeb0cb5db0ad5dbc
 - name: github.com/spf13/cobra
-  version: 7b2c5ac9fc04fc5efafb60700713d4fa609b777b
+  version: a1f051bc3eba734da4772d60e2d677f47cf93ef4
 - name: github.com/spf13/pflag
   version: e57e3eeb33f795204c1ca35f56c44f83227c6e66
 - name: github.com/upyun/go-sdk
@@ -104,7 +104,7 @@ imports:
   subpackages:
   - codes
 - name: github.com/yunify/qingstor-sdk-go
-  version: f6fc3668a87b1518fcb8b8f088234a1ca48f5111
+  version: 4e96993243bc6e69f5c1cb054a73bd81fa5fad5a
   subpackages:
   - config
   - logger
@@ -117,7 +117,7 @@ imports:
   - service
   - utils
 - name: go.opencensus.io
-  version: 8c142815a0fc8260acb05b03c75cb00f02ada340
+  version: 0095aec66ae14801c6711210f6f0716411cefdd3
   subpackages:
   - exporter/stackdriver/propagation
   - internal
@@ -129,6 +129,7 @@ imports:
   - stats/view
   - tag
   - trace
+  - trace/internal
   - trace/propagation
 - name: golang.org/x/crypto
   version: bd6f299fb381e4c3393d1c4b1f0b94f5e77650c8
@@ -146,7 +147,7 @@ imports:
   - lex/httplex
   - trace
 - name: golang.org/x/oauth2
-  version: fdc9e635145ae97e6c2cb777c48305600cf515cb
+  version: 921ae394b9430ed4fb549668d7b087601bd60a81
   subpackages:
   - google
   - internal
@@ -158,14 +159,14 @@ imports:
   - unix
   - windows
 - name: golang.org/x/text
-  version: ece95c760240037f89ebcbdd7155ac8cb52e38fa
+  version: 2cb43934f0eece38629746959acc633cba083fe4
   subpackages:
   - secure/bidirule
   - transform
   - unicode/bidi
   - unicode/norm
 - name: google.golang.org/api
-  version: e4126357c891acdef6dcd7805daa4c6533be6544
+  version: d4bfb8783945fe985beea2cb0fedffc2d020979c
   subpackages:
   - gensupport
   - googleapi
@@ -197,7 +198,7 @@ imports:
   - googleapis/rpc/code
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: f2620c38031ebba5563c151b8761b70e932ffb3d
+  version: 30fb59a4304034ce78ff68e21bd25776b1d79488
   subpackages:
   - balancer
   - balancer/base
