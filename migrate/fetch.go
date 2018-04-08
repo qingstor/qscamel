@@ -6,6 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/contexts"
 	"github.com/yunify/qscamel/model"
 )
@@ -36,10 +37,13 @@ func Fetch(ctx context.Context) (err error) {
 	// Wait for all job finished.
 	defer wg.Wait()
 
-	for i := 0; i < contexts.Config.Concurrency; i++ {
-		go fetchWorker(ctx)
+	migrateWorkers := int(float64(contexts.Config.Concurrency) * constants.DefaultWorkerRatio)
+	for i := 0; i < migrateWorkers; i++ {
+		go migrateWorker(ctx)
 	}
-
+	for i := 0; i < contexts.Config.Concurrency-migrateWorkers; i++ {
+		go listWorker(ctx)
+	}
 	err = List(ctx)
 	if err != nil {
 		logrus.Errorf("List failed for %v.", err)
@@ -47,53 +51,6 @@ func Fetch(ctx context.Context) (err error) {
 	}
 
 	return
-}
-
-func fetchWorker(ctx context.Context) {
-	for {
-		select {
-		case o, ok := <-oc:
-			if !ok {
-				oc = nil
-				continue
-			}
-
-			if t.IgnoreExisting {
-				exist, err := headObject(ctx, o.Key)
-				if err != nil || exist {
-					wg.Done()
-					continue
-				}
-			}
-
-			logrus.Infof("Start fetching object %s.", o.Key)
-
-			err := fetchObject(ctx, o.Key)
-			if err != nil {
-				continue
-			}
-
-			logrus.Infof("Object %s fetched.", o.Key)
-		case j, ok := <-jc:
-			if !ok {
-				jc = nil
-				continue
-			}
-
-			logrus.Infof("Start list job %s.", j.Path)
-
-			err := listJob(ctx, j)
-			if err != nil {
-				continue
-			}
-
-			logrus.Infof("Job %s listed.", j.Path)
-		}
-		// Check and exit while all channel closed.
-		if oc == nil && jc == nil {
-			break
-		}
-	}
 }
 
 // fetchObject will do a real fetch.
