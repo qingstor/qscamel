@@ -1,5 +1,5 @@
-hash: b4a3372084594a6da13627bfcee11c6618730de4d57578becb79943caec4365c
-updated: 2018-04-08T11:03:48.017009788+08:00
+hash: 7f83ae62ff0c22c3ee5149049204103f1dba7b95a5f6cea189e2b2bbae0990d4
+updated: 2018-04-08T19:42:16.345794057+08:00
 imports:
 - name: cloud.google.com/go
   version: 4b98a6370e36d7a85192e7bad08a4ebd82eac2a8
@@ -104,7 +104,7 @@ imports:
   subpackages:
   - codes
 - name: github.com/yunify/qingstor-sdk-go
-  version: 4e96993243bc6e69f5c1cb054a73bd81fa5fad5a
+  version: 9e88dc1b83728e1462fd74bb61b0f5e28ac95bb6
   subpackages:
   - config
   - logger
