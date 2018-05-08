@@ -128,8 +128,8 @@ func HasObject(ctx context.Context) (b bool, err error) {
 	return
 }
 
-// ListObject will list current task's object.
-func ListObject(ctx context.Context, fn func(*Object)) (err error) {
+// NextObject will return the next object after p.
+func NextObject(ctx context.Context, p string) (o *Object, err error) {
 	t := utils.FromTaskContext(ctx)
 
 	tx := utils.FromTxContext(ctx)
@@ -146,17 +146,20 @@ func ListObject(ctx context.Context, fn func(*Object)) (err error) {
 
 	c := tx.Bucket(constants.FormatTaskKey(t)).Cursor()
 
-	k, v := c.Seek([]byte(constants.KeyObjectPrefix))
-	for k != nil && bytes.HasPrefix(k, []byte(constants.KeyObjectPrefix)) {
-		o := &Object{}
+	k, v := c.Seek(constants.FormatObjectKey(p))
+
+	// If k equal to current id, we should get the next id.
+	if k != nil && bytes.Compare(k, constants.FormatObjectKey(p)) == 0 {
+		k, v = c.Next()
+	}
+
+	if k != nil && bytes.HasPrefix(k, []byte(constants.KeyObjectPrefix)) {
+		o = &Object{}
 		err = msgpack.Unmarshal(v, o)
 		if err != nil {
 			logrus.Panicf("Msgpack unmarshal failed for %v.", err)
 		}
-
-		fn(o)
-
-		k, v = c.Next()
+		return
 	}
 
 	return

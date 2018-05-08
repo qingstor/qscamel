@@ -170,8 +170,8 @@ func HasJob(ctx context.Context) (b bool, err error) {
 	return
 }
 
-// ListJob will list current task's job.
-func ListJob(ctx context.Context, fn func(*Job)) (err error) {
+// NextJob will return the next job after id.
+func NextJob(ctx context.Context, id uint64) (j *Job, err error) {
 	t := utils.FromTaskContext(ctx)
 
 	tx := utils.FromTxContext(ctx)
@@ -187,18 +187,20 @@ func ListJob(ctx context.Context, fn func(*Job)) (err error) {
 	}
 
 	c := tx.Bucket(constants.FormatTaskKey(t)).Cursor()
+	k, v := c.Seek(constants.FormatJobKey(id))
 
-	k, v := c.Seek([]byte(constants.KeyJobPrefix))
-	for k != nil && bytes.HasPrefix(k, []byte(constants.KeyJobPrefix)) {
-		j := &Job{}
+	// If k equal to current id, we should get the next id.
+	if k != nil && bytes.Compare(k, constants.FormatJobKey(id)) == 0 {
+		k, v = c.Next()
+	}
+
+	if k != nil && bytes.HasPrefix(k, []byte(constants.KeyJobPrefix)) {
+		j = &Job{}
 		err = msgpack.Unmarshal(v, j)
 		if err != nil {
 			logrus.Panicf("Msgpack unmarshal failed for %v.", err)
 		}
-
-		fn(j)
-
-		k, v = c.Next()
+		return
 	}
 
 	return
