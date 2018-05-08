@@ -1,8 +1,6 @@
 package db
 
 import (
-	"time"
-
 	"github.com/coreos/bbolt"
 	"github.com/sirupsen/logrus"
 
@@ -21,7 +19,8 @@ type DatabaseOptions struct {
 
 // NewDB will create a new database connection.
 func NewDB(opt *DatabaseOptions) (d *Database, err error) {
-	client, err := bolt.Open(opt.Address, 0644, &bolt.Options{Timeout: 1 * time.Second})
+	// Set NoFreelistSync to true to import write performance.
+	client, err := bolt.Open(opt.Address, 0644, &bolt.Options{NoFreelistSync: true})
 	if err != nil {
 		logrus.Errorf("Open database failed for %v.", err)
 		return
