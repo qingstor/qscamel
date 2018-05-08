@@ -7,6 +7,7 @@ import (
 
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
+	"github.com/yunify/qscamel/utils"
 )
 
 // List will list objects and send to channel.
@@ -23,21 +24,35 @@ func List(ctx context.Context) (err error) {
 	}
 
 	// Traverse already running but not finished object.
-	err = model.ListObject(ctx, func(o *model.Object) {
+	p := ""
+	for {
+		o, err := model.NextObject(ctx, p)
+		if err != nil {
+			logrus.Panic(err)
+		}
+		if o == nil {
+			break
+		}
+
 		wg.Add(1)
 		oc <- o
-	})
-	if err != nil {
-		logrus.Panic(err)
+		p = o.Key
 	}
 
 	// Traverse already running but not finished job.
-	err = model.ListJob(ctx, func(j *model.Job) {
+	id := uint64(0)
+	for {
+		j, err := model.NextJob(ctx, id)
+		if err != nil {
+			logrus.Panic(err)
+		}
+		if j == nil {
+			break
+		}
+
 		wg.Add(1)
 		jc <- j
-	})
-	if err != nil {
-		logrus.Panic(err)
+		id = j.ID
 	}
 
 	return
@@ -100,11 +115,7 @@ func checkObject(ctx context.Context, p string) (ok bool, err error) {
 		}
 	}
 
-	// Delete this object if every thing check passed.
-	err = model.DeleteObject(ctx, p)
-	if err != nil {
-		logrus.Panicf("DeleteObject failed for %v.", err)
-	}
+	logrus.Infof("Object %s check passed, ignore.", p)
 	return true, nil
 }
 
@@ -121,11 +132,6 @@ func listJob(ctx context.Context, j *model.Job) (err error) {
 
 			logrus.Infof("Job %s is created.", o.Key)
 			return
-		}
-
-		err = model.CreateObject(ctx, o)
-		if err != nil {
-			logrus.Panic(err)
 		}
 
 		wg.Add(1)
@@ -146,63 +152,24 @@ func listJob(ctx context.Context, j *model.Job) (err error) {
 
 // listWorker will do both list and copy work.
 func listWorker(ctx context.Context) {
-	for {
-		select {
-		case o, ok := <-oc:
-			if !ok {
-				oc = nil
-				continue
-			}
+	defer utils.Recover()
 
-			ok, err := checkObject(ctx, o.Key)
-			if err != nil || ok {
-				wg.Done()
-				continue
-			}
+	for j := range jc {
+		logrus.Infof("Start list job %s.", j.Path)
 
-			switch t.Type {
-			case constants.TaskTypeCopy:
-				logrus.Infof("Start copying object %s.", o.Key)
-				err = copyObject(ctx, o.Key)
-				if err != nil {
-					continue
-				}
-
-				logrus.Infof("Object %s copied.", o.Key)
-			case constants.TaskTypeFetch:
-				logrus.Infof("Start fetching object %s.", o.Key)
-
-				err = fetchObject(ctx, o.Key)
-				if err != nil {
-					continue
-				}
-
-				logrus.Infof("Object %s fetched.", o.Key)
-			}
-		case j, ok := <-jc:
-			if !ok {
-				jc = nil
-				continue
-			}
-
-			logrus.Infof("Start list job %s.", j.Path)
-
-			err := listJob(ctx, j)
-			if err != nil {
-				continue
-			}
-
-			logrus.Infof("Job %s listed.", j.Path)
+		err := listJob(ctx, j)
+		if err != nil {
+			continue
 		}
-		// Check and exit while all channel closed.
-		if oc == nil && jc == nil {
-			break
-		}
+
+		logrus.Infof("Job %s listed.", j.Path)
 	}
 }
 
 // migrateWorker will only do migrate work.
 func migrateWorker(ctx context.Context) {
+	defer utils.Recover()
+
 	for o := range oc {
 		ok, err := checkObject(ctx, o.Key)
 		if err != nil || ok {
@@ -213,7 +180,7 @@ func migrateWorker(ctx context.Context) {
 		switch t.Type {
 		case constants.TaskTypeCopy:
 			logrus.Infof("Start copying object %s.", o.Key)
-			err = copyObject(ctx, o.Key)
+			err = copyObject(ctx, o)
 			if err != nil {
 				continue
 			}
