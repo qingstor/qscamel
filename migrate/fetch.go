@@ -6,7 +6,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/contexts"
 	"github.com/yunify/qscamel/model"
 )
@@ -37,13 +36,12 @@ func Fetch(ctx context.Context) (err error) {
 	// Wait for all job finished.
 	defer wg.Wait()
 
-	migrateWorkers := int(float64(contexts.Config.Concurrency) * constants.DefaultWorkerRatio)
-	for i := 0; i < migrateWorkers; i++ {
+	go listWorker(ctx)
+
+	for i := 0; i < contexts.Config.Concurrency; i++ {
 		go migrateWorker(ctx)
 	}
-	for i := 0; i < contexts.Config.Concurrency-migrateWorkers; i++ {
-		go listWorker(ctx)
-	}
+
 	err = List(ctx)
 	if err != nil {
 		logrus.Errorf("List failed for %v.", err)

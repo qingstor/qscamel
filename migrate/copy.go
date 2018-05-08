@@ -6,7 +6,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/contexts"
 	"github.com/yunify/qscamel/model"
 )
@@ -37,12 +36,10 @@ func Copy(ctx context.Context) (err error) {
 	// Wait for all job finished.
 	defer wg.Wait()
 
-	migrateWorkers := int(float64(contexts.Config.Concurrency) * constants.DefaultWorkerRatio)
-	for i := 0; i < migrateWorkers; i++ {
+	go listWorker(ctx)
+
+	for i := 0; i < contexts.Config.Concurrency; i++ {
 		go migrateWorker(ctx)
-	}
-	for i := 0; i < contexts.Config.Concurrency-migrateWorkers; i++ {
-		go listWorker(ctx)
 	}
 
 	err = List(ctx)
@@ -55,22 +52,23 @@ func Copy(ctx context.Context) (err error) {
 }
 
 // copyObject will do a real copy.
-func copyObject(ctx context.Context, p string) (err error) {
+func copyObject(ctx context.Context, o *model.Object) (err error) {
 	defer wg.Done()
+	defer func() {
+		if err != nil {
+			model.CreateObject(ctx, o)
+		}
+	}()
 
-	r, err := src.Read(ctx, p)
+	r, err := src.Read(ctx, o.Key)
 	if err != nil {
-		logrus.Errorf("Src read %s failed for %v.", p, err)
+		logrus.Errorf("Src read %s failed for %v.", o.Key, err)
 		return err
 	}
-	err = dst.Write(ctx, p, r)
+	err = dst.Write(ctx, o.Key, r)
 	if err != nil {
-		logrus.Errorf("Dst write %s failed for %v.", p, err)
+		logrus.Errorf("Dst write %s failed for %v.", o.Key, err)
 		return err
-	}
-	err = model.DeleteObject(ctx, p)
-	if err != nil {
-		logrus.Panicf("DeleteObject failed for %v.", err)
 	}
 	return
 }
