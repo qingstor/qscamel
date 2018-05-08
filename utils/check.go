@@ -18,3 +18,10 @@ func CheckError(fn func() error) {
 		logrus.Fatalf("Exited for error %v.", err)
 	}
 }
+
+// Recover will recover a goroutine from panic.
+func Recover() {
+	if x := recover(); x != nil {
+		logrus.Fatalf("Caught panic: %v, Trace: %s", x, debug.Stack())
+	}
+}
