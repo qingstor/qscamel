@@ -61,7 +61,7 @@ func List(ctx context.Context) (err error) {
 // checkObject will tell whether an object is ok.
 func checkObject(ctx context.Context, p string) (ok bool, err error) {
 	if !t.IgnoreExisting {
-		return true, nil
+		return false, nil
 	}
 
 	logrus.Infof("Start checking object %s.", p)
