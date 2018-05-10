@@ -6,17 +6,18 @@ import (
 	"encoding/hex"
 	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/sirupsen/logrus"
 
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
-	"github.com/yunify/qscamel/utils"
 )
 
 // Client is the struct for POSIX file system endpoint.
 type Client struct {
-	Path string
+	Path    string
+	AbsPath string
 }
 
 // New will create a Fs.
@@ -35,13 +36,18 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 
 	// Set prefix.
 	c.Path = e.Path
+	c.AbsPath, err = filepath.Abs(e.Path)
+	if err != nil {
+		logrus.Errorf("Get abs path failed for %v.", err)
+		return
+	}
 
 	return
 }
 
 // Stat implement source.Stat and destination.Stat
 func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error) {
-	cp := "/" + utils.Join(c.Path, p)
+	cp := filepath.Join(c.AbsPath, p)
 
 	fi, err := os.Stat(cp)
 	if err != nil {

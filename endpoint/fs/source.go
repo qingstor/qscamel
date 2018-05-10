@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/sirupsen/logrus"
 
@@ -23,7 +24,7 @@ func (c *Client) Readable() bool {
 
 // List implement source.List
 func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object)) (err error) {
-	cp := "/" + utils.Join(c.Path, j.Path)
+	cp := filepath.Join(c.AbsPath, j.Path)
 
 	fi, err := os.Open(cp)
 	if err != nil {
@@ -48,7 +49,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 
 // Read implement source.Read
 func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error) {
-	cp := "/" + utils.Join(c.Path, p)
+	cp := filepath.Join(c.AbsPath, p)
 
 	r, err = os.Open(cp)
 	if err != nil {
