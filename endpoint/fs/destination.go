@@ -5,10 +5,9 @@ import (
 	"io"
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/sirupsen/logrus"
-
-	"github.com/yunify/qscamel/utils"
 )
 
 // Fetchable implement destination.Fetchable
@@ -23,7 +22,7 @@ func (c *Client) Writable() bool {
 
 // Write implement destination.Write
 func (c *Client) Write(ctx context.Context, p string, r io.ReadCloser) (err error) {
-	cp := "/" + utils.Join(c.Path, p)
+	cp := filepath.Join(c.AbsPath, p)
 
 	_, err = os.Stat(path.Dir(cp))
 	if os.IsNotExist(err) {
