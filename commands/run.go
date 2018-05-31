@@ -2,6 +2,8 @@ package commands
 
 import (
 	"context"
+	"os"
+	"os/signal"
 
 	"github.com/pengsrc/go-shared/pid"
 	"github.com/sirupsen/logrus"
@@ -55,6 +57,17 @@ var RunCmd = &cobra.Command{
 		defer contexts.DB.Close()
 
 		ctx := context.Background()
+
+		sigs := make(chan os.Signal, 1)
+		signal.Notify(sigs, os.Interrupt, os.Kill)
+		go func() {
+			sig := <-sigs
+			logrus.Infof("%v signal received, exit for now.", sig)
+
+			contexts.DB.Close()
+
+			os.Exit(0)
+		}()
 
 		// Load and check task.
 		t, err := model.LoadTask(args[0])
