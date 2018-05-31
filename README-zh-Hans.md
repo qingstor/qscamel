@@ -76,8 +76,8 @@ pid_file: ~/.qscamel/qscamel.pid
 # 默认值: ~/.qscamel/qscamel.log
 log_file: ~/.qscamel/qscamel.log
 # database_file 将会控制在何处创建数据库。
-# 默认值: ~/.qscamel/qscamel.db
-database_file: ~/.qscamel/qscamel.db
+# 默认值: ~/.qscamel/db
+database_file: ~/.qscamel/db
 ```
 
 qscamel 默认从 `~/.qscamel/qscamel.yaml` 读取配置文件，你也可以通过 `-c` 或者 `--config` 来指定配置文件的位置。
