@@ -1,5 +1,5 @@
-hash: bdef97689900c8de37d1ec5cf4f0b07b0cba22f545470b40623a89620d11c343
-updated: 2018-05-30T21:15:04.709199013+08:00
+hash: e5fc0e30647f7a9481ccf8666455206853291b6c8116fdfcf83e2f8d1c842302
+updated: 2018-05-31T15:08:46.219856552+08:00
 imports:
 - name: cloud.google.com/go
   version: 0fd7230b2a7505833d5f69b75cbd6c9582401479
@@ -16,7 +16,7 @@ imports:
   subpackages:
   - oss
 - name: github.com/aws/aws-sdk-go
-  version: 398d14696895d68a3409bb3ccb1cfe8abc2d4376
+  version: 827e7eac8c2680d5bdea7bc3ef29c596eabe1eae
   subpackages:
   - aws
   - aws/awserr
@@ -47,8 +47,6 @@ imports:
   - service/sts
 - name: github.com/cenkalti/backoff
   version: 61153c768f31ee5f130071d08fc82b85208528de
-- name: github.com/coreos/bbolt
-  version: 48ea1b39c25fc1bab3506fbc712ecbaa842c4d2d
 - name: github.com/go-ini/ini
   version: d3de07a94d22b4a0972deb4b96d790c2c0ce8333
 - name: github.com/golang/protobuf
@@ -69,7 +67,7 @@ imports:
 - name: github.com/jmespath/go-jmespath
   version: bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d
 - name: github.com/pengsrc/go-shared
-  version: b98065a377794d577e2a0e32869378b9ce4b8952
+  version: db9bcfc423552eef790d989bb81ef055d0d26286
   subpackages:
   - buffer
   - check
@@ -121,7 +119,7 @@ imports:
   subpackages:
   - codes
 - name: github.com/yunify/qingstor-sdk-go
-  version: 9e88dc1b83728e1462fd74bb61b0f5e28ac95bb6
+  version: 2cf247c05325947cd41e5d7b1a433a6a809f817c
   subpackages:
   - config
   - logger
@@ -252,11 +250,11 @@ imports:
   - reqid.v7
 testImports:
 - name: github.com/davecgh/go-spew
-  version: 346938d642f2ec3594ed81d874461961cd0faa76
+  version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
   subpackages:
   - spew
 - name: github.com/pmezard/go-difflib
-  version: 792786c7400a136282c1664665ae0a8db921c6c2
+  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
   subpackages:
   - difflib
 - name: github.com/stretchr/testify
