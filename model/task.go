@@ -158,7 +158,51 @@ func DeleteTask(ctx context.Context) (err error) {
 
 // DeleteTaskByName will delete a task by it's name.
 func DeleteTaskByName(ctx context.Context, p string) (err error) {
-	return contexts.DB.Delete(constants.FormatTaskKey(p), nil)
+	x := ""
+	for {
+		j, err := NextJob(ctx, x)
+		if err != nil {
+			return err
+		}
+		if j == nil {
+			break
+		}
+
+		err = DeleteJob(ctx, j.Path)
+		if err != nil {
+			return err
+		}
+
+		x = j.Path
+
+		logrus.Infof("Task %s, job %s has been deleted.", p, j.Path)
+	}
+
+	x = ""
+	for {
+		o, err := NextObject(ctx, x)
+		if err != nil {
+			return err
+		}
+		if o == nil {
+			break
+		}
+
+		err = DeleteObject(ctx, o.Key)
+		if err != nil {
+			return err
+		}
+
+		x = o.Key
+
+		logrus.Infof("Task %s, object %s has been deleted.", p, o.Key)
+	}
+
+	err = contexts.DB.Delete(constants.FormatTaskKey(p), nil)
+	if err != nil {
+		return
+	}
+	return
 }
 
 // ListTask will list all tasks.
