@@ -1,8 +1,8 @@
-hash: 7f83ae62ff0c22c3ee5149049204103f1dba7b95a5f6cea189e2b2bbae0990d4
-updated: 2018-04-08T19:42:16.345794057+08:00
+hash: bdef97689900c8de37d1ec5cf4f0b07b0cba22f545470b40623a89620d11c343
+updated: 2018-05-30T21:15:04.709199013+08:00
 imports:
 - name: cloud.google.com/go
-  version: 4b98a6370e36d7a85192e7bad08a4ebd82eac2a8
+  version: 0fd7230b2a7505833d5f69b75cbd6c9582401479
   subpackages:
   - compute/metadata
   - iam
@@ -16,7 +16,7 @@ imports:
   subpackages:
   - oss
 - name: github.com/aws/aws-sdk-go
-  version: 61ac2e639a3e5f940b62693f2f1db515e4f0325e
+  version: 398d14696895d68a3409bb3ccb1cfe8abc2d4376
   subpackages:
   - aws
   - aws/awserr
@@ -60,6 +60,8 @@ imports:
   - ptypes/any
   - ptypes/duration
   - ptypes/timestamp
+- name: github.com/golang/snappy
+  version: 2e65f85255dbc3072edf28d6b5b8efc472979f5a
 - name: github.com/googleapis/gax-go
   version: de2cc08e690b99dd3f7d19937d80d3d54e04682f
 - name: github.com/inconshreveable/mousetrap
@@ -92,15 +94,30 @@ imports:
 - name: github.com/sirupsen/logrus
   version: c155da19408a8799da419ed3eeb0cb5db0ad5dbc
 - name: github.com/spf13/cobra
-  version: a1f051bc3eba734da4772d60e2d677f47cf93ef4
+  version: 7b2c5ac9fc04fc5efafb60700713d4fa609b777b
 - name: github.com/spf13/pflag
   version: e57e3eeb33f795204c1ca35f56c44f83227c6e66
+- name: github.com/syndtr/goleveldb
+  version: 5d6fca44a948d2be89a9702de7717f0168403d3d
+  subpackages:
+  - leveldb
+  - leveldb/cache
+  - leveldb/comparer
+  - leveldb/errors
+  - leveldb/filter
+  - leveldb/iterator
+  - leveldb/journal
+  - leveldb/memdb
+  - leveldb/opt
+  - leveldb/storage
+  - leveldb/table
+  - leveldb/util
 - name: github.com/upyun/go-sdk
   version: a71208d1155d6de85b8e80b480634957695db963
   subpackages:
   - upyun
 - name: github.com/vmihailenco/msgpack
-  version: 7eb5d7335e1aa947b407fdae890e6f55ff8debb6
+  version: 6ab02c0ddf38d837488a746aa8709f6ecffc2fde
   subpackages:
   - codes
 - name: github.com/yunify/qingstor-sdk-go

@@ -3,13 +3,17 @@ import:
 - package: github.com/vmihailenco/msgpack
   version: ^3.2.0
 - package: github.com/spf13/cobra
-  version: ^0.0.1
+  version: 0.0.1
 - package: github.com/sirupsen/logrus
   version: ^1.0.4
 - package: github.com/cenkalti/backoff
   version: ^1.1.0
 - package: gopkg.in/natefinch/lumberjack.v2
   version: ^2.0.0
+- package: github.com/syndtr/goleveldb
+  version: 5d6fca44a948d2be89a9702de7717f0168403d3d
+- package: github.com/golang/snappy
+  version: 2e65f85255dbc3072edf28d6b5b8efc472979f5a
 
 # SDK for QingStor.
 - package: github.com/yunify/qingstor-sdk-go
