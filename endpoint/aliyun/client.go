@@ -116,7 +116,7 @@ func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error
 		return
 	}
 	// Parse last modified.
-	lastModified := convert.StringToUnixTimestamp(resp.Get("Last-Modified"), convert.RFC822)
+	lastModified := convert.StringToTimestamp(resp.Get("Last-Modified"), convert.RFC822)
 
 	o = &model.Object{
 		Key:          p,
