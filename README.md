@@ -179,6 +179,10 @@ bucket_name: example_bucket
 access_key_id: example_access_key_id
 # secret_access_key is the secret_access_key for qingstor.
 secret_access_key: example_secret_access_key
+# storage class is the storage class used for qingstor.
+# Available value: STANDARD, STANDARD_IA
+# Default value: STANDARD
+storage_class: STANDARD
 ```
 
 ### Endpoint qiniu
