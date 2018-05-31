@@ -24,6 +24,7 @@ type Client struct {
 	BucketName      string `yaml:"bucket_name"`
 	AccessKeyID     string `yaml:"access_key_id"`
 	SecretAccessKey string `yaml:"secret_access_key"`
+	StorageClass    string `yaml:"storage_class"`
 
 	Path string
 
@@ -89,6 +90,17 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	// Set secret key.
 	if c.SecretAccessKey == "" {
 		logrus.Error("QingStor's secret access key can't be empty.")
+		err = constants.ErrEndpointInvalid
+		return
+	}
+
+	// Set storage class.
+	if c.StorageClass == "" {
+		c.StorageClass = StorageClassStandard
+	}
+	if c.StorageClass != StorageClassStandard &&
+		c.StorageClass != StorageClassStandardIA {
+		logrus.Errorf("QingStor's storage class can't be %s.", c.StorageClass)
 		err = constants.ErrEndpointInvalid
 		return
 	}

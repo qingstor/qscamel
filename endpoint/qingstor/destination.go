@@ -26,7 +26,8 @@ func (c *Client) Write(ctx context.Context, p string, r io.ReadCloser) (err erro
 	cp := utils.Join(c.Path, p)
 
 	_, err = c.client.PutObject(cp, &service.PutObjectInput{
-		Body: r,
+		Body:            r,
+		XQSStorageClass: convert.String(c.StorageClass),
 	})
 	if err != nil {
 		return
