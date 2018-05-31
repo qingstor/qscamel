@@ -51,10 +51,5 @@ func SetupContexts(c *config.Config) (err error) {
 	if err != nil {
 		return
 	}
-	err = DB.Init()
-	if err != nil {
-		return
-	}
-
 	return nil
 }
