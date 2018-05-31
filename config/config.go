@@ -107,15 +107,9 @@ func (c *Config) Check() (err error) {
 	if err != nil {
 		return
 	}
-	_, err = os.OpenFile(c.DatabaseFile, os.O_RDWR, 0600)
+	err = os.MkdirAll(c.DatabaseFile, 0600)
 	if err != nil {
-		if !os.IsNotExist(err) {
-			return
-		}
-		_, err = utils.CreateFile(c.DatabaseFile)
-		if err != nil {
-			return
-		}
+		return
 	}
 
 	return nil
