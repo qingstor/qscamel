@@ -107,5 +107,23 @@ func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error
 
 // Reach implement source.Fetch
 func (c *Client) Reach(ctx context.Context, p string) (url string, err error) {
+	cp := utils.Join(c.Path, p)
+
+	r, _, err := c.client.GetObjectRequest(cp, nil)
+	if err != nil {
+		return
+	}
+
+	err = r.Build()
+	if err != nil {
+		return
+	}
+
+	err = r.SignQuery(3600)
+	if err != nil {
+		return
+	}
+
+	url = r.HTTPRequest.URL.String()
 	return
 }
