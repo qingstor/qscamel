@@ -1,7 +1,5 @@
 package constants
 
-import "github.com/pengsrc/go-shared/buffer"
-
 // Constants for task type.
 const (
 	TaskTypeCopy  = "copy"
@@ -10,13 +8,16 @@ const (
 
 // Constants for task status.
 const (
+	TaskStatusCreated  = "created"
 	TaskStatusRunning  = "running"
 	TaskStatusFinished = "finished"
 )
 
 // Constants for database key.
 const (
-	KeyTaskList   = "t"
+	// prefixKey ~ is bigger than all ascii printable characters.
+	prefixKey = "~"
+
 	KeyTaskPrefix = "t:"
 
 	KeyJobPrefix = "j:"
@@ -25,28 +26,16 @@ const (
 )
 
 // FormatTaskKey will format a task key.
-func FormatTaskKey(s string) []byte {
-	return []byte(KeyTaskPrefix + s)
+func FormatTaskKey(t string) []byte {
+	return []byte(KeyTaskPrefix + t)
 }
 
 // FormatJobKey will format a job key.
-func FormatJobKey(u uint64) []byte {
-	b := buffer.GlobalBytesPool().Get()
-	defer b.Free()
-
-	b.AppendString(KeyJobPrefix)
-	b.AppendUint(u)
-
-	return b.Bytes()
+func FormatJobKey(t, s string) []byte {
+	return []byte(prefixKey + t + ":" + KeyJobPrefix + s)
 }
 
 // FormatObjectKey will format a object key.
-func FormatObjectKey(name string) []byte {
-	b := buffer.GlobalBytesPool().Get()
-	defer b.Free()
-
-	b.AppendString(KeyObjectPrefix)
-	b.AppendString(name)
-
-	return b.Bytes()
+func FormatObjectKey(t, s string) []byte {
+	return []byte(prefixKey + t + ":" + KeyObjectPrefix + s)
 }
