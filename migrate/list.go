@@ -123,6 +123,7 @@ func checkObject(ctx context.Context, p string) (ok bool, err error) {
 
 func listJob(ctx context.Context, j *model.Job) (err error) {
 	defer jwg.Done()
+	defer utils.Recover()
 
 	err = src.List(ctx, j, func(o *model.Object) {
 		if o.IsDir {
