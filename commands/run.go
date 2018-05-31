@@ -62,7 +62,7 @@ var RunCmd = &cobra.Command{
 		signal.Notify(sigs, os.Interrupt, os.Kill)
 		go func() {
 			sig := <-sigs
-			logrus.Infof("%v signal received, exit for now.", sig)
+			logrus.Infof("Signal %v received, exit for now.", sig)
 
 			contexts.DB.Close()
 
