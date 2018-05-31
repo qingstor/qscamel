@@ -75,9 +75,9 @@ pid_file: ~/.qscamel/qscamel.pid
 # log_file controls where the log file will create.
 # Default value: ~/.qscamel/qscamel.log
 log_file: ~/.qscamel/qscamel.log
-# database_file controls where the database file will create.
-# Default value: ~/.qscamel/qscamel.db
-database_file: ~/.qscamel/qscamel.db
+# database_file controls where the database folder will create.
+# Default value: ~/.qscamel/db
+database_file: ~/.qscamel/db
 ```
 
 The default config will read from `~/.qscamel/qscamel.yaml`, you can also specify the config path with flag `-c` or `--config`.
