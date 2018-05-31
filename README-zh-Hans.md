@@ -187,6 +187,10 @@ bucket_name: example_bucket
 access_key_id: example_access_key_id
 # secret_access_key 是 QingStor 的 secret_access_key。
 secret_access_key: example_secret_access_key
+# storage class 是 QingStor 所使用的存储级别
+# 可选值: STANDARD, STANDARD_IA
+# 默认值: STANDARD
+storage_class: STANDARD
 ```
 
 ### Endpoint qiniu
