@@ -40,7 +40,9 @@ var (
 
 	oc chan *model.Object
 	jc chan *model.Job
-	wg *sync.WaitGroup
+
+	owg *sync.WaitGroup
+	jwg *sync.WaitGroup
 
 	src endpoint.Source
 	dst endpoint.Destination

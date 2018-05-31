@@ -25,20 +25,25 @@ func CanCopy() bool {
 
 // Copy will do copy job between src and dst.
 func Copy(ctx context.Context) (err error) {
-	oc = make(chan *model.Object)
+	oc = make(chan *model.Object, contexts.Config.Concurrency*2)
 	jc = make(chan *model.Job)
-	wg = new(sync.WaitGroup)
 
+	owg = &sync.WaitGroup{}
+	jwg = &sync.WaitGroup{}
+
+	// Wait for all object finished.
+	defer owg.Wait()
 	// Close channel for no more object.
 	defer close(oc)
 	// Close channel for no more job.
 	defer close(jc)
 	// Wait for all job finished.
-	defer wg.Wait()
+	defer jwg.Wait()
 
 	go listWorker(ctx)
 
 	for i := 0; i < contexts.Config.Concurrency; i++ {
+		owg.Add(1)
 		go migrateWorker(ctx)
 	}
 
@@ -53,13 +58,6 @@ func Copy(ctx context.Context) (err error) {
 
 // copyObject will do a real copy.
 func copyObject(ctx context.Context, o *model.Object) (err error) {
-	defer wg.Done()
-	defer func() {
-		if err != nil {
-			model.CreateObject(ctx, o)
-		}
-	}()
-
 	r, err := src.Read(ctx, o.Key)
 	if err != nil {
 		logrus.Errorf("Src read %s failed for %v.", o.Key, err)

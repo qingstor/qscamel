@@ -3,6 +3,7 @@ package migrate
 import (
 	"context"
 
+	"github.com/cenkalti/backoff"
 	"github.com/sirupsen/logrus"
 
 	"github.com/yunify/qscamel/constants"
@@ -12,12 +13,14 @@ import (
 
 // List will list objects and send to channel.
 func List(ctx context.Context) (err error) {
-	seq, err := model.GetSequence(ctx)
-	if err != nil {
-		logrus.Panic(err)
-	}
-	if seq == 0 {
+	if t.Status == constants.TaskStatusCreated {
 		_, err = model.CreateJob(ctx, "/")
+		if err != nil {
+			logrus.Panic(err)
+		}
+
+		t.Status = constants.TaskStatusRunning
+		err = t.Save(ctx)
 		if err != nil {
 			logrus.Panic(err)
 		}
@@ -34,15 +37,14 @@ func List(ctx context.Context) (err error) {
 			break
 		}
 
-		wg.Add(1)
 		oc <- o
 		p = o.Key
 	}
 
 	// Traverse already running but not finished job.
-	id := uint64(0)
+	p = ""
 	for {
-		j, err := model.NextJob(ctx, id)
+		j, err := model.NextJob(ctx, p)
 		if err != nil {
 			logrus.Panic(err)
 		}
@@ -50,9 +52,9 @@ func List(ctx context.Context) (err error) {
 			break
 		}
 
-		wg.Add(1)
+		jwg.Add(1)
 		jc <- j
-		id = j.ID
+		p = j.Path
 	}
 
 	return
@@ -120,30 +122,31 @@ func checkObject(ctx context.Context, p string) (ok bool, err error) {
 }
 
 func listJob(ctx context.Context, j *model.Job) (err error) {
-	defer wg.Done()
+	defer jwg.Done()
 
 	err = src.List(ctx, j, func(o *model.Object) {
 		if o.IsDir {
 			_, err := model.CreateJob(ctx, o.Key)
 			if err != nil {
-				// Panic a db error
 				logrus.Panic(err)
 			}
 
-			logrus.Infof("Job %s is created.", o.Key)
+			logrus.Debugf("Job %s created.", o.Key)
 			return
 		}
 
-		wg.Add(1)
+		err = model.CreateObject(ctx, o)
+		if err != nil {
+			logrus.Panic(err)
+		}
 		oc <- o
-		logrus.Infof("Object %s is created.", o.Key)
 	})
 	if err != nil {
 		logrus.Errorf("Src list failed for %v.", err)
 		return
 	}
 
-	err = model.DeleteJob(ctx, j.ID)
+	err = model.DeleteJob(ctx, j.Path)
 	if err != nil {
 		logrus.Panic(err)
 	}
@@ -168,33 +171,50 @@ func listWorker(ctx context.Context) {
 
 // migrateWorker will only do migrate work.
 func migrateWorker(ctx context.Context) {
+	defer owg.Done()
 	defer utils.Recover()
 
 	for o := range oc {
 		ok, err := checkObject(ctx, o.Key)
 		if err != nil || ok {
-			wg.Done()
+			err = model.DeleteObject(ctx, o.Key)
+			if err != nil {
+				logrus.Errorf("Delete object failed for %v.", err)
+			}
 			continue
 		}
 
+		var fn func(ctx context.Context, o *model.Object) (err error)
+
 		switch t.Type {
 		case constants.TaskTypeCopy:
-			logrus.Infof("Start copying object %s.", o.Key)
-			err = copyObject(ctx, o)
-			if err != nil {
-				continue
-			}
-
-			logrus.Infof("Object %s copied.", o.Key)
+			fn = copyObject
 		case constants.TaskTypeFetch:
-			logrus.Infof("Start fetching object %s.", o.Key)
+			fn = fetchObject
+		default:
+			logrus.Fatalf("Not supported task type: %s.", t.Type)
+		}
 
-			err = fetchObject(ctx, o.Key)
-			if err != nil {
-				continue
+		logrus.Infof("Start %sing object %s.", t.Type, o.Key)
+
+		bo := backoff.NewExponentialBackOff()
+
+		backoff.Retry(func() error {
+			err = fn(ctx, o)
+			if err == nil {
+				return nil
 			}
 
-			logrus.Infof("Object %s fetched.", o.Key)
+			logrus.Infof("Object %s %s failed, retrying.", o.Key, t.Type)
+			return err
+		}, bo)
+
+		err = model.DeleteObject(ctx, o.Key)
+		if err != nil {
+			logrus.Errorf("Delete object failed for %v.", err)
+			continue
 		}
+
+		logrus.Infof("Object %s %sed.", o.Key, t.Type)
 	}
 }

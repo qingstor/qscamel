@@ -32,7 +32,8 @@ func Run(ctx context.Context) (err error) {
 	t.Status = constants.TaskStatusFinished
 	err = t.Save(ctx)
 	if err != nil {
-		logrus.Print(err)
+		logrus.Errorf("Task %s save failed for %v.", t.Name, err)
+		return
 	}
 
 	logrus.Infof("Task %s has been finished.", t.Name)
@@ -47,7 +48,7 @@ func copyTask(ctx context.Context) (err error) {
 	}
 	logrus.Debugf("Start copy task.")
 
-	bo := backoff.NewExponentialBackOff()
+	bo := &backoff.ZeroBackOff{}
 
 	return backoff.Retry(func() error {
 		err := Copy(ctx)
@@ -56,7 +57,6 @@ func copyTask(ctx context.Context) (err error) {
 		}
 
 		if !isFinished(ctx) {
-			bo.Reset()
 			return constants.ErrTaskNotFinished
 		}
 
@@ -72,7 +72,7 @@ func fetchTask(ctx context.Context) (err error) {
 	}
 	logrus.Debugf("Start fetch task.")
 
-	bo := backoff.NewExponentialBackOff()
+	bo := &backoff.ZeroBackOff{}
 
 	return backoff.Retry(func() error {
 		err := Fetch(ctx)
@@ -81,7 +81,6 @@ func fetchTask(ctx context.Context) (err error) {
 		}
 
 		if !isFinished(ctx) {
-			bo.Reset()
 			return constants.ErrTaskNotFinished
 		}
 
