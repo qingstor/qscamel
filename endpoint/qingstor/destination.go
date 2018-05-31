@@ -8,7 +8,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/yunify/qingstor-sdk-go/service"
 
-	"github.com/yunify/qscamel/model"
 	"github.com/yunify/qscamel/utils"
 )
 
@@ -26,14 +25,8 @@ func (c *Client) Writable() bool {
 func (c *Client) Write(ctx context.Context, p string, r io.ReadCloser) (err error) {
 	cp := utils.Join(c.Path, p)
 
-	o, err := model.GetObject(ctx, p)
-	if err != nil {
-		logrus.Panic(err)
-	}
-
 	_, err = c.client.PutObject(cp, &service.PutObjectInput{
-		Body:          r,
-		ContentLength: convert.Int64(o.Size),
+		Body: r,
 	})
 	if err != nil {
 		return
