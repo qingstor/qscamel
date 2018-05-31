@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 
 	"github.com/sirupsen/logrus"
+	"github.com/syndtr/goleveldb/leveldb"
+	"github.com/syndtr/goleveldb/leveldb/util"
 	"github.com/vmihailenco/msgpack"
 	"gopkg.in/yaml.v2"
 
@@ -52,7 +54,7 @@ func LoadTask(s string) (t *Task, err error) {
 	if t == nil {
 		// If task not in database, set task status to
 		// running and save it.
-		task.Status = constants.TaskStatusRunning
+		task.Status = constants.TaskStatusCreated
 		err = task.Save(nil)
 		if err != nil {
 			return
@@ -112,32 +114,12 @@ func (t *Task) Sum256() [sha256.Size]byte {
 
 // Save will save current task in DB.
 func (t *Task) Save(ctx context.Context) (err error) {
-	tx := utils.FromTxContext(ctx)
-	if tx == nil {
-		tx, err = contexts.DB.Begin(true)
-		if err != nil {
-			logrus.Errorf("Start writable transaction failed for %v.", err)
-			return
-		}
-		defer func() {
-			CloseTx(tx, err)
-		}()
-	}
-
-	b := tx.Bucket([]byte(constants.KeyTaskList))
-
 	content, err := msgpack.Marshal(t)
 	if err != nil {
 		logrus.Panicf("Msgpack marshal failed for %v.", err)
 	}
 
-	err = b.Put(constants.FormatTaskKey(t.Name), content)
-	if err != nil {
-		return
-	}
-
-	// Create related task bucket.
-	_, err = tx.CreateBucketIfNotExists(constants.FormatTaskKey(t.Name))
+	err = contexts.DB.Put(constants.FormatTaskKey(t.Name), content, nil)
 	if err != nil {
 		return
 	}
@@ -155,22 +137,8 @@ func GetTask(ctx context.Context) (t *Task, err error) {
 func GetTaskByName(ctx context.Context, p string) (t *Task, err error) {
 	t = &Task{}
 
-	tx := utils.FromTxContext(ctx)
-	if tx == nil {
-		tx, err = contexts.DB.Begin(false)
-		if err != nil {
-			logrus.Errorf("Start read only transaction failed for %v.", err)
-			return
-		}
-		defer func() {
-			CloseTx(tx, err)
-		}()
-	}
-
-	b := tx.Bucket([]byte(constants.KeyTaskList))
-
-	content := b.Get(constants.FormatTaskKey(p))
-	if content == nil {
+	content, err := contexts.DB.Get(constants.FormatTaskKey(p), nil)
+	if err == leveldb.ErrNotFound {
 		return nil, nil
 	}
 
@@ -190,56 +158,36 @@ func DeleteTask(ctx context.Context) (err error) {
 
 // DeleteTaskByName will delete a task by it's name.
 func DeleteTaskByName(ctx context.Context, p string) (err error) {
-	tx := utils.FromTxContext(ctx)
-	if tx == nil {
-		tx, err = contexts.DB.Begin(true)
-		if err != nil {
-			logrus.Errorf("Start read only transaction failed for %v.", err)
-			return
-		}
-		defer func() {
-			CloseTx(tx, err)
-		}()
-	}
-
-	b := tx.Bucket([]byte(constants.KeyTaskList))
-	err = b.Delete(constants.FormatTaskKey(p))
-	if err != nil {
-		return
-	}
-
-	return tx.DeleteBucket(constants.FormatTaskKey(p))
+	return contexts.DB.Delete(constants.FormatTaskKey(p), nil)
 }
 
 // ListTask will list all tasks.
 func ListTask(ctx context.Context) (t []*Task, err error) {
-	tx := utils.FromTxContext(ctx)
-	if tx == nil {
-		tx, err = contexts.DB.Begin(false)
-		if err != nil {
-			logrus.Errorf("Start transaction failed for %v.", err)
-			return
-		}
-		defer func() {
-			CloseTx(tx, err)
-		}()
-	}
-
 	t = []*Task{}
-	c := tx.Bucket([]byte(constants.KeyTaskList)).Cursor()
 
-	k, v := c.Seek([]byte(constants.KeyTaskPrefix))
-	for k != nil && bytes.HasPrefix(k, []byte(constants.KeyTaskPrefix)) {
+	it := contexts.DB.NewIterator(
+		util.BytesPrefix(constants.FormatTaskKey("")), nil)
+
+	for it.Next() {
+		k := it.Key()
+
+		// If k doesn't has object prefix, there are no job any more.
+		if !bytes.HasPrefix(k, constants.FormatTaskKey("")) {
+			break
+		}
+
 		task := &Task{}
+
+		v := it.Value()
 		err = msgpack.Unmarshal(v, task)
 		if err != nil {
 			logrus.Panicf("Msgpack unmarshal failed for %v.", err)
 		}
 
 		t = append(t, task)
-
-		k, v = c.Next()
 	}
 
+	it.Release()
+	err = it.Error()
 	return
 }

@@ -5,6 +5,8 @@ import (
 	"context"
 
 	"github.com/sirupsen/logrus"
+	"github.com/syndtr/goleveldb/leveldb"
+	"github.com/syndtr/goleveldb/leveldb/util"
 	"github.com/vmihailenco/msgpack"
 
 	"github.com/yunify/qscamel/constants"
@@ -26,71 +28,32 @@ type Object struct {
 func CreateObject(ctx context.Context, o *Object) (err error) {
 	t := utils.FromTaskContext(ctx)
 
-	tx := utils.FromTxContext(ctx)
-	if tx == nil {
-		tx, err = contexts.DB.Begin(true)
-		if err != nil {
-			logrus.Errorf("Start transaction failed for %v.", err)
-			return
-		}
-		defer func() {
-			CloseTx(tx, err)
-		}()
-	}
-
-	b := tx.Bucket(constants.FormatTaskKey(t))
-
 	content, err := msgpack.Marshal(o)
 	if err != nil {
 		logrus.Panicf("Msgpack marshal failed for %v.", err)
 	}
 
-	return b.Put(constants.FormatObjectKey(o.Key), content)
+	return contexts.DB.Put(constants.FormatObjectKey(t, o.Key), content, nil)
 }
 
 // DeleteObject will delete an object.
 func DeleteObject(ctx context.Context, p string) (err error) {
 	t := utils.FromTaskContext(ctx)
 
-	tx := utils.FromTxContext(ctx)
-	if tx == nil {
-		tx, err = contexts.DB.Begin(true)
-		if err != nil {
-			logrus.Errorf("Start transaction failed for %v.", err)
-			return
-		}
-		defer func() {
-			CloseTx(tx, err)
-		}()
-	}
-
-	b := tx.Bucket(constants.FormatTaskKey(t))
-
-	return b.Delete(constants.FormatObjectKey(p))
+	return contexts.DB.Delete(constants.FormatObjectKey(t, p), nil)
 }
 
 // GetObject will get an object from db.
 func GetObject(ctx context.Context, p string) (o *Object, err error) {
 	t := utils.FromTaskContext(ctx)
 
-	tx := utils.FromTxContext(ctx)
-	if tx == nil {
-		tx, err = contexts.DB.Begin(false)
-		if err != nil {
-			logrus.Errorf("Start transaction failed for %v.", err)
-			return
-		}
-		defer func() {
-			CloseTx(tx, err)
-		}()
-	}
-
-	b := tx.Bucket(constants.FormatTaskKey(t))
-
 	o = &Object{}
 
-	content := b.Get(constants.FormatObjectKey(p))
-	if content == nil {
+	content, err := contexts.DB.Get(constants.FormatObjectKey(t, p), nil)
+	if err == leveldb.ErrNotFound {
+		return nil, nil
+	}
+	if err != nil {
 		return
 	}
 
@@ -106,25 +69,21 @@ func GetObject(ctx context.Context, p string) (o *Object, err error) {
 func HasObject(ctx context.Context) (b bool, err error) {
 	t := utils.FromTaskContext(ctx)
 
-	tx := utils.FromTxContext(ctx)
-	if tx == nil {
-		tx, err = contexts.DB.Begin(false)
-		if err != nil {
-			logrus.Errorf("Start transaction failed for %v.", err)
-			return
+	it := contexts.DB.NewIterator(
+		util.BytesPrefix(constants.FormatObjectKey(t, "")), nil)
+
+	b = it.Seek(constants.FormatObjectKey(t, ""))
+
+	if b {
+		key := it.Key()
+
+		if !bytes.HasPrefix(key, constants.FormatObjectKey(t, "")) {
+			b = false
 		}
-		defer func() {
-			CloseTx(tx, err)
-		}()
 	}
 
-	c := tx.Bucket(constants.FormatTaskKey(t)).Cursor()
-
-	k, _ := c.Seek([]byte(constants.KeyObjectPrefix))
-
-	if k != nil && bytes.HasPrefix(k, []byte(constants.KeyObjectPrefix)) {
-		return true, nil
-	}
+	it.Release()
+	err = it.Error()
 	return
 }
 
@@ -132,29 +91,23 @@ func HasObject(ctx context.Context) (b bool, err error) {
 func NextObject(ctx context.Context, p string) (o *Object, err error) {
 	t := utils.FromTaskContext(ctx)
 
-	tx := utils.FromTxContext(ctx)
-	if tx == nil {
-		tx, err = contexts.DB.Begin(false)
-		if err != nil {
-			logrus.Errorf("Start transaction failed for %v.", err)
-			return
+	it := contexts.DB.NewIterator(
+		util.BytesPrefix(constants.FormatObjectKey(t, "")), nil)
+
+	for ok := it.Seek(constants.FormatObjectKey(t, p)); ok; ok = it.Next() {
+		k := it.Key()
+
+		// Check if the same key first, and go further.
+		if bytes.Compare(k, constants.FormatObjectKey(t, p)) == 0 {
+			continue
 		}
-		defer func() {
-			CloseTx(tx, err)
-		}()
-	}
+		// If k doesn't has object prefix, there are no job any more.
+		if !bytes.HasPrefix(k, constants.FormatObjectKey(t, "")) {
+			break
+		}
 
-	c := tx.Bucket(constants.FormatTaskKey(t)).Cursor()
-
-	k, v := c.Seek(constants.FormatObjectKey(p))
-
-	// If k equal to current id, we should get the next id.
-	if k != nil && bytes.Compare(k, constants.FormatObjectKey(p)) == 0 {
-		k, v = c.Next()
-	}
-
-	if k != nil && bytes.HasPrefix(k, []byte(constants.KeyObjectPrefix)) {
 		o = &Object{}
+		v := it.Value()
 		err = msgpack.Unmarshal(v, o)
 		if err != nil {
 			logrus.Panicf("Msgpack unmarshal failed for %v.", err)
@@ -162,5 +115,7 @@ func NextObject(ctx context.Context, p string) (o *Object, err error) {
 		return
 	}
 
+	it.Release()
+	err = it.Error()
 	return
 }

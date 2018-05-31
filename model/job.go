@@ -5,6 +5,8 @@ import (
 	"context"
 
 	"github.com/sirupsen/logrus"
+	"github.com/syndtr/goleveldb/leveldb"
+	"github.com/syndtr/goleveldb/leveldb/util"
 	"github.com/vmihailenco/msgpack"
 
 	"github.com/yunify/qscamel/constants"
@@ -14,7 +16,6 @@ import (
 
 // Job stores job status.
 type Job struct {
-	ID     uint64 `msgpack:"id"`
 	Path   string `msgpack:"p"`
 	Marker string `msgpack:"m"`
 }
@@ -23,28 +24,12 @@ type Job struct {
 func (j *Job) Save(ctx context.Context) (err error) {
 	t := utils.FromTaskContext(ctx)
 
-	tx := utils.FromTxContext(ctx)
-	if tx == nil {
-		tx, err = contexts.DB.Begin(true)
-		if err != nil {
-			logrus.Errorf("Start transaction failed for %v.", err)
-			return
-		}
-		defer func() {
-			CloseTx(tx, err)
-		}()
-
-	}
-
-	// Get bucket.
-	b := tx.Bucket(constants.FormatTaskKey(t))
-
 	content, err := msgpack.Marshal(j)
 	if err != nil {
 		return
 	}
 
-	err = b.Put(constants.FormatJobKey(j.ID), content)
+	err = contexts.DB.Put(constants.FormatJobKey(t, j.Path), content, nil)
 	if err != nil {
 		return
 	}
@@ -56,28 +41,7 @@ func (j *Job) Save(ctx context.Context) (err error) {
 func CreateJob(ctx context.Context, p string) (j *Job, err error) {
 	t := utils.FromTaskContext(ctx)
 
-	tx := utils.FromTxContext(ctx)
-	if tx == nil {
-		tx, err = contexts.DB.Begin(true)
-		if err != nil {
-			logrus.Errorf("Start transaction failed for %v.", err)
-			return
-		}
-		defer func() {
-			CloseTx(tx, err)
-		}()
-	}
-
-	// Get bucket.
-	b := tx.Bucket(constants.FormatTaskKey(t))
-
-	id, err := b.NextSequence()
-	if err != nil {
-		return
-	}
-
 	j = &Job{
-		ID:     id,
 		Path:   p,
 		Marker: "",
 	}
@@ -87,7 +51,7 @@ func CreateJob(ctx context.Context, p string) (j *Job, err error) {
 		return
 	}
 
-	err = b.Put(constants.FormatJobKey(id), content)
+	err = contexts.DB.Put(constants.FormatJobKey(t, j.Path), content, nil)
 	if err != nil {
 		return
 	}
@@ -96,51 +60,30 @@ func CreateJob(ctx context.Context, p string) (j *Job, err error) {
 }
 
 // DeleteJob will delete a job.
-func DeleteJob(ctx context.Context, id uint64) (err error) {
+func DeleteJob(ctx context.Context, p string) (err error) {
 	t := utils.FromTaskContext(ctx)
 
-	tx := utils.FromTxContext(ctx)
-	if tx == nil {
-		tx, err = contexts.DB.Begin(true)
-		if err != nil {
-			logrus.Errorf("Start transaction failed for %v.", err)
-			return
-		}
-		defer func() {
-			CloseTx(tx, err)
-		}()
-	}
-
-	b := tx.Bucket(constants.FormatTaskKey(t))
-
-	return b.Delete(constants.FormatJobKey(id))
+	return contexts.DB.Delete(constants.FormatJobKey(t, p), nil)
 }
 
 // GetJob will get a job by it's ID.
-func GetJob(ctx context.Context, id uint64) (j *Job, err error) {
+func GetJob(ctx context.Context, p string) (j *Job, err error) {
 	t := utils.FromTaskContext(ctx)
-
-	tx := utils.FromTxContext(ctx)
-	if tx == nil {
-		tx, err = contexts.DB.Begin(false)
-		if err != nil {
-			logrus.Errorf("Start transaction failed for %v.", err)
-			return
-		}
-		defer func() {
-			CloseTx(tx, err)
-		}()
-	}
-
-	b := tx.Bucket(constants.FormatTaskKey(t))
 
 	j = &Job{}
 
-	err = msgpack.Unmarshal(b.Get(constants.FormatJobKey(id)), j)
+	content, err := contexts.DB.Get(constants.FormatJobKey(t, p), nil)
+	if err == leveldb.ErrNotFound {
+		return nil, nil
+	}
+	if err != nil {
+		return
+	}
+
+	err = msgpack.Unmarshal(content, j)
 	if err != nil {
 		logrus.Panicf("Msgpack unmarshal failed for %v.", err)
 	}
-
 	return
 }
 
@@ -148,54 +91,45 @@ func GetJob(ctx context.Context, id uint64) (j *Job, err error) {
 func HasJob(ctx context.Context) (b bool, err error) {
 	t := utils.FromTaskContext(ctx)
 
-	tx := utils.FromTxContext(ctx)
-	if tx == nil {
-		tx, err = contexts.DB.Begin(false)
-		if err != nil {
-			logrus.Errorf("Start transaction failed for %v.", err)
-			return
+	it := contexts.DB.NewIterator(
+		util.BytesPrefix(constants.FormatJobKey(t, "")), nil)
+
+	b = it.Seek(constants.FormatJobKey(t, ""))
+
+	if b {
+		key := it.Key()
+
+		if !bytes.HasPrefix(key, constants.FormatJobKey(t, "")) {
+			b = false
 		}
-		defer func() {
-			CloseTx(tx, err)
-		}()
 	}
 
-	c := tx.Bucket(constants.FormatTaskKey(t)).Cursor()
-
-	k, _ := c.Seek([]byte(constants.KeyJobPrefix))
-
-	if k != nil && bytes.HasPrefix(k, []byte(constants.KeyJobPrefix)) {
-		return true, nil
-	}
+	it.Release()
+	err = it.Error()
 	return
 }
 
 // NextJob will return the next job after id.
-func NextJob(ctx context.Context, id uint64) (j *Job, err error) {
+func NextJob(ctx context.Context, p string) (j *Job, err error) {
 	t := utils.FromTaskContext(ctx)
 
-	tx := utils.FromTxContext(ctx)
-	if tx == nil {
-		tx, err = contexts.DB.Begin(false)
-		if err != nil {
-			logrus.Errorf("Start transaction failed for %v.", err)
-			return
+	it := contexts.DB.NewIterator(
+		util.BytesPrefix(constants.FormatJobKey(t, "")), nil)
+
+	for ok := it.Seek(constants.FormatJobKey(t, p)); ok; ok = it.Next() {
+		k := it.Key()
+
+		// Check if the same key first, and go further.
+		if bytes.Compare(k, constants.FormatJobKey(t, p)) == 0 {
+			continue
 		}
-		defer func() {
-			CloseTx(tx, err)
-		}()
-	}
+		// If k doesn't has job prefix, there are no job any more.
+		if !bytes.HasPrefix(k, constants.FormatJobKey(t, "")) {
+			break
+		}
 
-	c := tx.Bucket(constants.FormatTaskKey(t)).Cursor()
-	k, v := c.Seek(constants.FormatJobKey(id))
-
-	// If k equal to current id, we should get the next id.
-	if k != nil && bytes.Compare(k, constants.FormatJobKey(id)) == 0 {
-		k, v = c.Next()
-	}
-
-	if k != nil && bytes.HasPrefix(k, []byte(constants.KeyJobPrefix)) {
 		j = &Job{}
+		v := it.Value()
 		err = msgpack.Unmarshal(v, j)
 		if err != nil {
 			logrus.Panicf("Msgpack unmarshal failed for %v.", err)
@@ -203,5 +137,7 @@ func NextJob(ctx context.Context, id uint64) (j *Job, err error) {
 		return
 	}
 
+	it.Release()
+	err = it.Error()
 	return
 }
