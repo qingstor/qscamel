@@ -5,7 +5,7 @@ import "runtime"
 // DefaultConfigContent is the default config config.
 const DefaultConfigContent = `concurrency: 0
 log_file: ~/.qscamel/qscamel.log
-log_level: error
+log_level: info
 pid_file: ~/.qscamel/qscamel.pid
 database_file: ~/.qscamel/db
 `
