@@ -4,8 +4,10 @@ import (
 	"context"
 	"sync"
 
+	"github.com/cenkalti/backoff"
 	"github.com/sirupsen/logrus"
 
+	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/contexts"
 	"github.com/yunify/qscamel/model"
 )
@@ -56,17 +58,27 @@ func Fetch(ctx context.Context) (err error) {
 	return
 }
 
-// fetchObject will do a real fetch.
-func fetchObject(ctx context.Context, o *model.Object) (err error) {
-	url, err := src.Reach(ctx, o.Key)
-	if err != nil {
-		logrus.Errorf("Src reach %s failed for %v.", o.Key, err)
-		return err
+// fetchTask will excuate a fetch task.
+func fetchTask(ctx context.Context) (err error) {
+	if !CanFetch() {
+		logrus.Infof("Source type %s and destination type %s not support fetch.",
+			t.Src.Type, t.Dst.Type)
+		return
 	}
-	err = dst.Fetch(ctx, o.Key, url)
-	if err != nil {
-		logrus.Errorf("Dst fetch %s failed for %v.", o.Key, err)
-		return err
-	}
-	return
+	logrus.Debugf("Start fetch task.")
+
+	bo := &backoff.ZeroBackOff{}
+
+	return backoff.Retry(func() error {
+		err := Fetch(ctx)
+		if err != nil {
+			return err
+		}
+
+		if !isFinished(ctx) {
+			return constants.ErrTaskNotFinished
+		}
+
+		return nil
+	}, bo)
 }

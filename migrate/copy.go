@@ -4,8 +4,10 @@ import (
 	"context"
 	"sync"
 
+	"github.com/cenkalti/backoff"
 	"github.com/sirupsen/logrus"
 
+	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/contexts"
 	"github.com/yunify/qscamel/model"
 )
@@ -56,17 +58,27 @@ func Copy(ctx context.Context) (err error) {
 	return
 }
 
-// copyObject will do a real copy.
-func copyObject(ctx context.Context, o *model.Object) (err error) {
-	r, err := src.Read(ctx, o.Key)
-	if err != nil {
-		logrus.Errorf("Src read %s failed for %v.", o.Key, err)
-		return err
+// copyTask will excuate a copy task.
+func copyTask(ctx context.Context) (err error) {
+	if !CanCopy() {
+		logrus.Infof("Source type %s and destination type %s not support copy.",
+			t.Src.Type, t.Dst.Type)
+		return
 	}
-	err = dst.Write(ctx, o.Key, o.Size, r)
-	if err != nil {
-		logrus.Errorf("Dst write %s failed for %v.", o.Key, err)
-		return err
-	}
-	return
+	logrus.Debugf("Start copy task.")
+
+	bo := &backoff.ZeroBackOff{}
+
+	return backoff.Retry(func() error {
+		err := Copy(ctx)
+		if err != nil {
+			return err
+		}
+
+		if !isFinished(ctx) {
+			return constants.ErrTaskNotFinished
+		}
+
+		return nil
+	}, bo)
 }

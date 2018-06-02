@@ -18,9 +18,9 @@ package migrate
 
 import (
 	"context"
-	"errors"
 	"sync"
 
+	"github.com/cenkalti/backoff"
 	"github.com/sirupsen/logrus"
 
 	"github.com/yunify/qscamel/constants"
@@ -33,6 +33,7 @@ import (
 	"github.com/yunify/qscamel/endpoint/s3"
 	"github.com/yunify/qscamel/endpoint/upyun"
 	"github.com/yunify/qscamel/model"
+	"github.com/yunify/qscamel/utils"
 )
 
 var (
@@ -55,6 +56,16 @@ func Execute(ctx context.Context) (err error) {
 		return
 	}
 
+	err = check(ctx)
+	if err != nil {
+		logrus.Errorf("Pre migrate check failed for %v.", err)
+		return
+	}
+
+	return run(ctx)
+}
+
+func check(ctx context.Context) (err error) {
 	if t.Status == constants.TaskStatusFinished {
 		logrus.Infof("Task %s has been finished, skip.", t.Name)
 		return
@@ -99,7 +110,7 @@ func Execute(ctx context.Context) (err error) {
 		}
 	default:
 		logrus.Errorf("Type %s is not supported.", t.Src.Type)
-		err = errors.New("type is not supported")
+		err = constants.ErrEndpointNotSupported
 		return
 	}
 
@@ -117,9 +128,112 @@ func Execute(ctx context.Context) (err error) {
 		}
 	default:
 		logrus.Errorf("Type %s is not supported.", t.Src.Type)
-		err = errors.New("type is not supported")
+		err = constants.ErrEndpointNotSupported
 		return
 	}
 
-	return Run(ctx)
+	return
+}
+
+// run will execute task.
+func run(ctx context.Context) (err error) {
+	switch t.Type {
+	case constants.TaskTypeCopy:
+		err = copyTask(ctx)
+		if err != nil {
+			return
+		}
+	case constants.TaskTypeFetch:
+		err = fetchTask(ctx)
+		if err != nil {
+			return
+		}
+	default:
+		logrus.Errorf("Task %s's type %s is not supported.", t.Name, t.Type)
+		return
+	}
+
+	// Update task status.
+	t.Status = constants.TaskStatusFinished
+	err = t.Save(ctx)
+	if err != nil {
+		logrus.Errorf("Task %s save failed for %v.", t.Name, err)
+		return
+	}
+
+	logrus.Infof("Task %s has been finished.", t.Name)
+	return
+}
+
+// migrateWorker will only do migrate work.
+func migrateWorker(ctx context.Context) {
+	defer owg.Done()
+	defer utils.Recover()
+
+	for o := range oc {
+		ok, err := checkObject(ctx, o.Key)
+		if err != nil || ok {
+			err = model.DeleteObject(ctx, o.Key)
+			if err != nil {
+				logrus.Errorf("Delete object failed for %v.", err)
+			}
+			continue
+		}
+
+		var fn func(ctx context.Context, o *model.Object) (err error)
+
+		switch t.Type {
+		case constants.TaskTypeCopy:
+			fn = copyObject
+		case constants.TaskTypeFetch:
+			fn = fetchObject
+		default:
+			logrus.Fatalf("Not supported task type: %s.", t.Type)
+		}
+
+		logrus.Infof("Start %sing object %s.", t.Type, o.Key)
+
+		bo := backoff.NewExponentialBackOff()
+
+		backoff.Retry(func() error {
+			err = fn(ctx, o)
+			if err == nil {
+				return nil
+			}
+
+			logrus.Infof("Object %s %s failed, retrying.", o.Key, t.Type)
+			return err
+		}, bo)
+
+		err = model.DeleteObject(ctx, o.Key)
+		if err != nil {
+			logrus.Errorf("Delete object failed for %v.", err)
+			continue
+		}
+
+		logrus.Infof("Object %s %sed.", o.Key, t.Type)
+	}
+}
+
+// isFinished will check whether current task has been finished.
+func isFinished(ctx context.Context) bool {
+	ho, err := model.HasObject(ctx)
+	if err != nil {
+		logrus.Panic(err)
+	}
+	if ho {
+		logrus.Infof("There are not finished objects.")
+		return false
+	}
+
+	hj, err := model.HasJob(ctx)
+	if err != nil {
+		logrus.Panic(err)
+	}
+	if hj {
+		logrus.Infof("There are not finished jobs.")
+		return false
+	}
+
+	return true
 }
