@@ -21,7 +21,7 @@ func (c *Client) Writable() bool {
 }
 
 // Write implement destination.Write
-func (c *Client) Write(ctx context.Context, p string, r io.ReadCloser) (err error) {
+func (c *Client) Write(ctx context.Context, p string, _ int64, r io.ReadCloser) (err error) {
 	cp := filepath.Join(c.AbsPath, p)
 
 	_, err = os.Stat(path.Dir(cp))
