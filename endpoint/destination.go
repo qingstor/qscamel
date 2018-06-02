@@ -13,7 +13,7 @@ type Destination interface {
 	Writable() bool
 	MD5able() bool
 
-	Write(ctx context.Context, path string, r io.ReadCloser) (err error)
+	Write(ctx context.Context, path string, size int64, r io.ReadCloser) (err error)
 	Fetch(ctx context.Context, path, url string) (err error)
 
 	Stat(ctx context.Context, p string) (o *model.Object, err error)
