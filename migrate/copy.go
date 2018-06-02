@@ -63,7 +63,7 @@ func copyObject(ctx context.Context, o *model.Object) (err error) {
 		logrus.Errorf("Src read %s failed for %v.", o.Key, err)
 		return err
 	}
-	err = dst.Write(ctx, o.Key, r)
+	err = dst.Write(ctx, o.Key, o.Size, r)
 	if err != nil {
 		logrus.Errorf("Dst write %s failed for %v.", o.Key, err)
 		return err
