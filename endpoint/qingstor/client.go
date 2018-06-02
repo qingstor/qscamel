@@ -138,7 +138,7 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 		}
 	}
 	c.client, _ = qs.Bucket(c.BucketName, c.Zone)
-	c.uploader = upload.Init(c.client, DefaultMultipartBoundarySize)
+	c.uploader = upload.Init(c.client, DefaultMultipartSize)
 
 	return
 }
