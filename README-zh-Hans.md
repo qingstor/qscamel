@@ -181,6 +181,10 @@ host: qingstor.com
 # port 控制访问 QingStor 的端口号。
 # 默认值: 443
 port: 443
+# zone 控制访问 QingStor 的区域.
+# 默认值：自动检测，不需要手动配置
+# This will auto detected, no need to set.
+zone: pek3b
 # bucket_name 是 QingStor 的 bucket 名称。
 bucket_name: example_bucket
 # access_key_id 是 QingStor 的 access_key_id。
