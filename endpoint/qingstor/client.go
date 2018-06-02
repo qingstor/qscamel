@@ -21,6 +21,7 @@ type Client struct {
 	Protocol        string `yaml:"protocol"`
 	Host            string `yaml:"host"`
 	Port            int    `yaml:"port"`
+	Zone            string `yaml:"zone"`
 	BucketName      string `yaml:"bucket_name"`
 	AccessKeyID     string `yaml:"access_key_id"`
 	SecretAccessKey string `yaml:"secret_access_key"`
@@ -117,11 +118,13 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 
 	// Set qingstor service.
 	qs, _ := service.Init(qc)
-	zone, err := c.GetZone()
-	if err != nil {
-		return
+	if c.Zone == "" {
+		c.Zone, err = c.GetZone()
+		if err != nil {
+			return
+		}
 	}
-	c.client, _ = qs.Bucket(c.BucketName, zone)
+	c.client, _ = qs.Bucket(c.BucketName, c.Zone)
 
 	return
 }
