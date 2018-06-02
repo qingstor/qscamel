@@ -120,6 +120,12 @@ destination:
     bucket_name: example_bucket
     access_key_id: example_access_key_id
     secret_access_key: example_secret_access_key
+
+# ignore_existing controls whether ignore exist file.
+# If set to true，qscamel will check whether ignore exist file.
+# If does exist and size, md5 match, this file will skip.
+# If not, qscamel will do the task as defined.
+ignore_existing: false
 ```
 
 ### Endpoint aliyun
@@ -182,10 +188,17 @@ bucket_name: example_bucket
 access_key_id: example_access_key_id
 # secret_access_key is the secret_access_key for qingstor.
 secret_access_key: example_secret_access_key
+
 # storage class is the storage class used for qingstor.
 # Available value: STANDARD, STANDARD_IA
 # Default value: STANDARD
 storage_class: STANDARD
+# multipart boundary size controls when qingstor will use multipart
+# unit is Byte ，when file size is bigger then this value, qscamel
+# will use multipart API.
+# Available value: 1 ~ 5368709120
+# Default value: 67108864
+multipart_boundary_size: 67108864
 ```
 
 ### Endpoint qiniu
