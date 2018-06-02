@@ -22,13 +22,18 @@ func (c *Client) Writable() bool {
 }
 
 // Write implement destination.Write
-func (c *Client) Write(ctx context.Context, p string, r io.ReadCloser) (err error) {
+func (c *Client) Write(ctx context.Context, p string, size int64, r io.ReadCloser) (err error) {
 	cp := utils.Join(c.Path, p)
 
-	_, err = c.client.PutObject(cp, &service.PutObjectInput{
-		Body:            r,
-		XQSStorageClass: convert.String(c.StorageClass),
-	})
+	if size <= c.MultipartBoundarySize {
+		_, err = c.client.PutObject(cp, &service.PutObjectInput{
+			Body:            r,
+			ContentLength:   convert.Int64(size),
+			XQSStorageClass: convert.String(c.StorageClass),
+		})
+	} else {
+		err = c.uploader.Upload(r, cp)
+	}
 	if err != nil {
 		return
 	}
