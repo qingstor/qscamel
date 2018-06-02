@@ -173,6 +173,9 @@ host: qingstor.com
 # port controls port for qingstor.
 # Default value: 443
 port: 443
+# zone controls zone for qingstor.
+# This will auto detected, no need to set.
+zone: pek3b
 # bucket_name is the bucket name for qingstor.
 bucket_name: example_bucket
 # access_key_id is the access_key_id for qingstor.
