@@ -200,8 +200,8 @@ storage_class: STANDARD
 # multipart boundary size 控制 QingStor 何时使用分段上传
 # 单位为 Byte ，当文件大于该数值时，将会使用分段上传
 # 可选值: 1 ~ 5368709120
-# 默认值: 67108864
-multipart_boundary_size: 67108864
+# 默认值: 2147483648
+multipart_boundary_size: 2147483648
 ```
 
 ### Endpoint qiniu

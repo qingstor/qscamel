@@ -197,8 +197,8 @@ storage_class: STANDARD
 # unit is Byte ，when file size is bigger then this value, qscamel
 # will use multipart API.
 # Available value: 1 ~ 5368709120
-# Default value: 67108864
-multipart_boundary_size: 67108864
+# Default value: 2147483648
+multipart_boundary_size: 2147483648
 ```
 
 ### Endpoint qiniu
