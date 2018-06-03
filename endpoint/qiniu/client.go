@@ -3,11 +3,9 @@ package qiniu
 import (
 	"context"
 	"net/http"
-	"strings"
 
 	"github.com/qiniu/api.v7/auth/qbox"
 	"github.com/qiniu/api.v7/storage"
-	"github.com/qiniu/x/rpc.v7"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 
@@ -101,39 +99,4 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	c.client = utils.DefaultClient
 
 	return
-}
-
-// Stat implement source.Stat and destination.Stat
-func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error) {
-	cp := utils.Join(c.Path, p)
-
-	fi, err := c.bucket.Stat(c.BucketName, cp)
-	if err != nil {
-		if e, ok := err.(*rpc.ErrorInfo); ok {
-			// If object not found, we just need to return a nil object.
-			if e.Code == ErrorCodeNotFound {
-				return nil, nil
-			}
-		}
-		logrus.Errorf("Stat failed for %v.", err)
-		return
-	}
-	// qiniu use their own hash algorithm instead of md5, so we can't support it.
-	o = &model.Object{
-		Key:          p,
-		IsDir:        strings.HasSuffix(p, "/"),
-		Size:         fi.Fsize,
-		LastModified: fi.PutTime,
-	}
-	return
-}
-
-// MD5 implement source.MD5 and destination.MD5
-func (c *Client) MD5(ctx context.Context, p string) (b string, err error) {
-	return
-}
-
-// MD5able implement source MD5able and destination MD5able.
-func (c *Client) MD5able() bool {
-	return false
 }

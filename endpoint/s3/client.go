@@ -2,10 +2,8 @@ package s3
 
 import (
 	"context"
-	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -14,7 +12,6 @@ import (
 
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
-	"github.com/yunify/qscamel/utils"
 )
 
 // Client is the client to visit service.
@@ -93,41 +90,4 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	c.client = s3.New(sess)
 
 	return
-}
-
-// Stat implement source.Stat and destination.Stat
-func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error) {
-	cp := utils.Join(c.Path, p)
-
-	resp, err := c.client.HeadObject(&s3.HeadObjectInput{
-		Bucket: aws.String(c.BucketName),
-		Key:    aws.String(cp),
-	})
-	if err != nil {
-		if e, ok := err.(awserr.Error); ok {
-			if e.Code() == "NoSuchKey" {
-				return nil, nil
-			}
-		}
-		logrus.Errorf("Head object %s failed for %v.", p, err)
-		return
-	}
-	o = &model.Object{
-		Key:          p,
-		IsDir:        strings.HasSuffix(p, "/"),
-		Size:         *resp.ContentLength,
-		MD5:          *resp.ETag,
-		LastModified: (*resp.LastModified).Unix(),
-	}
-	return
-}
-
-// MD5 implement source.MD5 and destination.MD5
-func (c *Client) MD5(ctx context.Context, p string) (b string, err error) {
-	return
-}
-
-// MD5able implement source MD5able and destination MD5able.
-func (c *Client) MD5able() bool {
-	return true
 }
