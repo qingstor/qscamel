@@ -2,13 +2,10 @@ package qingstor
 
 import (
 	"context"
-	"strings"
 
-	"github.com/pengsrc/go-shared/convert"
 	"github.com/sirupsen/logrus"
 	"github.com/yunify/qingstor-sdk-go/client/upload"
 	"github.com/yunify/qingstor-sdk-go/config"
-	qsErrors "github.com/yunify/qingstor-sdk-go/request/errors"
 	"github.com/yunify/qingstor-sdk-go/service"
 	"gopkg.in/yaml.v2"
 
@@ -141,41 +138,4 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	c.uploader = upload.Init(c.client, DefaultMultipartSize)
 
 	return
-}
-
-// Stat implement source.Stat and destination.Stat
-func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error) {
-	cp := utils.Join(c.Path, p)
-
-	resp, err := c.client.HeadObject(cp, nil)
-	if err != nil {
-		if e, ok := err.(*qsErrors.QingStorError); ok {
-			// If object not found, we just need to return a nil object.
-			if e.StatusCode == 404 {
-				return nil, nil
-			}
-		}
-		logrus.Errorf("Stat failed for %v.", err)
-		return
-	}
-	o = &model.Object{
-		Key:   p,
-		IsDir: convert.StringValue(resp.ContentType) == DirectoryContentType,
-		Size:  convert.Int64Value(resp.ContentLength),
-		MD5:   strings.Trim(convert.StringValue(resp.ETag), "\""),
-	}
-	if resp.LastModified != nil {
-		o.LastModified = (*resp.LastModified).Unix()
-	}
-	return
-}
-
-// MD5 implement source.MD5 and destination.MD5
-func (c *Client) MD5(ctx context.Context, p string) (b string, err error) {
-	return
-}
-
-// MD5able implement source MD5able and destination MD5able.
-func (c *Client) MD5able() bool {
-	return true
 }

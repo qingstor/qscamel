@@ -2,25 +2,13 @@ package fs
 
 import (
 	"context"
-	"io"
 	"os"
 	"path/filepath"
 
-	"github.com/sirupsen/logrus"
-
+	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
 	"github.com/yunify/qscamel/utils"
 )
-
-// Reachable implement source.Reachable
-func (c *Client) Reachable() bool {
-	return false
-}
-
-// Readable implement source.Readable
-func (c *Client) Readable() bool {
-	return true
-}
 
 // List implement source.List
 func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object)) (err error) {
@@ -28,7 +16,6 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 
 	fi, err := os.Open(cp)
 	if err != nil {
-		logrus.Errorf("Open dir failed for %v.", err)
 		return
 	}
 	list, err := fi.Readdir(-1)
@@ -47,19 +34,12 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 	return
 }
 
-// Read implement source.Read
-func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error) {
-	cp := filepath.Join(c.AbsPath, p)
-
-	r, err = os.Open(cp)
-	if err != nil {
-		logrus.Errorf("Fs open file %s failed for %s.", cp, err)
-		return
-	}
-	return
-}
-
 // Reach implement source.Fetch
 func (c *Client) Reach(ctx context.Context, p string) (url string, err error) {
-	return
+	return "", constants.ErrEndpointFuncNotImplemented
+}
+
+// Reachable implement source.Reachable
+func (c *Client) Reachable() bool {
+	return false
 }

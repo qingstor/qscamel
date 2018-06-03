@@ -2,7 +2,6 @@ package qingstor
 
 import (
 	"context"
-	"io"
 	"strings"
 
 	"github.com/pengsrc/go-shared/convert"
@@ -12,16 +11,6 @@ import (
 	"github.com/yunify/qscamel/model"
 	"github.com/yunify/qscamel/utils"
 )
-
-// Reachable implement source.Reachable
-func (c *Client) Reachable() bool {
-	return true
-}
-
-// Readable implement source.Readable
-func (c *Client) Readable() bool {
-	return true
-}
 
 // List implement source.List
 func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object)) (err error) {
@@ -92,19 +81,6 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 	return
 }
 
-// Read implement source.Read
-func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error) {
-	cp := utils.Join(c.Path, p)
-
-	resp, err := c.client.GetObject(cp, nil)
-	if err != nil {
-		return
-	}
-
-	r = resp.Body
-	return
-}
-
 // Reach implement source.Fetch
 func (c *Client) Reach(ctx context.Context, p string) (url string, err error) {
 	cp := utils.Join(c.Path, p)
@@ -126,4 +102,9 @@ func (c *Client) Reach(ctx context.Context, p string) (url string, err error) {
 
 	url = r.HTTPRequest.URL.String()
 	return
+}
+
+// Reachable implement source.Reachable
+func (c *Client) Reachable() bool {
+	return true
 }

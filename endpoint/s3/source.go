@@ -2,22 +2,18 @@ package s3
 
 import (
 	"context"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/sirupsen/logrus"
-	"io"
 
+	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
 	"github.com/yunify/qscamel/utils"
 )
 
 // Reachable implement source.Reachable
 func (c *Client) Reachable() bool {
-	return true
-}
-
-// Readable implement source.Readable
-func (c *Client) Readable() bool {
 	return true
 }
 
@@ -79,23 +75,12 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 	return
 }
 
-// Read implement source.Read
-func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error) {
-	cp := utils.Join(c.Path, p)
-
-	resp, err := c.client.GetObject(&s3.GetObjectInput{
-		Key:    aws.String(cp),
-		Bucket: aws.String(c.BucketName),
-	})
-	if err != nil {
-		return
-	}
-
-	r = resp.Body
-	return
-}
-
 // Reach implement source.Fetch
 func (c *Client) Reach(ctx context.Context, p string) (url string, err error) {
-	return
+	return "", constants.ErrEndpointFuncNotImplemented
+}
+
+// Readable implement source.Readable
+func (c *Client) Readable() bool {
+	return false
 }
