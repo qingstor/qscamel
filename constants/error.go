@@ -12,4 +12,6 @@ var (
 	ErrEndpointInvalid = errors.New("endpoint is invalid")
 	// ErrEndpointNotSupported is returned when this endpoint is not supported.
 	ErrEndpointNotSupported = errors.New("endpoint type is not supported")
+	// ErrEndpointFuncNotImplemented is return when a not implement function is called.
+	ErrEndpointFuncNotImplemented = errors.New("endpoint does not implement this function")
 )
