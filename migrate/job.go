@@ -14,6 +14,8 @@ func listJob(ctx context.Context, j *model.Job) (err error) {
 	defer utils.Recover()
 
 	err = src.List(ctx, j, func(o *model.Object) {
+		defer utils.Recover()
+
 		if o.IsDir {
 			_, err := model.CreateJob(ctx, o.Key)
 			if err != nil {
