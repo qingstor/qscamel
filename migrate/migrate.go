@@ -68,11 +68,6 @@ func Execute(ctx context.Context) (err error) {
 }
 
 func check(ctx context.Context) (err error) {
-	if t.Status == constants.TaskStatusFinished {
-		logrus.Infof("Task %s has been finished, skip.", t.Name)
-		return
-	}
-
 	// Initialize source.
 	switch t.Src.Type {
 	case constants.EndpointAliyun:
@@ -139,6 +134,12 @@ func check(ctx context.Context) (err error) {
 
 // run will execute task.
 func run(ctx context.Context) (err error) {
+	// Check if task has been finished.
+	if t.Status == constants.TaskStatusFinished {
+		logrus.Infof("Task %s has been finished, skip.", t.Name)
+		return
+	}
+
 	// Set md5sum function.
 	if t.IgnoreExisting == constants.TaskIgnoreExistingQuickMD5Sum {
 		md5sum = quickSumObject
