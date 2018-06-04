@@ -25,6 +25,11 @@ type Base interface {
 type Destination interface {
 	Base
 
+	// Delete will use endpoint to delete the path.
+	Delete(ctx context.Context, p string) (err error)
+	// Deletable will return whether current endpoint supports delete.
+	Deletable() bool
+
 	// Fetch will use endpoint to fetch the url.
 	Fetch(ctx context.Context, path, url string) (err error)
 	// Fetchable will return whether current endpoint supports fetch.

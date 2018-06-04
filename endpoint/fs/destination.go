@@ -10,6 +10,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Deletable implement destination.Deletable
+func (c *Client) Deletable() bool {
+	return true
+}
+
 // Fetchable implement destination.Fetchable
 func (c *Client) Fetchable() bool {
 	return false
@@ -18,6 +23,19 @@ func (c *Client) Fetchable() bool {
 // Writable implement destination.Writable
 func (c *Client) Writable() bool {
 	return true
+}
+
+// Delete implement destination.Delete
+func (c *Client) Delete(ctx context.Context, p string) (err error) {
+	cp := filepath.Join(c.AbsPath, p)
+
+	err = os.Remove(cp)
+	if err != nil {
+		return
+	}
+
+	logrus.Debugf("Fs delete file %s.", cp)
+	return
 }
 
 // Write implement destination.Write
