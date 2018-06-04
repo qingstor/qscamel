@@ -210,7 +210,7 @@ func migrateWorker(ctx context.Context) {
 			return err
 		}, bo)
 		if err != nil {
-			logrus.Errorf("%d object failed for %v.", err)
+			logrus.Errorf("%s object failed for %v.", t.Type, err)
 			continue
 		}
 
