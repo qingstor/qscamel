@@ -42,12 +42,12 @@ func LoadTask(name, taskPath string) (t *Task, err error) {
 		return
 	}
 
-	// If t is nil and no task path input, we should return not found error.
-	if t == nil && taskPath == "" {
-		return nil, constants.ErrTaskNotFound
-	}
-	// If t is found and no task path input, we should return the task.
-	if t != nil && taskPath == "" {
+	if taskPath == "" {
+		if t == nil {
+			// If t is nil and no task path input, we should return not found error.
+			return nil, constants.ErrTaskNotFound
+		}
+		// If t is found and no task path input, we should return the task.
 		return t, nil
 	}
 
@@ -58,8 +58,11 @@ func LoadTask(name, taskPath string) (t *Task, err error) {
 	}
 
 	// If t is not nil and task path input, we should check the task content.
-	if t != nil && t.Sum256() != task.Sum256() {
-		return nil, constants.ErrTaskMismatch
+	if t != nil {
+		if t.Sum256() != task.Sum256() {
+			return nil, constants.ErrTaskMismatch
+		}
+		return t, nil
 	}
 
 	// If task not in database, set task status to
