@@ -26,6 +26,7 @@ import (
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/endpoint"
 	"github.com/yunify/qscamel/endpoint/aliyun"
+	"github.com/yunify/qscamel/endpoint/filelist"
 	"github.com/yunify/qscamel/endpoint/fs"
 	"github.com/yunify/qscamel/endpoint/gcs"
 	"github.com/yunify/qscamel/endpoint/qingstor"
@@ -72,6 +73,11 @@ func check(ctx context.Context) (err error) {
 	switch t.Src.Type {
 	case constants.EndpointAliyun:
 		src, err = aliyun.New(ctx, constants.SourceEndpoint)
+		if err != nil {
+			return
+		}
+	case constants.EndpointFileList:
+		src, err = filelist.New(ctx, constants.SourceEndpoint)
 		if err != nil {
 			return
 		}
