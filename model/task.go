@@ -19,7 +19,6 @@ import (
 
 // Task store all data for a task.
 type Task struct {
-	Name string `yaml:"name" msgpack:"n"`
 	Type string `yaml:"type" msgpack:"t"`
 
 	Src *Endpoint `yaml:"source" msgpack:"src"`
@@ -28,6 +27,7 @@ type Task struct {
 	IgnoreExisting string `yaml:"ignore_existing" msgpack:"ie"`
 
 	// Data that only stores in database.
+	Name   string `yaml:"-" msgpack:"n"`
 	Status string `yaml:"-" msgpack:"s"`
 
 	// Date that only keep in memory.
@@ -35,36 +35,42 @@ type Task struct {
 }
 
 // LoadTask will try to load task from database and file.
-func LoadTask(s string) (t *Task, err error) {
+func LoadTask(name, taskPath string) (t *Task, err error) {
 	// Load from database first.
-	t, err = GetTaskByName(nil, s)
+	t, err = GetTaskByName(nil, name)
 	if err != nil {
-		return
-	}
-	if t != nil {
 		return
 	}
 
+	// If t is nil and no task path input, we should return not found error.
+	if t == nil && taskPath == "" {
+		return nil, constants.ErrTaskNotFound
+	}
+	// If t is found and no task path input, we should return the task.
+	if t != nil && taskPath == "" {
+		return t, nil
+	}
+
 	// Load from file
-	task, err := LoadTaskFromFilePath(s)
+	task, err := LoadTaskFromFilePath(taskPath)
 	if err != nil {
 		return
 	}
-	t, err = GetTaskByName(nil, task.Name)
+
+	// If t is not nil and task path input, we should check the task content.
+	if t != nil && t.Sum256() != task.Sum256() {
+		return nil, constants.ErrTaskMismatch
+	}
+
+	// If task not in database, set task status to
+	// created and save it.
+	task.Status = constants.TaskStatusCreated
+	task.Name = name
+	err = task.Save(nil)
 	if err != nil {
 		return
 	}
-	if t == nil {
-		// If task not in database, set task status to
-		// running and save it.
-		task.Status = constants.TaskStatusCreated
-		err = task.Save(nil)
-		if err != nil {
-			return
-		}
-		return task, err
-	}
-	return
+	return task, nil
 }
 
 // LoadTaskFromFilePath will load config from specific file path.

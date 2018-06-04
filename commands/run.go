@@ -70,7 +70,7 @@ var RunCmd = &cobra.Command{
 		}()
 
 		// Load and check task.
-		t, err := model.LoadTask(args[0])
+		t, err := model.LoadTask(args[0], taskPath)
 		if err != nil {
 			logrus.Errorf("Task load failed for %v.", err)
 			return
@@ -92,4 +92,12 @@ var RunCmd = &cobra.Command{
 			logrus.Errorf("Migrate failed for %v.", err)
 		}
 	},
+}
+
+var (
+	taskPath string
+)
+
+func init() {
+	RunCmd.Flags().StringVarP(&taskPath, "task", "t", "", "task path")
 }
