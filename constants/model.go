@@ -2,8 +2,9 @@ package constants
 
 // Constants for task type.
 const (
-	TaskTypeCopy  = "copy"
-	TaskTypeFetch = "fetch"
+	TaskTypeCopy   = "copy"
+	TaskTypeDelete = "delete"
+	TaskTypeFetch  = "fetch"
 )
 
 // Constants for task status.

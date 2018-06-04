@@ -161,6 +161,12 @@ func run(ctx context.Context) (err error) {
 		if err != nil {
 			return
 		}
+	case constants.TaskTypeDelete:
+		t.Handle = deleteObject
+		err = deleteTask(ctx)
+		if err != nil {
+			return
+		}
 	case constants.TaskTypeFetch:
 		t.Handle = fetchObject
 		err = fetchTask(ctx)

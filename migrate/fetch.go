@@ -58,7 +58,7 @@ func Fetch(ctx context.Context) (err error) {
 	return
 }
 
-// fetchTask will excuate a fetch task.
+// fetchTask will execute a fetch task.
 func fetchTask(ctx context.Context) (err error) {
 	if !CanFetch() {
 		logrus.Infof("Source type %s and destination type %s not support fetch.",
