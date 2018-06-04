@@ -101,15 +101,15 @@ func LoadTaskFromContent(content []byte) (t *Task, err error) {
 
 // Check will check whether current task is valid.
 func (t *Task) Check() error {
-	// TODO: check other value.
-
-	td, err := GetTaskByName(nil, t.Name)
-	if err != nil {
-		return err
-	}
-	if td != nil && t.Sum256() != td.Sum256() {
-		logrus.Infof("Task content has been changed, check failed.")
-		return constants.ErrTaskMismatch
+	switch t.IgnoreExisting {
+	case "":
+	case constants.TaskIgnoreExistingDisable:
+	case constants.TaskIgnoreExistingSize:
+	case constants.TaskIgnoreExistingQuickMD5Sum:
+	case constants.TaskIgnoreExistingFullMD5Sum:
+	default:
+		logrus.Errorf("%s is not a valid value for task ignore existing", t.IgnoreExisting)
+		return constants.ErrTaskInvalid
 	}
 
 	return nil
