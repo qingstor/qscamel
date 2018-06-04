@@ -10,11 +10,12 @@ qscamel is a command line tool to migrate data between different endpoint effici
 - Resume from where task stopped
 - Automatic retry mechanism
 - Concurrent migrating with goroutine pool
-- Support both **copy** and **fetch** migrating methods
-- Supoort data verify
-- Mutiple endpoint support
+- Support **copy**, **fetch** and **delete** migrating methods
+- Support data verify
+- Multiple endpoint support
 
   - POSIX File System _(local fs, nfs, s3fs and so on)_
+  - Local file list
   - [QingStor](https://www.qingcloud.com/products/qingstor)
   - [Aliyun OSS](https://www.aliyun.com/product/oss)
   - [Google Cloud Storage](https://cloud.google.com/storage/)
@@ -46,7 +47,7 @@ destination:
 Use qscamel:
 
 ```bash
-qscamel run example-task.yaml
+qscamel run example-task -t example-task.yaml
 ```
 
 Have a cup of tea and you will see all file under `/path/to/source` will be migrated to qingstor bucket `example_bucket` with prefix `/path/to/destination`.
@@ -85,7 +86,7 @@ The default config will read from `~/.qscamel/qscamel.yaml`, you can also specif
 For example:
 
 ```bash
-qscamel run example-task -c /path/to/config/file
+qscamel run example-task -t example-task.yaml -c /path/to/config/file
 ```
 
 ## Task
@@ -93,17 +94,14 @@ qscamel run example-task -c /path/to/config/file
 Task file will define a task, and the task has following options:
 
 ```yaml
-# name is the unique identifier for a task, qscamel will use it to distingush
-# different tasks.
-name: example-task
 # type is the type for current task.
-# Available value: copy, fetch
+# Available value: copy, fetch, delete
 type: copy
 
 # source is the source endpoint for current task.
 source:
   # type is the type for endpoint.
-  # Available value: aliyun, fs, gcs, qingstor, qiniu, s3, upyun.
+  # Available value: aliyun, fs, filelist, gcs, qingstor, qiniu, s3, upyun.
   type: fs
   # path is the path for endpoint.
   path: "/path/to/source"
@@ -121,11 +119,13 @@ destination:
     access_key_id: example_access_key_id
     secret_access_key: example_secret_access_key
 
-# ignore_existing controls whether ignore exist file.
-# If set to true，qscamel will check whether ignore exist file.
-# If does exist and size, md5 match, this file will skip.
-# If not, qscamel will do the task as defined.
-ignore_existing: false
+# ignore_existing controls whether and how to ignore exist file.
+# `size` will check the object's size.
+# `quick_md5sum` will do a quick md5 sum on object.
+# `full_md5sum` will calculate the whole object's md5.
+# Available value: disable, size, quick_md5sum, full_md5sum.
+# Default value: disable
+ignore_existing: disable
 ```
 
 ### Endpoint aliyun
@@ -148,6 +148,16 @@ access_key_secret: example_access_key_secret
 Can be used as **source** and **destination** endpoint.
 
 There is no more config for fs endpoint.
+
+### Endpoint filelist
+
+Can be used as **source** endpoint.
+
+qscamel will read filelist by line.
+
+```yaml
+list_path: /path/to/list
+```
 
 ### Endpoint gcs
 
@@ -259,13 +269,13 @@ Run is the main command for qscamel. We can use this command to create or resume
 In order to create a new task, we can use:
 
 ```bash
-qscamel run /path/to/task/file
+qscamel run task-name -t /path/to/task/file
 ```
 
 In order to resume a task, we can use:
 
 ```bash
-qscamel run /path/to/task/file
+qscamel run task-name -t /path/to/task/file
 ```
 
 or

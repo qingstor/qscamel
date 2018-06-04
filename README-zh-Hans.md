@@ -10,11 +10,12 @@ qscamel 是一个用于在不同的端点 (Endpoint) 中高效迁移数据的工
 - 从任务中断处续传，节省宝贵的时间
 - 完全自动化的重试机制
 - 基于 Goroutine 池实现的并发机制
-- 同时支持 **copy** 与 **fetch** 两种迁移机制
+- 支持 **copy**, **fetch**, **delete** 等迁移机制
 - 支持数据校验
 - 多端点支持
 
   - 符合 POSIX 标准的文件系统 _(local fs, nfs, s3fs 等)_
+  - 本地文件列表
   - [QingStor](https://www.qingcloud.com/products/qingstor)
   - [Aliyun OSS](https://www.aliyun.com/product/oss)
   - [Google Cloud Storage](https://cloud.google.com/storage/)
@@ -46,7 +47,7 @@ destination:
 使用 `qscamel`：
 
 ```bash
-qscamel run example-task.yaml
+qscamel run example-task -t example-task.yaml
 ```
 
 坐下来，喝杯茶。你将会看到所有在 `/path/to/source` 目录下的文件都会被迁移到 QingStor 的 Bucket `example_bucket` 的 `/path/to/destination` 前缀下。
@@ -86,7 +87,7 @@ qscamel 默认从 `~/.qscamel/qscamel.yaml` 读取配置文件，你也可以通
 比如:
 
 ```bash
-qscamel run example-task -c /path/to/config/file
+qscamel run example-task -t example-task.yaml -c /path/to/config/file
 ```
 
 ## 任务
@@ -94,18 +95,17 @@ qscamel run example-task -c /path/to/config/file
 任务文件将会定义一个任务，每个任务都有如下配置：
 
 ```yaml
-# name 是任务的唯一标识，qscamel 将会使用它来区分不同的任务。
-name: example-task
 # type 是任务的类型。
-# 可选值: copy, fetch
+# 可选值: copy, fetch, delete
 # copy 将会从 source 处读取文件，并写入到 destination。
 # fetch 将会从 source 处获取文件的下载链接，并使用 destination 的 fetch 功能进行拉取。
+# delete 将会从 source 处获取文件的信息，并在 destination 处删除。
 type: copy
 
 # source 是任务的 source 端点。
 source:
   # type 是当前端点的类型。
-  # 可选值: aliyun, fs, gcs, qingstor, qiniu, s3, upyun.
+  # 可选值: aliyun, fs, filelist, gcs, qingstor, qiniu, s3, upyun.
   type: fs
   # path 是当前端点的路径。
   path: "/path/to/source"
@@ -124,10 +124,13 @@ destination:
     secret_access_key: example_secret_access_key
 
 # ignore_existing 控制是否跳过已经存在的文件。
-# 如果设置为 true，qscamel 将会检查该文件是否存在。
-# 如果存在且大小和 MD5 均匹配，则会跳过。
-# 否则，将会执行任务类型所对应的操作。
-ignore_existing: false
+# `disable` 将会禁用该配置，即总是覆盖
+# `size` 当文件的 size 相同时会跳过
+# `quick_md5sum` 将会对文件做一次快速 md5 计算，当 md5 相同时会跳过
+# `full_md5sum` 将会对文件做完整的 md5 计算，当 md5 相同时会跳过
+# 可选值: disable, size, quick_md5sum, full_md5sum.
+# 默认值: disable
+ignore_existing: disable
 ```
 
 ### Endpoint aliyun
@@ -150,6 +153,16 @@ access_key_secret: example_access_key_secret
 能够用做 **source** 和 **destination** 端点。
 
 fs 端点没有更多的配置内容。
+
+### Endpoint filelist
+
+能够用做 **source** 端点。
+
+qscamel 将会按照行来读取该列表。
+
+```yaml
+list_path: /path/to/list
+```
 
 ### Endpoint gcs
 
@@ -270,13 +283,13 @@ Run 是 qscamel 最主要的命令。我们使用这个命令来创建或者恢�
 如果要创建一个任务，我们可以使用：
 
 ```bash
-qscamel run /path/to/task/file
+qscamel run task-name -t /path/to/task/file
 ```
 
 如果要恢复一个任务，我们可以使用：
 
 ```bash
-qscamel run /path/to/task/file
+qscamel run task-name -t /path/to/task/file
 ```
 
 or
