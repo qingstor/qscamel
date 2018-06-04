@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/yunify/qscamel/model"
-	"github.com/yunify/qscamel/utils"
 )
 
 // Name implement base.Read
@@ -30,7 +29,7 @@ func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error
 func (c *Client) ReadAt(
 	ctx context.Context, p string, start, end int64,
 ) (b []byte, err error) {
-	cp := utils.Join(c.Path, p)
+	cp := filepath.Join(c.AbsPath, p)
 
 	r, err := os.Open(cp)
 	if err != nil {
