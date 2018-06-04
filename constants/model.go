@@ -13,6 +13,14 @@ const (
 	TaskStatusFinished = "finished"
 )
 
+// Constants for task ignore existing config.
+const (
+	TaskIgnoreExistingDisable     = "disable"
+	TaskIgnoreExistingSize        = "size"
+	TaskIgnoreExistingQuickMD5Sum = "quick_md5sum"
+	TaskIgnoreExistingFullMD5Sum  = "full_md5sum"
+)
+
 // Constants for database key.
 const (
 	// prefixKey ~ is bigger than all ascii printable characters.

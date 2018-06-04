@@ -25,10 +25,13 @@ type Task struct {
 	Src *Endpoint `yaml:"source" msgpack:"src"`
 	Dst *Endpoint `yaml:"destination" msgpack:"dst"`
 
-	IgnoreExisting bool `yaml:"ignore_existing" msgpack:"ie"`
+	IgnoreExisting string `yaml:"ignore_existing" msgpack:"ie"`
 
 	// Data that only stores in database.
 	Status string `yaml:"-" msgpack:"s"`
+
+	// Date that only keep in memory.
+	Handle func(ctx context.Context, o *Object) (err error) `yaml:"-" msgpack:"-"`
 }
 
 // LoadTask will try to load task from database and file.

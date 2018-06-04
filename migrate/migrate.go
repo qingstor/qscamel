@@ -47,6 +47,8 @@ var (
 
 	src endpoint.Source
 	dst endpoint.Destination
+
+	md5sum func(ctx context.Context, e endpoint.Base, o *model.Object) (md5 string, err error)
 )
 
 // Execute will execute migrate task.
@@ -137,13 +139,23 @@ func check(ctx context.Context) (err error) {
 
 // run will execute task.
 func run(ctx context.Context) (err error) {
+	// Set md5sum function.
+	if t.IgnoreExisting == constants.TaskIgnoreExistingQuickMD5Sum {
+		md5sum = quickSumObject
+	}
+	if t.IgnoreExisting == constants.TaskIgnoreExistingFullMD5Sum {
+		md5sum = fullSumObject
+	}
+
 	switch t.Type {
 	case constants.TaskTypeCopy:
+		t.Handle = copyObject
 		err = copyTask(ctx)
 		if err != nil {
 			return
 		}
 	case constants.TaskTypeFetch:
+		t.Handle = fetchObject
 		err = fetchTask(ctx)
 		if err != nil {
 			return
@@ -171,8 +183,11 @@ func migrateWorker(ctx context.Context) {
 	defer utils.Recover()
 
 	for o := range oc {
-		ok, err := checkObject(ctx, o.Key)
-		if err != nil || ok {
+		ok, err := checkObject(ctx, o)
+		if err != nil {
+			logrus.Errorf("Check object failed for %v.", err)
+		}
+		if ok {
 			err = model.DeleteObject(ctx, o.Key)
 			if err != nil {
 				logrus.Errorf("Delete object failed for %v.", err)
@@ -180,23 +195,12 @@ func migrateWorker(ctx context.Context) {
 			continue
 		}
 
-		var fn func(ctx context.Context, o *model.Object) (err error)
-
-		switch t.Type {
-		case constants.TaskTypeCopy:
-			fn = copyObject
-		case constants.TaskTypeFetch:
-			fn = fetchObject
-		default:
-			logrus.Fatalf("Not supported task type: %s.", t.Type)
-		}
-
 		logrus.Infof("Start %sing object %s.", t.Type, o.Key)
 
 		bo := backoff.NewExponentialBackOff()
 
-		backoff.Retry(func() error {
-			err = fn(ctx, o)
+		err = backoff.Retry(func() error {
+			err = t.Handle(ctx, o)
 			if err == nil {
 				return nil
 			}
@@ -204,6 +208,10 @@ func migrateWorker(ctx context.Context) {
 			logrus.Infof("Object %s %s failed, retrying.", o.Key, t.Type)
 			return err
 		}, bo)
+		if err != nil {
+			logrus.Errorf("%d object failed for %v.", err)
+			continue
+		}
 
 		err = model.DeleteObject(ctx, o.Key)
 		if err != nil {

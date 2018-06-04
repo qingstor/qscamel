@@ -13,6 +13,11 @@ database_file: ~/.qscamel/db
 var (
 	// DefaultConcurrency is default num of objects being migrated concurrently.
 	DefaultConcurrency = runtime.NumCPU() * 10
+	// GoldenRatio is the most beautiful number on earth.
+	// ref: https://en.wikipedia.org/wiki/Golden_ratio
+	GoldenRatio = 0.618
+	// MB represent 1024*1024 Byte.
+	MB int64 = 1024 * 1024
 )
 
 // Path store all path related constants.
