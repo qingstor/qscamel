@@ -14,10 +14,6 @@ import (
 
 // CanCopy will return whether qscamel can copy between the src and dst.
 func CanCopy() bool {
-	// If src neither reachable nor readable, can't copy.
-	if !src.Reachable() && !src.Readable() {
-		return false
-	}
 	// If dst isn't writable, can't copy.
 	if !dst.Writable() {
 		return false
