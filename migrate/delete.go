@@ -12,8 +12,8 @@ import (
 	"github.com/yunify/qscamel/model"
 )
 
-// CanCopy will return whether qscamel can copy between the src and dst.
-func CanCopy() bool {
+// CanDelete will return whether qscamel can delete between the src and dst.
+func CanDelete() bool {
 	// If dst isn't writable, can't copy.
 	if !dst.Writable() {
 		return false
@@ -21,8 +21,8 @@ func CanCopy() bool {
 	return true
 }
 
-// Copy will do copy job between src and dst.
-func Copy(ctx context.Context) (err error) {
+// Delete will do delete job between src and dst.
+func Delete(ctx context.Context) (err error) {
 	oc = make(chan *model.Object, contexts.Config.Concurrency*2)
 	jc = make(chan *model.Job)
 
@@ -54,19 +54,19 @@ func Copy(ctx context.Context) (err error) {
 	return
 }
 
-// copyTask will execute a copy task.
-func copyTask(ctx context.Context) (err error) {
+// deleteTask will execute a delete task.
+func deleteTask(ctx context.Context) (err error) {
 	if !CanCopy() {
-		logrus.Infof("Source type %s and destination type %s not support copy.",
+		logrus.Infof("Source type %s and destination type %s not support delete.",
 			t.Src.Type, t.Dst.Type)
 		return
 	}
-	logrus.Debugf("Start copy task.")
+	logrus.Debugf("Start delete task.")
 
 	bo := &backoff.ZeroBackOff{}
 
 	return backoff.Retry(func() error {
-		err := Copy(ctx)
+		err := Delete(ctx)
 		if err != nil {
 			return err
 		}

@@ -75,6 +75,16 @@ func copyObject(ctx context.Context, o *model.Object) (err error) {
 	return
 }
 
+// deleteObject will do a real delete.
+func deleteObject(ctx context.Context, o *model.Object) (err error) {
+	err = dst.Delete(ctx, o.Key)
+	if err != nil {
+		logrus.Errorf("Dst delete %s failed for %v.", o.Key, err)
+		return err
+	}
+	return
+}
+
 // fetchObject will do a real fetch.
 func fetchObject(ctx context.Context, o *model.Object) (err error) {
 	url, err := src.Reach(ctx, o.Key)
