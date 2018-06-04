@@ -28,7 +28,6 @@ func (c *Client) Write(ctx context.Context, p string, size int64, r io.ReadClose
 	if size <= c.MultipartBoundarySize {
 		_, err = c.client.PutObject(cp, &service.PutObjectInput{
 			Body:            r,
-			ContentLength:   convert.Int64(size),
 			XQSStorageClass: convert.String(c.StorageClass),
 		})
 	} else {
