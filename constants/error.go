@@ -8,6 +8,9 @@ var (
 	ErrTaskMismatch = errors.New("task content mismatch")
 	// ErrTaskNotFinished is returned when task is not finished.
 	ErrTaskNotFinished = errors.New("task not finished")
+	// ErrTaskNotFound is returned when task is not found.
+	ErrTaskNotFound = errors.New("task not found")
+
 	// ErrEndpointInvalid is returned when this endpoint is invalid.
 	ErrEndpointInvalid = errors.New("endpoint is invalid")
 	// ErrEndpointNotSupported is returned when this endpoint is not supported.
