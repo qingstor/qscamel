@@ -4,6 +4,8 @@ import "errors"
 
 // These errors can be returned when handle task.
 var (
+	// ErrTaskInvalid is returned when this task is invalid.
+	ErrTaskInvalid = errors.New("task is invalid")
 	// ErrTaskMismatch is returned when task content has been changed.
 	ErrTaskMismatch = errors.New("task content mismatch")
 	// ErrTaskNotFinished is returned when task is not finished.
