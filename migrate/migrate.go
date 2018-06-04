@@ -186,6 +186,7 @@ func migrateWorker(ctx context.Context) {
 		ok, err := checkObject(ctx, o)
 		if err != nil {
 			logrus.Errorf("Check object failed for %v.", err)
+			continue
 		}
 		if ok {
 			err = model.DeleteObject(ctx, o.Key)
