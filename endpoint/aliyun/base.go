@@ -14,6 +14,11 @@ import (
 	"github.com/yunify/qscamel/utils"
 )
 
+// Name implement base.Read
+func (c *Client) Name(ctx context.Context) (name string) {
+	return "aliyun:" + c.BucketName
+}
+
 // Read implement source.Read
 func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error) {
 	cp := utils.Join(c.Path, p)

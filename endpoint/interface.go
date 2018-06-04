@@ -9,6 +9,9 @@ import (
 
 // Base is the interface that both Source and Destination should implement.
 type Base interface {
+	// Name will return the endpoint's name.
+	Name(ctx context.Context) (name string)
+
 	// Stat will get the metadata.
 	Stat(ctx context.Context, p string) (o *model.Object, err error)
 
