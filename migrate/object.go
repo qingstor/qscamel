@@ -15,7 +15,8 @@ import (
 
 // checkObject will tell whether an object is ok.
 func checkObject(ctx context.Context, o *model.Object) (ok bool, err error) {
-	if t.IgnoreExisting == constants.TaskIgnoreExistingDisable {
+	if t.IgnoreExisting == "" ||
+		t.IgnoreExisting == constants.TaskIgnoreExistingDisable {
 		return false, nil
 	}
 
