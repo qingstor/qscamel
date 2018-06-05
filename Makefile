@@ -54,6 +54,7 @@ uninstall:
 
 release:
 	@echo "release qscamel"
+	@rm ./release/*
 	@mkdir -p ./release
 
 	@echo "build for linux"
