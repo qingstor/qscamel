@@ -48,8 +48,6 @@ var (
 
 	src endpoint.Source
 	dst endpoint.Destination
-
-	md5sum func(ctx context.Context, e endpoint.Base, o *model.Object) (md5 string, err error)
 )
 
 // Execute will execute migrate task.
@@ -144,14 +142,6 @@ func run(ctx context.Context) (err error) {
 	if t.Status == constants.TaskStatusFinished {
 		logrus.Infof("Task %s has been finished, skip.", t.Name)
 		return
-	}
-
-	// Set md5sum function.
-	if t.IgnoreExisting == constants.TaskIgnoreExistingQuickMD5Sum {
-		md5sum = quickSumObject
-	}
-	if t.IgnoreExisting == constants.TaskIgnoreExistingFullMD5Sum {
-		md5sum = fullSumObject
 	}
 
 	switch t.Type {

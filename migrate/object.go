@@ -15,8 +15,7 @@ import (
 
 // checkObject will tell whether an object is ok.
 func checkObject(ctx context.Context, o *model.Object) (ok bool, err error) {
-	if t.IgnoreExisting == "" ||
-		t.IgnoreExisting == constants.TaskIgnoreExistingDisable {
+	if t.IgnoreExisting == "" {
 		return false, nil
 	}
 
@@ -38,16 +37,20 @@ func checkObject(ctx context.Context, o *model.Object) (ok bool, err error) {
 	if do == nil {
 		return
 	}
-
 	// Check size.
 	if so.Size != do.Size {
 		logrus.Infof("Object %s size is not match, execute an operation on it.", o.Key)
 		return
 	}
 
-	if t.IgnoreExisting == constants.TaskIgnoreExistingSize {
+	// Check last modified
+	if t.IgnoreExisting == constants.TaskIgnoreExistingLastModified {
+		if so.LastModified > do.LastModified {
+			logrus.Infof("Object %s was modified, execute an operation on it.", o.Key)
+			return
+		}
 		logrus.Infof("Object %s check passed, ignore.", o.Key)
-		return
+		return true, nil
 	}
 
 	// Check md5.
@@ -114,59 +117,23 @@ func statObject(
 		return
 	}
 
-	if t.IgnoreExisting != constants.TaskIgnoreExistingQuickMD5Sum &&
-		t.IgnoreExisting != constants.TaskIgnoreExistingFullMD5Sum {
+	if t.IgnoreExisting != constants.TaskIgnoreExistingMD5Sum {
 		return
 	}
 
 	if len(ro.MD5) != 32 {
-		ro.MD5, err = md5sum(ctx, e, o)
+		ro.MD5, err = md5SumObject(ctx, e, o)
 		if err != nil {
 			logrus.Errorf(
 				"%s calculate object %s md5 failed for %v.", e.Name(ctx), o.Key, err)
 			return
 		}
-		// If it's the full md5, we can update the object md5.
-		if t.IgnoreExisting == constants.TaskIgnoreExistingFullMD5Sum {
-			o.MD5 = ro.MD5
-		}
 	}
 	return
 }
 
-// quickSumObject will get the object's quick md5
-func quickSumObject(
-	ctx context.Context, e endpoint.Base, o *model.Object,
-) (m string, err error) {
-	// If object size <= 3MB, use full sum instead.
-	if o.Size <= 3*constants.MB {
-		return fullSumObject(ctx, e, o)
-	}
-
-	goldenPoint := int64(float64(o.Size) * constants.GoldenRatio)
-
-	pos := [][]int64{
-		{0, constants.MB - 1},
-		{goldenPoint, goldenPoint + constants.MB - 1},
-		{o.Size - constants.MB - 1, o.Size - 1},
-	}
-	content := make([]byte, 3*constants.MB)
-
-	for _, v := range pos {
-		c, err := e.ReadAt(ctx, o.Key, v[0], v[1])
-		if err != nil {
-			logrus.Errorf("%s read object %s failed for %v.", e.Name(ctx), o.Key, err)
-			return "", err
-		}
-		content = append(content, c...)
-	}
-
-	sum := md5.Sum(content)
-	return hex.EncodeToString(sum[:]), nil
-}
-
-// fullSumObject will get the object's full md5
-func fullSumObject(
+// md5SumObject will get the object's md5
+func md5SumObject(
 	ctx context.Context, e endpoint.Base, o *model.Object,
 ) (m string, err error) {
 	r, err := e.Read(ctx, o.Key)

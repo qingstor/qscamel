@@ -103,10 +103,8 @@ func LoadTaskFromContent(content []byte) (t *Task, err error) {
 func (t *Task) Check() error {
 	switch t.IgnoreExisting {
 	case "":
-	case constants.TaskIgnoreExistingDisable:
-	case constants.TaskIgnoreExistingSize:
-	case constants.TaskIgnoreExistingQuickMD5Sum:
-	case constants.TaskIgnoreExistingFullMD5Sum:
+	case constants.TaskIgnoreExistingLastModified:
+	case constants.TaskIgnoreExistingMD5Sum:
 	default:
 		logrus.Errorf("%s is not a valid value for task ignore existing", t.IgnoreExisting)
 		return constants.ErrTaskInvalid

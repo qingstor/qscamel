@@ -16,10 +16,8 @@ const (
 
 // Constants for task ignore existing config.
 const (
-	TaskIgnoreExistingDisable     = "disable"
-	TaskIgnoreExistingSize        = "size"
-	TaskIgnoreExistingQuickMD5Sum = "quick_md5sum"
-	TaskIgnoreExistingFullMD5Sum  = "full_md5sum"
+	TaskIgnoreExistingLastModified = "last_modified"
+	TaskIgnoreExistingMD5Sum       = "md5sum"
 )
 
 // Constants for database key.
