@@ -2,6 +2,7 @@ package gcs
 
 import (
 	"context"
+	"net/http"
 
 	"cloud.google.com/go/storage"
 	"github.com/sirupsen/logrus"
@@ -23,7 +24,7 @@ type Client struct {
 }
 
 // New will create a new client.
-func New(ctx context.Context, et uint8) (c *Client, err error) {
+func New(ctx context.Context, et uint8, hc *http.Client) (c *Client, err error) {
 	t, err := model.GetTask(ctx)
 	if err != nil {
 		return
@@ -61,7 +62,9 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	// Set path.
 	c.Path = e.Path
 
-	svc, err := storage.NewClient(ctx, option.WithAPIKey(c.APIKey))
+	svc, err := storage.NewClient(ctx,
+		option.WithAPIKey(c.APIKey),
+		option.WithHTTPClient(hc))
 	if err != nil {
 		return
 	}

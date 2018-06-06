@@ -2,6 +2,7 @@ package qingstor
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/sirupsen/logrus"
 	"github.com/yunify/qingstor-sdk-go/client/upload"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
-	"github.com/yunify/qscamel/utils"
 )
 
 // Client is the client to visit QingStor service.
@@ -34,7 +34,7 @@ type Client struct {
 }
 
 // New will create a new QingStor client.
-func New(ctx context.Context, et uint8) (c *Client, err error) {
+func New(ctx context.Context, et uint8, hc *http.Client) (c *Client, err error) {
 	t, err := model.GetTask(ctx)
 	if err != nil {
 		return
@@ -124,7 +124,7 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 	qc.Protocol = c.Protocol
 	qc.Host = c.Host
 	qc.Port = c.Port
-	qc.Connection = utils.DefaultClient
+	qc.Connection = hc
 
 	// Set qingstor service.
 	qs, _ := service.Init(qc)

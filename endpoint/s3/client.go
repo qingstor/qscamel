@@ -2,6 +2,7 @@ package s3
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -30,7 +31,7 @@ type Client struct {
 }
 
 // New will create a new client.
-func New(ctx context.Context, et uint8) (c *Client, err error) {
+func New(ctx context.Context, et uint8, hc *http.Client) (c *Client, err error) {
 	t, err := model.GetTask(ctx)
 	if err != nil {
 		return
@@ -82,6 +83,7 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 		Region:          aws.String(c.Region),
 		DisableSSL:      aws.Bool(c.DisableSSL),
 		S3UseAccelerate: aws.Bool(c.UseAccelerate),
+		HTTPClient:      hc,
 	}
 	sess, err := session.NewSession(cfg)
 	if err != nil {

@@ -2,6 +2,7 @@ package aliyun
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/sirupsen/logrus"
@@ -24,7 +25,7 @@ type Client struct {
 }
 
 // New will create a client.
-func New(ctx context.Context, et uint8) (c *Client, err error) {
+func New(ctx context.Context, et uint8, _ *http.Client) (c *Client, err error) {
 	t, err := model.GetTask(ctx)
 	if err != nil {
 		return

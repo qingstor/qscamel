@@ -2,6 +2,7 @@ package upyun
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/sirupsen/logrus"
 	"github.com/upyun/go-sdk/upyun"
@@ -23,7 +24,7 @@ type Client struct {
 }
 
 // New will create a new client.
-func New(ctx context.Context, et uint8) (c *Client, err error) {
+func New(ctx context.Context, et uint8, hc *http.Client) (c *Client, err error) {
 	t, err := model.GetTask(ctx)
 	if err != nil {
 		return
@@ -73,6 +74,7 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 		Password: c.Password,
 	}
 	c.client = upyun.NewUpYun(cfg)
+	c.client.SetHTTPClient(hc)
 
 	return
 }

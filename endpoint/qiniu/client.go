@@ -11,7 +11,6 @@ import (
 
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
-	"github.com/yunify/qscamel/utils"
 )
 
 // Client is the client to visit aliyun oss service.
@@ -31,7 +30,7 @@ type Client struct {
 }
 
 // New will create a new client.
-func New(ctx context.Context, et uint8) (c *Client, err error) {
+func New(ctx context.Context, et uint8, hc *http.Client) (c *Client, err error) {
 	t, err := model.GetTask(ctx)
 	if err != nil {
 		return
@@ -96,7 +95,7 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 		UseCdnDomains: c.UseCdnDomains,
 	}
 	c.bucket = storage.NewBucketManager(c.mac, cfg)
-	c.client = utils.DefaultClient
+	c.client = hc
 
 	return
 }
