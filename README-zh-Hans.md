@@ -124,13 +124,11 @@ destination:
     secret_access_key: example_secret_access_key
 
 # ignore_existing 控制是否跳过已经存在的文件。
-# `disable` 将会禁用该配置，即总是覆盖
-# `size` 当文件的 size 相同时会跳过
-# `quick_md5sum` 将会对文件做一次快速 md5 计算，当 md5 相同时会跳过
-# `full_md5sum` 将会对文件做完整的 md5 计算，当 md5 相同时会跳过
-# 可选值: disable, size, quick_md5sum, full_md5sum.
-# 默认值: disable
-ignore_existing: disable
+# 为空或未配置时将会禁用该配置，即总是覆盖
+# `last_modified` 将会检查目标的 LastModified 是否比源站要大
+# `md5sum` 将会对文件做完整的 md5 计算，当 md5 相同时会跳过
+# 可选值: last_modified, md5sum.
+ignore_existing: last_modified
 ```
 
 ### Endpoint aliyun

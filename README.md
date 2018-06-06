@@ -120,12 +120,11 @@ destination:
     secret_access_key: example_secret_access_key
 
 # ignore_existing controls whether and how to ignore exist file.
-# `size` will check the object's size.
-# `quick_md5sum` will do a quick md5 sum on object.
-# `full_md5sum` will calculate the whole object's md5.
-# Available value: disable, size, quick_md5sum, full_md5sum.
-# Default value: disable
-ignore_existing: disable
+# If set to empty or not set, this config will be disabled.
+# `last_modified` will check whether the dst object's last modified is greater than src's one.
+# `md5sum` will calculate the whole object's md5.
+# Available value: last_modified, md5sum.
+ignore_existing: last_modified
 ```
 
 ### Endpoint aliyun
