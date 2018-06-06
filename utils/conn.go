@@ -3,7 +3,6 @@ package utils
 import (
 	"context"
 	"net"
-	"net/http"
 	"sync"
 	"time"
 )
@@ -11,7 +10,6 @@ import (
 var connPool sync.Pool
 
 type netConn net.Conn
-type netDialer net.Dialer
 
 // Dialer is wrapped dialer provided by qingstor go sdk.
 //
@@ -144,22 +142,4 @@ var DefaultDialer = &Dialer{
 	},
 	time.Second * 30,
 	time.Second * 30,
-}
-
-// DefaultClient is the default HTTP client for qscamel.
-var DefaultClient = &http.Client{
-	// We do not use the timeout in http client,
-	// because this timeout is for the whole http body read/write,
-	// it's unsuitable for various length of files and network condition.
-	// We provide a wraper in utils/conn.go of net.Dialer to make io timeout to the http connection
-	// for individual buffer I/O operation,
-	Timeout: 0,
-	Transport: &http.Transport{
-		DialContext:           DefaultDialer.DialContext,
-		MaxIdleConns:          100,
-		MaxIdleConnsPerHost:   10,
-		IdleConnTimeout:       time.Second * 20,
-		TLSHandshakeTimeout:   time.Second * 10, //Default
-		ExpectContinueTimeout: 2 * time.Second,
-	},
 }

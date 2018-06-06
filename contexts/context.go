@@ -2,13 +2,16 @@ package contexts
 
 import (
 	"io"
+	"net/http"
 	"os"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/yunify/qscamel/config"
 	"github.com/yunify/qscamel/db"
+	"github.com/yunify/qscamel/utils"
 )
 
 var (
@@ -16,6 +19,8 @@ var (
 	DB *db.Database
 	// Config stores the current config.
 	Config *config.Config
+	// Client stores the http client used in qscamel.
+	Client *http.Client
 )
 
 // SetupContexts will set contexts.
@@ -50,6 +55,28 @@ func SetupContexts(c *config.Config) (err error) {
 	})
 	if err != nil {
 		return
+	}
+
+	// Setup http client.
+	Client = &http.Client{
+		// We do not use the timeout in http client,
+		// because this timeout is for the whole http body read/write,
+		// it's unsuitable for various length of files and network condition.
+		// We provide a wrapper in utils/conn.go of net.Dialer to make io timeout
+		// to the http connection for individual buffer I/O operation,
+		Timeout: 0,
+		Transport: &http.Transport{
+			DialContext: utils.DefaultDialer.DialContext,
+
+			// Client will be used in both source and destination.
+			MaxIdleConns: c.Concurrency * 2,
+			// Max idle conns should be config's concurrency.
+			MaxIdleConnsPerHost: c.Concurrency,
+
+			IdleConnTimeout:       time.Second * 20,
+			TLSHandshakeTimeout:   time.Second * 10,
+			ExpectContinueTimeout: time.Second * 2,
+		},
 	}
 	return nil
 }

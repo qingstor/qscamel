@@ -24,6 +24,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/yunify/qscamel/constants"
+	"github.com/yunify/qscamel/contexts"
 	"github.com/yunify/qscamel/endpoint"
 	"github.com/yunify/qscamel/endpoint/aliyun"
 	"github.com/yunify/qscamel/endpoint/filelist"
@@ -70,7 +71,7 @@ func check(ctx context.Context) (err error) {
 	// Initialize source.
 	switch t.Src.Type {
 	case constants.EndpointAliyun:
-		src, err = aliyun.New(ctx, constants.SourceEndpoint)
+		src, err = aliyun.New(ctx, constants.SourceEndpoint, contexts.Client)
 		if err != nil {
 			return
 		}
@@ -85,27 +86,27 @@ func check(ctx context.Context) (err error) {
 			return
 		}
 	case constants.EndpointGCS:
-		src, err = gcs.New(ctx, constants.SourceEndpoint)
+		src, err = gcs.New(ctx, constants.SourceEndpoint, contexts.Client)
 		if err != nil {
 			return
 		}
 	case constants.EndpointQingStor:
-		src, err = qingstor.New(ctx, constants.SourceEndpoint)
+		src, err = qingstor.New(ctx, constants.SourceEndpoint, contexts.Client)
 		if err != nil {
 			return
 		}
 	case constants.EndpointQiniu:
-		src, err = qiniu.New(ctx, constants.SourceEndpoint)
+		src, err = qiniu.New(ctx, constants.SourceEndpoint, contexts.Client)
 		if err != nil {
 			return
 		}
 	case constants.EndpointS3:
-		src, err = s3.New(ctx, constants.SourceEndpoint)
+		src, err = s3.New(ctx, constants.SourceEndpoint, contexts.Client)
 		if err != nil {
 			return
 		}
 	case constants.EndpointUpyun:
-		src, err = upyun.New(ctx, constants.SourceEndpoint)
+		src, err = upyun.New(ctx, constants.SourceEndpoint, contexts.Client)
 		if err != nil {
 			return
 		}
@@ -118,7 +119,7 @@ func check(ctx context.Context) (err error) {
 	// Initialize destination.
 	switch t.Dst.Type {
 	case constants.EndpointQingStor:
-		dst, err = qingstor.New(ctx, constants.DestinationEndpoint)
+		dst, err = qingstor.New(ctx, constants.DestinationEndpoint, contexts.Client)
 		if err != nil {
 			return
 		}
