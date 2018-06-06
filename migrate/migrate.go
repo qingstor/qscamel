@@ -195,7 +195,7 @@ func migrateWorker(ctx context.Context) {
 		if ok {
 			err = model.DeleteObject(ctx, o.Key)
 			if err != nil {
-				logrus.Errorf("Delete object failed for %v.", err)
+				utils.CheckClosedDB(err)
 			}
 			continue
 		}
@@ -220,7 +220,7 @@ func migrateWorker(ctx context.Context) {
 
 		err = model.DeleteObject(ctx, o.Key)
 		if err != nil {
-			logrus.Errorf("Delete object failed for %v.", err)
+			utils.CheckClosedDB(err)
 			continue
 		}
 

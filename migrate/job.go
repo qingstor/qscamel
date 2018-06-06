@@ -19,7 +19,7 @@ func listJob(ctx context.Context, j *model.Job) (err error) {
 		if o.IsDir {
 			_, err := model.CreateJob(ctx, o.Key)
 			if err != nil {
-				logrus.Panic(err)
+				utils.CheckClosedDB(err)
 			}
 
 			logrus.Debugf("Job %s created.", o.Key)
@@ -28,7 +28,7 @@ func listJob(ctx context.Context, j *model.Job) (err error) {
 
 		err = model.CreateObject(ctx, o)
 		if err != nil {
-			logrus.Panic(err)
+			utils.CheckClosedDB(err)
 		}
 		oc <- o
 	})
@@ -39,7 +39,7 @@ func listJob(ctx context.Context, j *model.Job) (err error) {
 
 	err = model.DeleteJob(ctx, j.Path)
 	if err != nil {
-		logrus.Panic(err)
+		utils.CheckClosedDB(err)
 	}
 	return
 }
