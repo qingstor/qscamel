@@ -1,6 +1,18 @@
 # Change Log
 
-All notable changes to QingStor qcamel will be documented in this file.
+All notable changes to QingStor qscamel will be documented in this file.
+
+## [v2.0.0] - 2018-06-06
+
+### Added
+
+- Support migrate from local fs to QingStor
+- Support migrate from QingStor to local fs
+
+### Changed
+
+- Use task file instead of command line argument
+- Split task config from qscamel's config
 
 ## [v1.1.0] - 2017-09-14
 
@@ -21,6 +33,7 @@ All notable changes to QingStor qcamel will be documented in this file.
 
 ### Added
 
-- QingStor qcamel.
+- QingStor qscamel.
 
-[v1.1.0]: https://github.com/yunify/qscamel/compare/v1.1.0...v1.0.0
+[v2.0.0]: https://github.com/yunify/qscamel/compare/v1.1.0...v2.0.0
+[v1.1.0]: https://github.com/yunify/qscamel/compare/v1.0.0...v1.1.0
