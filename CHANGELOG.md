@@ -2,6 +2,16 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.1] - 2018-06-06
+
+### Changed
+
+- Handle the db closed error
+
+### Fixed
+
+- Fix connections not reused on Windows
+
 ## [v2.0.0] - 2018-06-06
 
 ### Added
@@ -35,5 +45,6 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 - QingStor qscamel.
 
+[v2.0.1]: https://github.com/yunify/qscamel/compare/v2.0.0...v2.0.1
 [v2.0.0]: https://github.com/yunify/qscamel/compare/v1.1.0...v2.0.0
 [v1.1.0]: https://github.com/yunify/qscamel/compare/v1.0.0...v1.1.0
