@@ -1,5 +1,5 @@
-hash: e5fc0e30647f7a9481ccf8666455206853291b6c8116fdfcf83e2f8d1c842302
-updated: 2018-05-31T15:08:46.219856552+08:00
+hash: da5164bf998869e5b571bb6dcec8ce979abaf95085bd07516aa30d73ed0b2778
+updated: 2018-06-10T00:54:46.831012929+08:00
 imports:
 - name: cloud.google.com/go
   version: 0fd7230b2a7505833d5f69b75cbd6c9582401479
@@ -16,7 +16,7 @@ imports:
   subpackages:
   - oss
 - name: github.com/aws/aws-sdk-go
-  version: 827e7eac8c2680d5bdea7bc3ef29c596eabe1eae
+  version: c9af76f2478f81c6566d0f7f4d522254ec7c0b52
   subpackages:
   - aws
   - aws/awserr
@@ -28,6 +28,7 @@ imports:
   - aws/credentials/ec2rolecreds
   - aws/credentials/endpointcreds
   - aws/credentials/stscreds
+  - aws/csm
   - aws/defaults
   - aws/ec2metadata
   - aws/endpoints
@@ -38,6 +39,8 @@ imports:
   - internal/sdkrand
   - internal/shareddefaults
   - private/protocol
+  - private/protocol/eventstream
+  - private/protocol/eventstream/eventstreamapi
   - private/protocol/query
   - private/protocol/query/queryutil
   - private/protocol/rest
@@ -119,8 +122,9 @@ imports:
   subpackages:
   - codes
 - name: github.com/yunify/qingstor-sdk-go
-  version: 2cf247c05325947cd41e5d7b1a433a6a809f817c
+  version: 4f9ac88c5fec7350e960aabd0de1f1ede0ad2895
   subpackages:
+  - client/upload
   - config
   - logger
   - request
@@ -250,14 +254,14 @@ imports:
   - reqid.v7
 testImports:
 - name: github.com/davecgh/go-spew
-  version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
+  version: 346938d642f2ec3594ed81d874461961cd0faa76
   subpackages:
   - spew
 - name: github.com/pmezard/go-difflib
-  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
+  version: 792786c7400a136282c1664665ae0a8db921c6c2
   subpackages:
   - difflib
 - name: github.com/stretchr/testify
-  version: 12b6f73e6084dad08a7c6e575284b177ecafbc71
+  version: f35b8ab0b5a2cef36673838d662e249dd9c94686
   subpackages:
   - assert
