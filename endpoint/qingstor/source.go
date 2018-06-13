@@ -14,8 +14,6 @@ import (
 
 // List implement source.List
 func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object)) (err error) {
-	om := make(map[string]struct{})
-
 	cp := utils.Join(c.Path, j.Path) + "/"
 	if cp == "/" {
 		cp = ""
@@ -25,42 +23,29 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 
 	for {
 		resp, err := c.client.ListObjects(&service.ListObjectsInput{
-			Prefix:    convert.String(cp),
-			Marker:    convert.String(marker),
-			Limit:     convert.Int(MaxListObjectsLimit),
-			Delimiter: convert.String("/"),
+			Prefix: convert.String(cp),
+			Marker: convert.String(marker),
+			Limit:  convert.Int(MaxListObjectsLimit),
 		})
 		if err != nil {
 			logrus.Errorf("List objects failed for %v.", err)
 			return err
 		}
-		// Both "xxx/" and "xxx" with directory content type should be treated as directory.
-		// And in order to prevent duplicate job, we need to use set to filter them.
+
 		for _, v := range resp.Keys {
+			if *v.MimeType == DirectoryContentType {
+				continue
+			}
+
 			object := &model.Object{
 				Key:          utils.Relative(*v.Key, c.Path),
-				IsDir:        *v.MimeType == DirectoryContentType,
+				IsDir:        false,
 				Size:         *v.Size,
 				LastModified: int64(*v.Modified),
 				MD5:          strings.Trim(*v.Etag, "\""),
 			}
 
-			if _, ok := om[object.Key]; !ok {
-				fn(object)
-				om[object.Key] = struct{}{}
-			}
-		}
-		for _, v := range resp.CommonPrefixes {
-			object := &model.Object{
-				Key:   utils.Relative(*v, c.Path),
-				IsDir: true,
-				Size:  0,
-			}
-
-			if _, ok := om[object.Key]; !ok {
-				fn(object)
-				om[object.Key] = struct{}{}
-			}
+			fn(object)
 		}
 
 		marker = *resp.NextMarker
