@@ -2,6 +2,16 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.2] - 2018-06-14
+
+### Changed
+
+- endpoint: qingstor: Do not use delimiter while listing
+
+### Fixed
+
+- Fix json file not handled correctly
+
 ## [v2.0.1] - 2018-06-06
 
 ### Changed
@@ -45,6 +55,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 - QingStor qscamel.
 
+[v2.0.2]: https://github.com/yunify/qscamel/compare/v2.0.1...v2.0.2
 [v2.0.1]: https://github.com/yunify/qscamel/compare/v2.0.0...v2.0.1
 [v2.0.0]: https://github.com/yunify/qscamel/compare/v1.1.0...v2.0.0
 [v1.1.0]: https://github.com/yunify/qscamel/compare/v1.0.0...v1.1.0
