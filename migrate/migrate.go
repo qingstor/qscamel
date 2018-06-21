@@ -19,6 +19,7 @@ package migrate
 import (
 	"context"
 	"sync"
+	"time"
 
 	"github.com/cenkalti/backoff"
 	"github.com/sirupsen/logrus"
@@ -202,7 +203,10 @@ func migrateWorker(ctx context.Context) {
 
 		logrus.Infof("Start %sing object %s.", t.Type, o.Key)
 
+		// Object may be tried in three times.
 		bo := backoff.NewExponentialBackOff()
+		bo.Multiplier = 2.0
+		bo.MaxElapsedTime = 2 * time.Second
 
 		err = backoff.Retry(func() error {
 			err = t.Handle(ctx, o)
