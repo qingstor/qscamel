@@ -2,6 +2,16 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.3] - 2018-08-06
+
+### Changed
+
+- migrate: Do not retry the same object too many times
+
+### Fixed
+
+- endpoint: fs: Fix can't create folder on windows
+
 ## [v2.0.2] - 2018-06-14
 
 ### Changed
@@ -55,6 +65,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 - QingStor qscamel.
 
+[v2.0.3]: https://github.com/yunify/qscamel/compare/v2.0.2...v2.0.3
 [v2.0.2]: https://github.com/yunify/qscamel/compare/v2.0.1...v2.0.2
 [v2.0.1]: https://github.com/yunify/qscamel/compare/v2.0.0...v2.0.1
 [v2.0.0]: https://github.com/yunify/qscamel/compare/v1.1.0...v2.0.0
