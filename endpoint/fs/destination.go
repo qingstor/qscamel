@@ -42,9 +42,9 @@ func (c *Client) Delete(ctx context.Context, p string) (err error) {
 func (c *Client) Write(ctx context.Context, p string, _ int64, r io.ReadCloser) (err error) {
 	cp := filepath.Join(c.AbsPath, p)
 
-	_, err = os.Stat(path.Dir(cp))
+	_, err = os.Stat(filepath.Dir(cp))
 	if os.IsNotExist(err) {
-		err = os.MkdirAll(path.Dir(cp), os.ModeDir|0777)
+		err = os.MkdirAll(filepath.Dir(cp), os.ModeDir|0777)
 		if err != nil {
 			return
 		}
