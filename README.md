@@ -28,7 +28,6 @@ qscamel is a command line tool to migrate data between different endpoint effici
 Create a task file like following and save as `example-task.yaml`:
 
 ```yaml
-name: example-task
 type: copy
 
 source:

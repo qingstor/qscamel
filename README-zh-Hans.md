@@ -28,7 +28,6 @@ qscamel 是一个用于在不同的端点 (Endpoint) 中高效迁移数据的工
 像下面一样创建一个任务文件，并保存为 `example-task.yaml`：
 
 ```yaml
-name: example-task
 type: copy
 
 source:
