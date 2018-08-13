@@ -24,14 +24,15 @@ type Task struct {
 	Src *Endpoint `yaml:"source" msgpack:"src"`
 	Dst *Endpoint `yaml:"destination" msgpack:"dst"`
 
-	IgnoreExisting string `yaml:"ignore_existing" msgpack:"ie"`
+	IgnoreExisting        string `yaml:"ignore_existing" msgpack:"ie"`
+	MultipartBoundarySize int64  `yaml:"multipart_boundary_size" msgpack:"mbs"`
 
 	// Data that only stores in database.
 	Name   string `yaml:"-" msgpack:"n"`
 	Status string `yaml:"-" msgpack:"s"`
 
 	// Date that only keep in memory.
-	Handle func(ctx context.Context, o *Object) (err error) `yaml:"-" msgpack:"-"`
+	Handle func(ctx context.Context, o Object) (err error) `yaml:"-" msgpack:"-"`
 }
 
 // LoadTask will try to load task from database and file.
@@ -170,7 +171,7 @@ func DeleteTask(ctx context.Context) (err error) {
 func DeleteTaskByName(ctx context.Context, p string) (err error) {
 	x := ""
 	for {
-		j, err := NextJob(ctx, x)
+		j, err := NextDirectoryObject(ctx, x)
 		if err != nil {
 			return err
 		}
@@ -178,19 +179,19 @@ func DeleteTaskByName(ctx context.Context, p string) (err error) {
 			break
 		}
 
-		err = DeleteJob(ctx, j.Path)
+		err = DeleteObject(ctx, j)
 		if err != nil {
 			return err
 		}
 
-		x = j.Path
+		x = j.Key
 
-		logrus.Infof("Task %s, job %s has been deleted.", p, j.Path)
+		logrus.Infof("Task %s, directory object %s has been deleted.", p, j.Key)
 	}
 
 	x = ""
 	for {
-		o, err := NextObject(ctx, x)
+		o, err := NextSingleObject(ctx, x)
 		if err != nil {
 			return err
 		}
@@ -198,14 +199,37 @@ func DeleteTaskByName(ctx context.Context, p string) (err error) {
 			break
 		}
 
-		err = DeleteObject(ctx, o.Key)
+		err = DeleteObject(ctx, o)
 		if err != nil {
 			return err
 		}
 
 		x = o.Key
 
-		logrus.Infof("Task %s, object %s has been deleted.", p, o.Key)
+		logrus.Infof("Task %s, single object %s has been deleted.", p, o.Key)
+	}
+
+	x = ""
+	pn := -1
+	for {
+		po, err := NextPartialObject(ctx, x, pn)
+		if err != nil {
+			logrus.Panic(err)
+		}
+		if po == nil {
+			break
+		}
+
+		err = DeleteObject(ctx, po)
+		if err != nil {
+			return err
+		}
+
+		x = po.Key
+		pn = po.PartNumber
+
+		logrus.Infof("Task %s, partial object %s at %d has been deleted.",
+			p, po.Key, po.PartNumber)
 	}
 
 	err = contexts.DB.Delete(constants.FormatTaskKey(p), nil)
