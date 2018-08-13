@@ -15,7 +15,7 @@ import (
 )
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object)) (err error) {
+func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o model.Object)) (err error) {
 	lp, err := filepath.Abs(c.ListPath)
 	if err != nil {
 		return
@@ -43,17 +43,17 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 
 		cur += int64(len(buf.Bytes()))
 
-		o := &model.Object{
-			Key:   "/" + utils.Join(j.Path, line),
-			IsDir: false,
+		// TODO: we should get file's size here.
+		o := &model.SingleObject{
+			Key: "/" + utils.Join(j.Key, line),
 		}
 
 		fn(o)
 
 		j.Marker = strconv.FormatInt(cur, 10)
-		err = j.Save(ctx)
+		err = model.CreateObject(ctx, j)
 		if err != nil {
-			logrus.Errorf("Save task failed for %v.", err)
+			logrus.Errorf("Save directory object %s failed for %v.", j.Key, err)
 			return err
 		}
 	}

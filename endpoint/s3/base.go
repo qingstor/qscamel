@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -21,7 +20,7 @@ func (c *Client) Name(ctx context.Context) (name string) {
 }
 
 // Read implement source.Read
-func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error) {
+func (c *Client) Read(ctx context.Context, p string) (r io.Reader, err error) {
 	cp := utils.Join(c.Path, p)
 
 	resp, err := c.client.GetObject(&s3.GetObjectInput{
@@ -36,29 +35,26 @@ func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error
 	return
 }
 
-// ReadAt implement source.ReadAt
-func (c *Client) ReadAt(
-	ctx context.Context, p string, start, end int64,
-) (b []byte, err error) {
+// ReadRange implement source.ReadRange
+func (c *Client) ReadRange(
+	ctx context.Context, p string, offset, size int64,
+) (r io.Reader, err error) {
 	cp := utils.Join(c.Path, p)
 
 	resp, err := c.client.GetObject(&s3.GetObjectInput{
 		Key:    aws.String(cp),
 		Bucket: aws.String(c.BucketName),
-		Range:  aws.String(fmt.Sprintf("bytes=%d-%d", start, end)),
+		Range:  aws.String(fmt.Sprintf("bytes=%d-%d", offset, offset+size-1)),
 	})
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
 
-	b = make([]byte, end-start+1)
-	_, err = resp.Body.Read(b)
-	return
+	return resp.Body, nil
 }
 
 // Stat implement source.Stat and destination.Stat
-func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error) {
+func (c *Client) Stat(ctx context.Context, p string) (o *model.SingleObject, err error) {
 	cp := utils.Join(c.Path, p)
 
 	resp, err := c.client.HeadObject(&s3.HeadObjectInput{
@@ -74,9 +70,8 @@ func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error
 		logrus.Errorf("Head object %s failed for %v.", p, err)
 		return
 	}
-	o = &model.Object{
+	o = &model.SingleObject{
 		Key:          p,
-		IsDir:        strings.HasSuffix(p, "/"),
 		Size:         *resp.ContentLength,
 		MD5:          *resp.ETag,
 		LastModified: (*resp.LastModified).Unix(),

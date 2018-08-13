@@ -12,9 +12,9 @@ import (
 )
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object)) (err error) {
+func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o model.Object)) (err error) {
 
-	cp := utils.Join(c.Path, j.Path) + "/"
+	cp := utils.Join(c.Path, j.Key) + "/"
 
 	oc := make(chan *upyun.FileInfo, 100)
 
@@ -29,10 +29,18 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 	}
 
 	for v := range oc {
-		o := &model.Object{
-			Key:   utils.Relative(v.Name, c.Path),
-			IsDir: v.IsDir,
-			Size:  v.Size,
+		if v.IsDir {
+			o := &model.DirectoryObject{
+				Key: utils.Relative(v.Name, c.Path),
+			}
+
+			fn(o)
+
+			continue
+		}
+		o := &model.SingleObject{
+			Key:  utils.Relative(v.Name, c.Path),
+			Size: v.Size,
 		}
 
 		fn(o)

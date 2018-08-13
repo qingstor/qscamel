@@ -3,7 +3,6 @@ package gcs
 import (
 	"context"
 	"io"
-	"strings"
 
 	"cloud.google.com/go/storage"
 
@@ -17,7 +16,7 @@ func (c *Client) Name(ctx context.Context) (name string) {
 }
 
 // Read implement source.Read
-func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error) {
+func (c *Client) Read(ctx context.Context, p string) (r io.Reader, err error) {
 	cp := utils.Join(c.Path, p)
 
 	o := c.client.Object(cp)
@@ -25,25 +24,22 @@ func (c *Client) Read(ctx context.Context, p string) (r io.ReadCloser, err error
 	return o.NewReader(ctx)
 }
 
-// ReadAt implement source.ReadAt
-func (c *Client) ReadAt(
-	ctx context.Context, p string, start, end int64,
-) (b []byte, err error) {
+// ReadRange implement source.ReadRange
+func (c *Client) ReadRange(
+	ctx context.Context, p string, offset, size int64,
+) (r io.Reader, err error) {
 	cp := utils.Join(c.Path, p)
 
-	r, err := c.client.Object(cp).NewRangeReader(ctx, start, end-start+1)
+	r, err = c.client.Object(cp).NewRangeReader(ctx, offset, size)
 	if err != nil {
 		return
 	}
-	defer r.Close()
 
-	b = make([]byte, end-start+1)
-	_, err = r.Read(b)
 	return
 }
 
 // Stat implement source.Stat and destination.Stat
-func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error) {
+func (c *Client) Stat(ctx context.Context, p string) (o *model.SingleObject, err error) {
 	cp := utils.Join(c.Path, p)
 
 	resp, err := c.client.Object(cp).Attrs(ctx)
@@ -53,9 +49,8 @@ func (c *Client) Stat(ctx context.Context, p string) (o *model.Object, err error
 		}
 		return
 	}
-	o = &model.Object{
+	o = &model.SingleObject{
 		Key:          p,
-		IsDir:        strings.HasSuffix(p, "/"),
 		Size:         resp.Size,
 		LastModified: resp.Updated.Unix(),
 		MD5:          string(resp.MD5),

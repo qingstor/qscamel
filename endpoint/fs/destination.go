@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/yunify/qscamel/model"
 )
 
 // Deletable implement destination.Deletable
@@ -39,7 +41,7 @@ func (c *Client) Delete(ctx context.Context, p string) (err error) {
 }
 
 // Write implement destination.Write
-func (c *Client) Write(ctx context.Context, p string, _ int64, r io.ReadCloser) (err error) {
+func (c *Client) Write(ctx context.Context, p string, _ int64, r io.Reader) (err error) {
 	cp := filepath.Join(c.AbsPath, p)
 
 	_, err = os.Stat(filepath.Dir(cp))
@@ -69,4 +71,19 @@ func (c *Client) Write(ctx context.Context, p string, _ int64, r io.ReadCloser) 
 // Fetch implement destination.Fetch
 func (c *Client) Fetch(ctx context.Context, p, url string) (err error) {
 	return
+}
+
+// Partable implement destination.Partable
+func (c *Client) Partable() bool {
+	return false
+}
+
+// InitPart implement destination.InitPart
+func (c *Client) InitPart(ctx context.Context, p string, size int64) (uploadID string, partSize int64, partNumbers int, err error) {
+	return "", 0, 0, nil
+}
+
+// UploadPart implement destination.UploadPart
+func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Reader) (err error) {
+	return nil
 }

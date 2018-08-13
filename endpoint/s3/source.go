@@ -18,8 +18,8 @@ func (c *Client) Reachable() bool {
 }
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object)) (err error) {
-	cp := utils.Join(c.Path, j.Path) + "/"
+func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o model.Object)) (err error) {
+	cp := utils.Join(c.Path, j.Key) + "/"
 
 	marker := j.Marker
 
@@ -36,19 +36,16 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 			return err
 		}
 		for _, v := range resp.Contents {
-			object := &model.Object{
-				Key:   utils.Relative(*v.Key, c.Path),
-				IsDir: false,
-				Size:  *v.Size,
+			object := &model.SingleObject{
+				Key:  utils.Relative(*v.Key, c.Path),
+				Size: *v.Size,
 			}
 
 			fn(object)
 		}
 		for _, v := range resp.CommonPrefixes {
-			object := &model.Object{
-				Key:   utils.Relative(*v.Prefix, c.Path),
-				IsDir: true,
-				Size:  0,
+			object := &model.DirectoryObject{
+				Key: utils.Relative(*v.Prefix, c.Path),
 			}
 
 			fn(object)
@@ -61,7 +58,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 
 		// Update task content.
 		j.Marker = marker
-		err = j.Save(ctx)
+		err = model.CreateObject(ctx, j)
 		if err != nil {
 			logrus.Errorf("Save task failed for %v.", err)
 			return err

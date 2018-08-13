@@ -11,8 +11,8 @@ import (
 )
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object)) (err error) {
-	cp := filepath.Join(c.AbsPath, j.Path)
+func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o model.Object)) (err error) {
+	cp := filepath.Join(c.AbsPath, j.Key)
 
 	fi, err := os.Open(cp)
 	if err != nil {
@@ -22,10 +22,18 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 	fi.Close()
 
 	for _, v := range list {
-		o := &model.Object{
-			Key:   "/" + utils.Join(j.Path, v.Name()),
-			IsDir: v.IsDir(),
-			Size:  v.Size(),
+		if v.IsDir() {
+			o := &model.DirectoryObject{
+				Key: "/" + utils.Join(j.Key, v.Name()),
+			}
+
+			fn(o)
+
+			continue
+		}
+		o := &model.SingleObject{
+			Key:  "/" + utils.Join(j.Key, v.Name()),
+			Size: v.Size(),
 		}
 
 		fn(o)

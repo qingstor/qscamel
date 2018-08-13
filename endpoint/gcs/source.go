@@ -14,9 +14,8 @@ import (
 )
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object)) (err error) {
-
-	cp := path.Join(c.Path, j.Path) + "/"
+func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o model.Object)) (err error) {
+	cp := path.Join(c.Path, j.Key) + "/"
 
 	it := c.client.Objects(ctx, &storage.Query{
 		Delimiter: "/",
@@ -32,20 +31,17 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 			return err
 		}
 		if next.Prefix != "" {
-			object := &model.Object{
-				Key:   utils.Relative(next.Prefix, c.Path),
-				IsDir: true,
-				Size:  0,
+			object := &model.DirectoryObject{
+				Key: utils.Relative(next.Prefix, c.Path),
 			}
 
 			fn(object)
 			continue
 		}
 
-		object := &model.Object{
-			Key:   utils.Relative(next.Name, c.Path),
-			IsDir: false,
-			Size:  next.Size,
+		object := &model.SingleObject{
+			Key:  utils.Relative(next.Name, c.Path),
+			Size: next.Size,
 		}
 
 		fn(object)

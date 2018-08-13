@@ -13,8 +13,8 @@ import (
 )
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object)) (err error) {
-	cp := utils.Join(c.Path, j.Path)
+func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o model.Object)) (err error) {
+	cp := utils.Join(c.Path, j.Key)
 	if cp != "" {
 		cp += "/"
 	}
@@ -31,7 +31,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 
 					// Update task content.
 					j.Marker = marker
-					err = j.Save(ctx)
+					err = model.CreateObject(ctx, j)
 					if err != nil {
 						logrus.Errorf("Save task failed for %v.", err)
 						return err
@@ -46,10 +46,9 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 			return err
 		}
 		for _, v := range entries {
-			object := &model.Object{
-				Key:   utils.Relative(v.Key, c.Path),
-				IsDir: false,
-				Size:  v.Fsize,
+			object := &model.SingleObject{
+				Key:  utils.Relative(v.Key, c.Path),
+				Size: v.Fsize,
 			}
 
 			fn(object)
@@ -59,7 +58,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 
 		// Update task content.
 		j.Marker = marker
-		err = j.Save(ctx)
+		err = model.CreateObject(ctx, j)
 		if err != nil {
 			logrus.Errorf("Save task failed for %v.", err)
 			return err
