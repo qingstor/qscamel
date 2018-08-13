@@ -23,3 +23,7 @@ const (
 	LogPath      = Path + "/qscamel.log"
 	PIDPath      = Path + "/qscamel.pid"
 )
+
+// DefaultMultipartBoundarySize is the default multipart boundary size.
+// 2 * 1024 * 1024 * 1024 = 2147483648 B = 2 GB
+const DefaultMultipartBoundarySize = 2147483648
