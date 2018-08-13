@@ -2,6 +2,18 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.4] - 2018-08-13
+
+### Added
+
+- endpoint: qingstor: Support multi-thread resumable multipart upload
+- endpoint: qingstor: Support storage class in multipart upload
+- endpoint: qingstor: Add user agent support
+
+## Changed
+
+- DB format changed, old task can't run by this version
+
 ## [v2.0.3] - 2018-08-06
 
 ### Changed
