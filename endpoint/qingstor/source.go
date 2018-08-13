@@ -13,8 +13,8 @@ import (
 )
 
 // List implement source.List
-func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object)) (err error) {
-	cp := utils.Join(c.Path, j.Path) + "/"
+func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o model.Object)) (err error) {
+	cp := utils.Join(c.Path, j.Key) + "/"
 	if cp == "/" {
 		cp = ""
 	}
@@ -37,9 +37,8 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 				continue
 			}
 
-			object := &model.Object{
+			object := &model.SingleObject{
 				Key:          utils.Relative(*v.Key, c.Path),
-				IsDir:        false,
 				Size:         *v.Size,
 				LastModified: int64(*v.Modified),
 				MD5:          strings.Trim(*v.Etag, "\""),
@@ -52,7 +51,7 @@ func (c *Client) List(ctx context.Context, j *model.Job, fn func(o *model.Object
 
 		// Update task content.
 		j.Marker = marker
-		err = j.Save(ctx)
+		err = model.CreateObject(ctx, j)
 		if err != nil {
 			logrus.Errorf("Save task failed for %v.", err)
 			return err

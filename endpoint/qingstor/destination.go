@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/yunify/qingstor-sdk-go/service"
 
+	"github.com/yunify/qscamel/model"
 	"github.com/yunify/qscamel/utils"
 )
 
@@ -40,18 +41,14 @@ func (c *Client) Delete(ctx context.Context, p string) (err error) {
 }
 
 // Write implement destination.Write
-func (c *Client) Write(ctx context.Context, p string, size int64, r io.ReadCloser) (err error) {
+func (c *Client) Write(ctx context.Context, p string, size int64, r io.Reader) (err error) {
 	cp := utils.Join(c.Path, p)
 
-	if size <= c.MultipartBoundarySize {
-		_, err = c.client.PutObject(cp, &service.PutObjectInput{
-			Body:            r,
-			ContentLength:   convert.Int64(size),
-			XQSStorageClass: convert.String(c.StorageClass),
-		})
-	} else {
-		err = c.uploader.Upload(r, cp)
-	}
+	_, err = c.client.PutObject(cp, &service.PutObjectInput{
+		Body:            r,
+		ContentLength:   convert.Int64(size),
+		XQSStorageClass: convert.String(c.StorageClass),
+	})
 	if err != nil {
 		return
 	}
@@ -73,4 +70,78 @@ func (c *Client) Fetch(ctx context.Context, p, url string) (err error) {
 
 	logrus.Debugf("QingStor fetched object %s.", cp)
 	return
+}
+
+// Partable implement destination.Partable
+func (c *Client) Partable() bool {
+	return true
+}
+
+// InitPart implement destination.InitPart
+func (c *Client) InitPart(ctx context.Context, p string, size int64) (uploadID string, partSize int64, partNumbers int, err error) {
+	cp := utils.Join(c.Path, p)
+
+	resp, err := c.client.InitiateMultipartUpload(
+		cp,
+		&service.InitiateMultipartUploadInput{
+			XQSStorageClass: convert.String(c.StorageClass),
+		},
+	)
+	if err != nil {
+		return
+	}
+
+	uploadID = *resp.UploadID
+	partSize, err = calculatePartSize(size)
+	if err != nil {
+		logrus.Errorf("Object %s is too large", p)
+		return
+	}
+
+	partNumbers = int(size / partSize)
+	if size%partSize != 0 {
+		partNumbers++
+	}
+	return
+}
+
+// UploadPart implement destination.UploadPart
+func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Reader) (err error) {
+	cp := utils.Join(c.Path, o.Key)
+
+	_, err = c.client.UploadMultipart(cp, &service.UploadMultipartInput{
+		Body:          r,
+		ContentLength: convert.Int64(o.Size),
+		UploadID:      convert.String(o.UploadID),
+		PartNumber:    convert.Int(o.PartNumber),
+	})
+	if err != nil {
+		return
+	}
+
+	next, err := model.NextPartialObject(ctx, o.Key, o.PartNumber)
+	if err != nil {
+		return
+	}
+	if next != nil {
+		logrus.Debugf("QingStor wrote partial object %s at %d.", o.Key, o.Offset)
+		return nil
+	}
+
+	parts := make([]*service.ObjectPartType, o.TotalNumber)
+	for i := 0; i < o.TotalNumber; i++ {
+		parts[i] = &service.ObjectPartType{
+			PartNumber: convert.Int(i),
+		}
+	}
+
+	_, err = c.client.CompleteMultipartUpload(
+		cp, &service.CompleteMultipartUploadInput{
+			UploadID:    convert.String(o.UploadID),
+			ObjectParts: parts,
+		})
+	if err != nil {
+		return err
+	}
+	return nil
 }

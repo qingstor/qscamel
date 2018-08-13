@@ -18,9 +18,12 @@ const (
 	// DefaultMultipartBoundarySize is the default multipart size.
 	// 64 * 1024 * 1024 = 67108864 B = 64 MB
 	DefaultMultipartSize = 67108864
-	// DefaultMultipartBoundarySize is the default multipart boundary size.
-	// 2 * 1024 * 1024 * 1024 = 2147483648 B = 2 GB
-	DefaultMultipartBoundarySize = 2147483648
+	// MaxAutoMultipartSize is the max auto multipart size.
+	// If part size is over MaxAutoMultipartSize, we will not detect it any more.
+	// 1024 * 1024 * 1024 = 1073741824 B = 1 GB
+	MaxAutoMultipartSize = 1073741824
+	// MaxMultipartNumber is the max part that QingStor supported.
+	MaxMultipartNumber = 10000
 	// MaxMultipartBoundarySize is the max multipart boundary size.
 	// Over this, put object will be reset by server.
 	// 5 * 1024 * 1024 * 1024 = 5368709120 B = 5 GB

@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
-	"github.com/yunify/qingstor-sdk-go/client/upload"
 	"github.com/yunify/qingstor-sdk-go/config"
 	"github.com/yunify/qingstor-sdk-go/service"
 	"gopkg.in/yaml.v2"
@@ -24,13 +23,11 @@ type Client struct {
 	AccessKeyID     string `yaml:"access_key_id"`
 	SecretAccessKey string `yaml:"secret_access_key"`
 
-	StorageClass          string `yaml:"storage_class"`
-	MultipartBoundarySize int64  `yaml:"multipart_boundary_size"`
+	StorageClass string `yaml:"storage_class"`
 
 	Path string
 
-	client   *service.Bucket
-	uploader *upload.Uploader
+	client *service.Bucket
 }
 
 // New will create a new QingStor client.
@@ -106,15 +103,6 @@ func New(ctx context.Context, et uint8, hc *http.Client) (c *Client, err error) 
 		err = constants.ErrEndpointInvalid
 		return
 	}
-	if c.MultipartBoundarySize == 0 {
-		c.MultipartBoundarySize = DefaultMultipartBoundarySize
-	}
-	if c.MultipartBoundarySize < 0 ||
-		c.MultipartBoundarySize > MaxMultipartBoundarySize {
-		logrus.Errorf("QingStor's multipart boundary size can't be %d.", c.MultipartBoundarySize)
-		err = constants.ErrEndpointInvalid
-		return
-	}
 
 	// Set path.
 	c.Path = e.Path
@@ -135,7 +123,5 @@ func New(ctx context.Context, et uint8, hc *http.Client) (c *Client, err error) 
 		}
 	}
 	c.client, _ = qs.Bucket(c.BucketName, c.Zone)
-	c.uploader = upload.Init(c.client, DefaultMultipartSize)
-
 	return
 }
