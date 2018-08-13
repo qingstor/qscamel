@@ -113,6 +113,7 @@ func New(ctx context.Context, et uint8, hc *http.Client) (c *Client, err error) 
 	qc.Host = c.Host
 	qc.Port = c.Port
 	qc.Connection = hc
+	qc.AdditionalUserAgent = "qscamel " + constants.Version
 
 	// Set qingstor service.
 	qs, _ := service.Init(qc)
