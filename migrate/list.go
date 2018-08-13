@@ -13,7 +13,11 @@ import (
 // List will list objects and send to channel.
 func List(ctx context.Context) (err error) {
 	if t.Status == constants.TaskStatusCreated {
-		_, err = model.CreateJob(ctx, "/")
+		o := &model.DirectoryObject{
+			Key:    "/",
+			Marker: "",
+		}
+		err = model.CreateObject(ctx, o)
 		if err != nil {
 			logrus.Panic(err)
 		}
@@ -25,35 +29,52 @@ func List(ctx context.Context) (err error) {
 		}
 	}
 
-	// Traverse already running but not finished object.
+	// Traverse already running but not finished directory object.
 	p := ""
 	for {
-		o, err := model.NextObject(ctx, p)
+		do, err := model.NextDirectoryObject(ctx, p)
 		if err != nil {
 			logrus.Panic(err)
 		}
-		if o == nil {
-			break
-		}
-
-		oc <- o
-		p = o.Key
-	}
-
-	// Traverse already running but not finished job.
-	p = ""
-	for {
-		j, err := model.NextJob(ctx, p)
-		if err != nil {
-			logrus.Panic(err)
-		}
-		if j == nil {
+		if do == nil {
 			break
 		}
 
 		jwg.Add(1)
-		jc <- j
-		p = j.Path
+		jc <- do
+		p = do.Key
+	}
+
+	// Traverse already running but not finished single object.
+	p = ""
+	for {
+		so, err := model.NextSingleObject(ctx, p)
+		if err != nil {
+			logrus.Panic(err)
+		}
+		if so == nil {
+			break
+		}
+
+		oc <- so
+		p = so.Key
+	}
+
+	// Traverse already running but not finished partial object.
+	p = ""
+	pn := -1
+	for {
+		po, err := model.NextPartialObject(ctx, p, pn)
+		if err != nil {
+			logrus.Panic(err)
+		}
+		if po == nil {
+			break
+		}
+
+		oc <- po
+		p = po.Key
+		pn = po.PartNumber
 	}
 
 	return
@@ -64,13 +85,14 @@ func listWorker(ctx context.Context) {
 	defer utils.Recover()
 
 	for j := range jc {
-		logrus.Infof("Start listing job %s.", j.Path)
+		logrus.Infof("Start listing job %s.", j.Key)
 
-		err := listJob(ctx, j)
+		err := listObject(ctx, j)
 		if err != nil {
+			logrus.Errorf("List object %s failed for %v.", j.Key, err)
 			continue
 		}
 
-		logrus.Infof("Job %s listed.", j.Path)
+		logrus.Infof("Job %s listed.", j.Key)
 	}
 }

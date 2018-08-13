@@ -23,8 +23,8 @@ func CanCopy() bool {
 
 // Copy will do copy job between src and dst.
 func Copy(ctx context.Context) (err error) {
-	oc = make(chan *model.Object, contexts.Config.Concurrency*2)
-	jc = make(chan *model.Job)
+	oc = make(chan model.Object, contexts.Config.Concurrency*2)
+	jc = make(chan *model.DirectoryObject)
 
 	owg = &sync.WaitGroup{}
 	jwg = &sync.WaitGroup{}

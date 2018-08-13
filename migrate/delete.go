@@ -23,8 +23,8 @@ func CanDelete() bool {
 
 // Delete will do delete job between src and dst.
 func Delete(ctx context.Context) (err error) {
-	oc = make(chan *model.Object, contexts.Config.Concurrency*2)
-	jc = make(chan *model.Job)
+	oc = make(chan model.Object, contexts.Config.Concurrency*2)
+	jc = make(chan *model.DirectoryObject)
 
 	owg = &sync.WaitGroup{}
 	jwg = &sync.WaitGroup{}

@@ -27,8 +27,8 @@ func CanFetch() bool {
 
 // Fetch will do fetch job between src and dst.
 func Fetch(ctx context.Context) (err error) {
-	oc = make(chan *model.Object, contexts.Config.Concurrency*2)
-	jc = make(chan *model.Job)
+	oc = make(chan model.Object, contexts.Config.Concurrency*2)
+	jc = make(chan *model.DirectoryObject)
 
 	owg = &sync.WaitGroup{}
 	jwg = &sync.WaitGroup{}

@@ -42,14 +42,16 @@ import (
 var (
 	t *model.Task
 
-	oc chan *model.Object
-	jc chan *model.Job
+	oc chan model.Object
+	jc chan *model.DirectoryObject
 
 	owg *sync.WaitGroup
 	jwg *sync.WaitGroup
 
 	src endpoint.Source
 	dst endpoint.Destination
+
+	multipartBoundarySize int64
 )
 
 // Execute will execute migrate task.
@@ -57,6 +59,14 @@ func Execute(ctx context.Context) (err error) {
 	t, err = model.GetTask(ctx)
 	if err != nil {
 		return
+	}
+
+	// If multipart boundary size is 0 or invalid, qscamel will correct it
+	// to default boundary size.
+	if t.MultipartBoundarySize > 0 {
+		multipartBoundarySize = t.MultipartBoundarySize
+	} else {
+		multipartBoundarySize = constants.DefaultMultipartBoundarySize
 	}
 
 	err = check(ctx)
@@ -194,14 +204,12 @@ func migrateWorker(ctx context.Context) {
 			continue
 		}
 		if ok {
-			err = model.DeleteObject(ctx, o.Key)
+			err = model.DeleteObject(ctx, o)
 			if err != nil {
 				utils.CheckClosedDB(err)
 			}
 			continue
 		}
-
-		logrus.Infof("Start %sing object %s.", t.Type, o.Key)
 
 		// Object may be tried in three times.
 		bo := backoff.NewExponentialBackOff()
@@ -214,7 +222,7 @@ func migrateWorker(ctx context.Context) {
 				return nil
 			}
 
-			logrus.Infof("Object %s %s failed, retrying.", o.Key, t.Type)
+			logrus.Infof("%s object failed for %v, retried.", t.Type, err)
 			return err
 		}, bo)
 		if err != nil {
@@ -222,33 +230,40 @@ func migrateWorker(ctx context.Context) {
 			continue
 		}
 
-		err = model.DeleteObject(ctx, o.Key)
+		err = model.DeleteObject(ctx, o)
 		if err != nil {
 			utils.CheckClosedDB(err)
 			continue
 		}
-
-		logrus.Infof("Object %s %sed.", o.Key, t.Type)
 	}
 }
 
 // isFinished will check whether current task has been finished.
 func isFinished(ctx context.Context) bool {
-	ho, err := model.HasObject(ctx)
+	h, err := model.HasDirectoryObject(ctx)
 	if err != nil {
 		logrus.Panic(err)
 	}
-	if ho {
-		logrus.Infof("There are not finished objects.")
+	if h {
+		logrus.Infof("There are not finished directory objects.")
 		return false
 	}
 
-	hj, err := model.HasJob(ctx)
+	h, err = model.HasSingleObject(ctx)
 	if err != nil {
 		logrus.Panic(err)
 	}
-	if hj {
-		logrus.Infof("There are not finished jobs.")
+	if h {
+		logrus.Infof("There are not finished single objects.")
+		return false
+	}
+
+	h, err = model.HasPartialObject(ctx)
+	if err != nil {
+		logrus.Panic(err)
+	}
+	if h {
+		logrus.Infof("There are not finished partial objects.")
 		return false
 	}
 
