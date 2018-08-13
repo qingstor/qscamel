@@ -124,6 +124,12 @@ destination:
 # `md5sum` will calculate the whole object's md5.
 # Available value: last_modified, md5sum.
 ignore_existing: last_modified
+# multipart boundary size controls when qscamel will use multipart
+# unit is Byte ，when file size is bigger then this value, qscamel
+# will use multipart API.
+# Available value: 1 ~ 5368709120
+# Default value: 2147483648
+multipart_boundary_size: 2147483648
 ```
 
 ### Endpoint aliyun
@@ -201,12 +207,6 @@ secret_access_key: example_secret_access_key
 # Available value: STANDARD, STANDARD_IA
 # Default value: STANDARD
 storage_class: STANDARD
-# multipart boundary size controls when qingstor will use multipart
-# unit is Byte ，when file size is bigger then this value, qscamel
-# will use multipart API.
-# Available value: 1 ~ 5368709120
-# Default value: 2147483648
-multipart_boundary_size: 2147483648
 ```
 
 ### Endpoint qiniu

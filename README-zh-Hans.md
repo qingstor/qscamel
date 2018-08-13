@@ -128,6 +128,11 @@ destination:
 # `md5sum` 将会对文件做完整的 md5 计算，当 md5 相同时会跳过
 # 可选值: last_modified, md5sum.
 ignore_existing: last_modified
+# multipart boundary size 控制 qscamel 何时使用分段上传
+# 单位为 Byte ，当文件大于该数值时，将会使用分段上传
+# 可选值: 1 ~ 5368709120
+# 默认值: 2147483648
+multipart_boundary_size: 2147483648
 ```
 
 ### Endpoint aliyun
@@ -206,12 +211,6 @@ secret_access_key: example_secret_access_key
 # 可选值: STANDARD, STANDARD_IA
 # 默认值: STANDARD
 storage_class: STANDARD
-
-# multipart boundary size 控制 QingStor 何时使用分段上传
-# 单位为 Byte ，当文件大于该数值时，将会使用分段上传
-# 可选值: 1 ~ 5368709120
-# 默认值: 2147483648
-multipart_boundary_size: 2147483648
 ```
 
 ### Endpoint qiniu

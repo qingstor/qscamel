@@ -77,6 +77,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 - QingStor qscamel.
 
+[v2.0.4]: https://github.com/yunify/qscamel/compare/v2.0.3...v2.0.4
 [v2.0.3]: https://github.com/yunify/qscamel/compare/v2.0.2...v2.0.3
 [v2.0.2]: https://github.com/yunify/qscamel/compare/v2.0.1...v2.0.2
 [v2.0.1]: https://github.com/yunify/qscamel/compare/v2.0.0...v2.0.1
