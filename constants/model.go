@@ -1,5 +1,9 @@
 package constants
 
+import (
+	"github.com/pengsrc/go-shared/buffer"
+)
+
 // Constants for task type.
 const (
 	TaskTypeCopy   = "copy"
@@ -20,16 +24,23 @@ const (
 	TaskIgnoreExistingMD5Sum       = "md5sum"
 )
 
+// Constants for object types.
+const (
+	ObjectTypeDirectory = "directory"
+	ObjectTypeSingle    = "single"
+	ObjectTypePartial   = "partial"
+)
+
 // Constants for database key.
 const (
-	// prefixKey ~ is bigger than all ascii printable characters.
-	prefixKey = "~"
-
 	KeyTaskPrefix = "t:"
 
-	KeyJobPrefix = "j:"
+	// ObjectPrefixKey `~` is bigger than all ascii printable characters.
+	ObjectPrefixKey = "~"
 
-	KeyObjectPrefix = "o:"
+	KeyDirectoryObjectPrefix = "do:"
+	KeySingleObjectPrefix    = "so:"
+	KeyPartialObjectPrefix   = "po:"
 )
 
 // FormatTaskKey will format a task key.
@@ -37,12 +48,59 @@ func FormatTaskKey(t string) []byte {
 	return []byte(KeyTaskPrefix + t)
 }
 
-// FormatJobKey will format a job key.
-func FormatJobKey(t, s string) []byte {
-	return []byte(prefixKey + t + ":" + KeyJobPrefix + s)
+// FormatDirectoryObjectKey will format a directory object key.
+func FormatDirectoryObjectKey(t, s string) []byte {
+	buf := buffer.GlobalBytesPool().Get()
+	defer buf.Free()
+
+	buf.AppendString(ObjectPrefixKey)
+	buf.AppendString(t)
+	buf.AppendString(":")
+	buf.AppendString(KeyDirectoryObjectPrefix)
+	buf.AppendString(s)
+
+	b := make([]byte, buf.Len())
+	copy(b, buf.Bytes())
+	return b
 }
 
-// FormatObjectKey will format a object key.
-func FormatObjectKey(t, s string) []byte {
-	return []byte(prefixKey + t + ":" + KeyObjectPrefix + s)
+// FormatSingleObjectKey will format a single object key.
+func FormatSingleObjectKey(t, s string) []byte {
+	buf := buffer.GlobalBytesPool().Get()
+	defer buf.Free()
+
+	buf.AppendString(ObjectPrefixKey)
+	buf.AppendString(t)
+	buf.AppendString(":")
+	buf.AppendString(KeySingleObjectPrefix)
+	buf.AppendString(s)
+
+	b := make([]byte, buf.Len())
+	copy(b, buf.Bytes())
+	return b
+}
+
+// FormatPartialObjectKey will format a partial object key.
+func FormatPartialObjectKey(t, s string, partNumber int) []byte {
+	buf := buffer.GlobalBytesPool().Get()
+	defer buf.Free()
+
+	buf.AppendString(ObjectPrefixKey)
+	buf.AppendString(t)
+	buf.AppendString(":")
+	buf.AppendString(KeyPartialObjectPrefix)
+	// If s is empty, this key will be prefix for all partial object.
+	if s != "" {
+		buf.AppendString(s)
+		buf.AppendString(":")
+	}
+	// If part number is lower than 0, this key will be prefix for
+	// partial object with key.
+	if partNumber >= 0 {
+		buf.AppendInt(int64(partNumber))
+	}
+
+	b := make([]byte, buf.Len())
+	copy(b, buf.Bytes())
+	return b
 }
