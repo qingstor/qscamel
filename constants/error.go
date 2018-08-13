@@ -19,4 +19,9 @@ var (
 	ErrEndpointNotSupported = errors.New("endpoint type is not supported")
 	// ErrEndpointFuncNotImplemented is return when a not implement function is called.
 	ErrEndpointFuncNotImplemented = errors.New("endpoint does not implement this function")
+
+	// ErrObjectTooLarge is returned when the object is too large.
+	ErrObjectTooLarge = errors.New("object is too large")
+	// ErrObjectInvalid is returned when the object is invalid.
+	ErrObjectInvalid = errors.New("object is invalid")
 )
