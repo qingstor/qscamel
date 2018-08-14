@@ -51,8 +51,8 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 			fn(object)
 		}
 
-		marker = *resp.NextContinuationToken
-		if !*resp.IsTruncated {
+		marker = aws.StringValue(resp.NextContinuationToken)
+		if !aws.BoolValue(resp.IsTruncated) {
 			marker = ""
 		}
 
