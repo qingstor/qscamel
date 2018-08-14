@@ -12,6 +12,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 ### Fixed
 
 - endpoint: s3: Fix invalid memory address while some key missing
+- utils: file: Fix create folder failed on windows
 
 ## [v2.0.4] - 2018-08-13
 
