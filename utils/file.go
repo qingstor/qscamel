@@ -2,7 +2,7 @@ package utils
 
 import (
 	"os"
-	"path"
+	"path/filepath"
 )
 
 // CreateFile will create a file recursively.
@@ -12,7 +12,7 @@ func CreateFile(p string) (f *os.File, err error) {
 		return
 	}
 
-	err = os.MkdirAll(path.Dir(p), 0711)
+	err = os.MkdirAll(filepath.Dir(p), 0711)
 	if err != nil {
 		return
 	}
