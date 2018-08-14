@@ -2,6 +2,12 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- endpoint: s3: Support path style
+
 ## [v2.0.4] - 2018-08-13
 
 ### Added
@@ -10,7 +16,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 - endpoint: qingstor: Support storage class in multipart upload
 - endpoint: qingstor: Add user agent support
 
-## Changed
+### Changed
 
 - DB format changed, old task can't run by this version
 
