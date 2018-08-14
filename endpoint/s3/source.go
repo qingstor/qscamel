@@ -23,13 +23,64 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 
 	marker := j.Marker
 
+	// If ListObjectV2 is enabled, we should use ListObjectsV2 instead.
+	if c.EnableListObjectsV2 {
+		for {
+			resp, err := c.client.ListObjectsV2(&s3.ListObjectsV2Input{
+				Bucket:     aws.String(c.BucketName),
+				Prefix:     aws.String(cp),
+				MaxKeys:    aws.Int64(MaxKeys),
+				Delimiter:  aws.String("/"),
+				StartAfter: aws.String(marker),
+			})
+			if err != nil {
+				logrus.Errorf("List objects failed for %v.", err)
+				return err
+			}
+			for _, v := range resp.Contents {
+				object := &model.SingleObject{
+					Key:  utils.Relative(*v.Key, c.Path),
+					Size: *v.Size,
+				}
+
+				fn(object)
+			}
+			for _, v := range resp.CommonPrefixes {
+				object := &model.DirectoryObject{
+					Key: utils.Relative(*v.Prefix, c.Path),
+				}
+
+				fn(object)
+			}
+
+			marker = aws.StringValue(resp.NextContinuationToken)
+			if !aws.BoolValue(resp.IsTruncated) {
+				marker = ""
+			}
+
+			// Update task content.
+			j.Marker = marker
+			err = model.CreateObject(ctx, j)
+			if err != nil {
+				logrus.Errorf("Save task failed for %v.", err)
+				return err
+			}
+
+			if marker == "" {
+				break
+			}
+		}
+
+		return
+	}
+
 	for {
-		resp, err := c.client.ListObjectsV2(&s3.ListObjectsV2Input{
-			Bucket:     aws.String(c.BucketName),
-			Prefix:     aws.String(cp),
-			MaxKeys:    aws.Int64(MaxKeys),
-			Delimiter:  aws.String("/"),
-			StartAfter: aws.String(marker),
+		resp, err := c.client.ListObjects(&s3.ListObjectsInput{
+			Bucket:    aws.String(c.BucketName),
+			Prefix:    aws.String(cp),
+			MaxKeys:   aws.Int64(MaxKeys),
+			Delimiter: aws.String("/"),
+			Marker:    aws.String(marker),
 		})
 		if err != nil {
 			logrus.Errorf("List objects failed for %v.", err)
@@ -51,7 +102,7 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 			fn(object)
 		}
 
-		marker = aws.StringValue(resp.NextContinuationToken)
+		marker = aws.StringValue(resp.NextMarker)
 		if !aws.BoolValue(resp.IsTruncated) {
 			marker = ""
 		}

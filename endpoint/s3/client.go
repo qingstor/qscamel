@@ -17,14 +17,15 @@ import (
 
 // Client is the client to visit service.
 type Client struct {
-	BucketName      string `yaml:"bucket_name"`
-	Endpoint        string `yaml:"endpoint"`
-	Region          string `yaml:"region"`
-	AccessKeyID     string `yaml:"access_key_id"`
-	SecretAccessKey string `yaml:"secret_access_key"`
-	DisableSSL      bool   `yaml:"disable_ssl"`
-	UseAccelerate   bool   `yaml:"use_accelerate"`
-	PathStyle       bool   `yaml:"path_style"`
+	BucketName          string `yaml:"bucket_name"`
+	Endpoint            string `yaml:"endpoint"`
+	Region              string `yaml:"region"`
+	AccessKeyID         string `yaml:"access_key_id"`
+	SecretAccessKey     string `yaml:"secret_access_key"`
+	DisableSSL          bool   `yaml:"disable_ssl"`
+	UseAccelerate       bool   `yaml:"use_accelerate"`
+	PathStyle           bool   `yaml:"path_style"`
+	EnableListObjectsV2 bool   `yaml:"list_objects_version"`
 
 	Path string
 
