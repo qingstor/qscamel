@@ -24,6 +24,7 @@ type Client struct {
 	SecretAccessKey string `yaml:"secret_access_key"`
 	DisableSSL      bool   `yaml:"disable_ssl"`
 	UseAccelerate   bool   `yaml:"use_accelerate"`
+	PathStyle       bool   `yaml:"path_style"`
 
 	Path string
 
@@ -78,12 +79,13 @@ func New(ctx context.Context, et uint8, hc *http.Client) (c *Client, err error) 
 	c.Path = e.Path
 
 	cfg := &aws.Config{
-		Credentials:     credentials.NewStaticCredentials(c.AccessKeyID, c.SecretAccessKey, ""),
-		Endpoint:        aws.String(c.Endpoint),
-		Region:          aws.String(c.Region),
-		DisableSSL:      aws.Bool(c.DisableSSL),
-		S3UseAccelerate: aws.Bool(c.UseAccelerate),
-		HTTPClient:      hc,
+		Credentials:      credentials.NewStaticCredentials(c.AccessKeyID, c.SecretAccessKey, ""),
+		Endpoint:         aws.String(c.Endpoint),
+		Region:           aws.String(c.Region),
+		DisableSSL:       aws.Bool(c.DisableSSL),
+		S3UseAccelerate:  aws.Bool(c.UseAccelerate),
+		S3ForcePathStyle: aws.Bool(c.PathStyle),
+		HTTPClient:       hc,
 	}
 	sess, err := session.NewSession(cfg)
 	if err != nil {
