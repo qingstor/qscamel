@@ -92,7 +92,7 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 		// Some s3 compatible services may not return next marker, we should also try
 		// the last key in contents.
 		marker = aws.StringValue(resp.NextMarker)
-		if len(resp.Contents) > 0 {
+		if marker == "" && len(resp.Contents) > 0 {
 			marker = aws.StringValue(resp.Contents[len(resp.Contents)-1].Key)
 		}
 
