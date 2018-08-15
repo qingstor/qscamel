@@ -20,6 +20,9 @@ func (c *Client) Reachable() bool {
 // List implement source.List
 func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o model.Object)) (err error) {
 	cp := utils.Join(c.Path, j.Key) + "/"
+	if cp == "/" {
+		cp = ""
+	}
 
 	marker := j.Marker
 
@@ -30,7 +33,6 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 				Bucket:     aws.String(c.BucketName),
 				Prefix:     aws.String(cp),
 				MaxKeys:    aws.Int64(MaxKeys),
-				Delimiter:  aws.String("/"),
 				StartAfter: aws.String(marker),
 			})
 			if err != nil {
@@ -45,15 +47,8 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 
 				fn(object)
 			}
-			for _, v := range resp.CommonPrefixes {
-				object := &model.DirectoryObject{
-					Key: utils.Relative(*v.Prefix, c.Path),
-				}
 
-				fn(object)
-			}
-
-			marker = aws.StringValue(resp.NextContinuationToken)
+			marker = aws.StringValue(resp.StartAfter)
 			if !aws.BoolValue(resp.IsTruncated) {
 				marker = ""
 			}
@@ -76,11 +71,10 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 
 	for {
 		resp, err := c.client.ListObjects(&s3.ListObjectsInput{
-			Bucket:    aws.String(c.BucketName),
-			Prefix:    aws.String(cp),
-			MaxKeys:   aws.Int64(MaxKeys),
-			Delimiter: aws.String("/"),
-			Marker:    aws.String(marker),
+			Bucket:  aws.String(c.BucketName),
+			Prefix:  aws.String(cp),
+			MaxKeys: aws.Int64(MaxKeys),
+			Marker:  aws.String(marker),
 		})
 		if err != nil {
 			logrus.Errorf("List objects failed for %v.", err)
@@ -94,17 +88,20 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 
 			fn(object)
 		}
-		for _, v := range resp.CommonPrefixes {
-			object := &model.DirectoryObject{
-				Key: utils.Relative(*v.Prefix, c.Path),
-			}
 
-			fn(object)
+		// Some s3 compatible services may not return next marker, we should also try
+		// the last key in contents.
+		marker = aws.StringValue(resp.NextMarker)
+		if len(resp.Contents) > 0 {
+			marker = aws.StringValue(resp.Contents[len(resp.Contents)-1].Key)
 		}
 
-		marker = aws.StringValue(resp.NextMarker)
 		if !aws.BoolValue(resp.IsTruncated) {
 			marker = ""
+		}
+
+		if marker == "" {
+			break
 		}
 
 		// Update task content.
@@ -113,10 +110,6 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 		if err != nil {
 			logrus.Errorf("Save task failed for %v.", err)
 			return err
-		}
-
-		if marker == "" {
-			break
 		}
 	}
 
