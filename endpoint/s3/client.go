@@ -25,7 +25,7 @@ type Client struct {
 	DisableSSL          bool   `yaml:"disable_ssl"`
 	UseAccelerate       bool   `yaml:"use_accelerate"`
 	PathStyle           bool   `yaml:"path_style"`
-	EnableListObjectsV2 bool   `yaml:"list_objects_version"`
+	EnableListObjectsV2 bool   `yaml:"enable_list_objects_v2"`
 
 	Path string
 
