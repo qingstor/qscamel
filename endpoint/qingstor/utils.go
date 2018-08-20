@@ -39,7 +39,7 @@ func calculatePartSize(size int64) (partSize int64, err error) {
 	partSize = DefaultMultipartSize
 
 	for size/partSize >= int64(MaxMultipartNumber) {
-		if partSize <= MaxAutoMultipartSize {
+		if partSize < MaxAutoMultipartSize {
 			partSize = partSize << 1
 			continue
 		}
