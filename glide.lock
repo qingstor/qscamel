@@ -1,8 +1,8 @@
-hash: da5164bf998869e5b571bb6dcec8ce979abaf95085bd07516aa30d73ed0b2778
-updated: 2018-06-10T00:54:46.831012929+08:00
+hash: f063162829ab167a7780f74a51caaf834fbbb0415c731b74e0af4c7020fe1020
+updated: 2018-08-20T12:17:02.654826995+08:00
 imports:
 - name: cloud.google.com/go
-  version: 0fd7230b2a7505833d5f69b75cbd6c9582401479
+  version: 64a2037ec6be8a4b0c1d1f706ed35b428b989239
   subpackages:
   - compute/metadata
   - iam
@@ -11,12 +11,16 @@ imports:
   - internal/trace
   - internal/version
   - storage
+- name: contrib.go.opencensus.io/exporter/stackdriver
+  version: f7f5758592258ab71384efef9cdb0daf785a9ab1
+  subpackages:
+  - propagation
 - name: github.com/aliyun/aliyun-oss-go-sdk
-  version: 52de7239022ceba47354832fbcc65983aa8d019d
+  version: 36bf7aa2f916f274137aedd05d1d36f6a3c0f4a6
   subpackages:
   - oss
 - name: github.com/aws/aws-sdk-go
-  version: c9af76f2478f81c6566d0f7f4d522254ec7c0b52
+  version: ca229c7730be9278527fbb287f5a26c91e328d86
   subpackages:
   - aws
   - aws/awserr
@@ -37,6 +41,7 @@ imports:
   - aws/signer/v4
   - internal/sdkio
   - internal/sdkrand
+  - internal/sdkuri
   - internal/shareddefaults
   - private/protocol
   - private/protocol/eventstream
@@ -51,9 +56,9 @@ imports:
 - name: github.com/cenkalti/backoff
   version: 61153c768f31ee5f130071d08fc82b85208528de
 - name: github.com/go-ini/ini
-  version: d3de07a94d22b4a0972deb4b96d790c2c0ce8333
+  version: 5cf292cae48347c2490ac1a58fe36735fb78df7e
 - name: github.com/golang/protobuf
-  version: 130e6b02ab059e7b717a096f397c5b60111cae74
+  version: b4deda0973fb4c70b50d226b1af49f3da59f5265
   subpackages:
   - proto
   - protoc-gen-go/descriptor
@@ -64,11 +69,11 @@ imports:
 - name: github.com/golang/snappy
   version: 2e65f85255dbc3072edf28d6b5b8efc472979f5a
 - name: github.com/googleapis/gax-go
-  version: de2cc08e690b99dd3f7d19937d80d3d54e04682f
+  version: 1ef592c90f479e3ab30c6c2312e20e13881b7ea6
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/jmespath/go-jmespath
-  version: bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d
+  version: c2b33e8439af944379acbdd9c3a5fe0bc44bd8a5
 - name: github.com/pengsrc/go-shared
   version: db9bcfc423552eef790d989bb81ef055d0d26286
   subpackages:
@@ -79,7 +84,7 @@ imports:
   - pid
   - reopen
 - name: github.com/qiniu/api.v7
-  version: 0c661d0ca96771709f67b3d9eac10f27033b1f2a
+  version: abe6b9e846ebb649eaf808e515655ab628621e4a
   subpackages:
   - auth/qbox
   - conf
@@ -89,11 +94,11 @@ imports:
   subpackages:
   - bytes.v7
   - bytes.v7/seekable
-  - ctype.v7
+  - reqid.v7
   - rpc.v7
   - xlog.v7
 - name: github.com/sirupsen/logrus
-  version: c155da19408a8799da419ed3eeb0cb5db0ad5dbc
+  version: 3e01752db0189b9157070a0e1668a620f9a85da2
 - name: github.com/spf13/cobra
   version: 7b2c5ac9fc04fc5efafb60700713d4fa609b777b
 - name: github.com/spf13/pflag
@@ -118,13 +123,12 @@ imports:
   subpackages:
   - upyun
 - name: github.com/vmihailenco/msgpack
-  version: 6ab02c0ddf38d837488a746aa8709f6ecffc2fde
+  version: b5e691b1eb52a28c05e67ab9df303626c095c23b
   subpackages:
   - codes
 - name: github.com/yunify/qingstor-sdk-go
-  version: 4f9ac88c5fec7350e960aabd0de1f1ede0ad2895
+  version: e0f4ce9b4495aa46bba366b773cf5a9998e06e66
   subpackages:
-  - client/upload
   - config
   - logger
   - request
@@ -136,9 +140,8 @@ imports:
   - service
   - utils
 - name: go.opencensus.io
-  version: 0095aec66ae14801c6711210f6f0716411cefdd3
+  version: 1789eaf7638d6f16d055afd35654928c04663cfc
   subpackages:
-  - exporter/stackdriver/propagation
   - internal
   - internal/tagencoding
   - plugin/ochttp
@@ -151,22 +154,22 @@ imports:
   - trace/internal
   - trace/propagation
 - name: golang.org/x/crypto
-  version: bd6f299fb381e4c3393d1c4b1f0b94f5e77650c8
+  version: aabede6cba87e37f413b3e60ebfc214f8eeca1b0
   subpackages:
   - ssh/terminal
 - name: golang.org/x/net
-  version: cd69bc3fc700721b709c3a59e16e24c67b58f6ff
+  version: f4c29de78a2a91c00474a2e689954305c350adf9
   subpackages:
   - context
   - context/ctxhttp
+  - http/httpguts
   - http2
   - http2/hpack
   - idna
   - internal/timeseries
-  - lex/httplex
   - trace
 - name: golang.org/x/oauth2
-  version: 921ae394b9430ed4fb549668d7b087601bd60a81
+  version: 3d292e4d0cdc3a0113e6d207bb137145ef1de42f
   subpackages:
   - google
   - internal
@@ -178,14 +181,14 @@ imports:
   - unix
   - windows
 - name: golang.org/x/text
-  version: 2cb43934f0eece38629746959acc633cba083fe4
+  version: 6e3c4e7365ddcc329f090f96e4348398f6310088
   subpackages:
   - secure/bidirule
   - transform
   - unicode/bidi
   - unicode/norm
 - name: google.golang.org/api
-  version: d4bfb8783945fe985beea2cb0fedffc2d020979c
+  version: e21acd801f91da814261b938941d193bb036441a
   subpackages:
   - gensupport
   - googleapi
@@ -197,7 +200,7 @@ imports:
   - storage/v1
   - transport/http
 - name: google.golang.org/appengine
-  version: a2e0dc829727a4f957a7428b1f322805cfc1f362
+  version: 4216e58b9158e5f1c906f1aca75162a46a2ec88a
   subpackages:
   - datastore
   - internal
@@ -210,14 +213,14 @@ imports:
   - internal/urlfetch
   - urlfetch
 - name: google.golang.org/genproto
-  version: f676e0f3ac6395ff1a529ae59a6670878a8371a6
+  version: daca94659cb50e9f37c1b834680f2e46358f10b0
   subpackages:
   - googleapis/api/annotations
   - googleapis/iam/v1
   - googleapis/rpc/code
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 30fb59a4304034ce78ff68e21bd25776b1d79488
+  version: 9907ae0e57ce159e835381ed54eb271206bf7b12
   subpackages:
   - balancer
   - balancer/base
@@ -227,9 +230,13 @@ imports:
   - credentials
   - encoding
   - encoding/proto
-  - grpclb/grpc_lb_v1/messages
   - grpclog
   - internal
+  - internal/backoff
+  - internal/channelz
+  - internal/envconfig
+  - internal/grpcrand
+  - internal/transport
   - keepalive
   - metadata
   - naming
@@ -240,11 +247,10 @@ imports:
   - stats
   - status
   - tap
-  - transport
 - name: gopkg.in/natefinch/lumberjack.v2
   version: a96e63847dc3c67d17befa69c303767e2f84e54f
 - name: gopkg.in/yaml.v2
-  version: d670f9405373e636a5a2765eea47fac0c9bc91a4
+  version: 5420a8b6744d3b0345ab293f6fcba19c978f1183
 - name: qiniupkg.com/x
   version: f512abcf45ab4e2ba0fd4784c57b53d495997d66
   repo: https://github.com/qiniu/x.git
