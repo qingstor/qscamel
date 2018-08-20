@@ -2,10 +2,12 @@ package qingstor
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
-	"github.com/yunify/qscamel/constants"
 	"net/http"
 	"strings"
+
+	"github.com/sirupsen/logrus"
+
+	"github.com/yunify/qscamel/constants"
 )
 
 // ObjectParts will store multipart upload status.
