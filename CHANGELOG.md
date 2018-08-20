@@ -9,10 +9,18 @@ All notable changes to QingStor qscamel will be documented in this file.
 - endpoint: s3: Support path style
 - endpoint: s3: Enable ListObjects with v1 support
 
+### Changed
+
+- endpoint: s3: Only detect next marker while it not returned
+
 ### Fixed
 
 - endpoint: s3: Fix invalid memory address while some key missing
+- endpoint: s3: Fix wrong params used in list objects
+- endpoint: s3: Fix typo in enable list objects v2 config
+- endpoint: qingstor: utils: Fix part size too large
 - utils: file: Fix create folder failed on windows
+- Fix directory not created with correct perm
 
 ## [v2.0.4] - 2018-08-13
 
