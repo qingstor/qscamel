@@ -107,7 +107,7 @@ func (c *Config) Check() (err error) {
 	if err != nil {
 		return
 	}
-	err = os.MkdirAll(c.DatabaseFile, 0600)
+	err = os.MkdirAll(c.DatabaseFile, os.ModeDir|0777)
 	if err != nil {
 		return
 	}

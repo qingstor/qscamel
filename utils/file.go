@@ -12,7 +12,7 @@ func CreateFile(p string) (f *os.File, err error) {
 		return
 	}
 
-	err = os.MkdirAll(filepath.Dir(p), 0711)
+	err = os.MkdirAll(filepath.Dir(p), os.ModeDir|0777)
 	if err != nil {
 		return
 	}
