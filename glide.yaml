@@ -38,7 +38,7 @@ import:
 
 # Fix build error on windows
 - package: golang.org/x/sys
-  version: dd2ff4accc098aceecb86b36eaa7829b2a17b1c9
+  version: 1c9583448a9c3aa0f9a6a5241bf73c0bd8aafded
 
 testImport:
 - package: github.com/stretchr/testify
