@@ -1,6 +1,7 @@
 package dbtester
 
 import (
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/storage"
@@ -37,4 +38,28 @@ type Database struct {
 // DatabaseOptions stores database options.
 type DatabaseOptions struct {
 	Address string
+}
+
+// CheckDBEempty check the temp dbfile and testing
+// whether the Database is empty.
+func CheckDBEmpty(fmap map[string]string) error {
+	fmt.Println(fmap["dir"]+"/db")
+	db, err := NewDB(&DatabaseOptions{fmap["dir"]+"/db"})
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	it := db.NewIterator(nil, nil)
+	if it.Next() == true {
+		return dbtest{"database is not empty"}
+	}
+	return nil
+}
+
+type dbtest struct {
+	fail string
+}
+
+func (e dbtest)Error() string{
+	return fmt.Sprintf("%s", e.fail)
 }
