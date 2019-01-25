@@ -56,6 +56,7 @@ func CreateTestConfigYaml(dir string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer confFile.Close()
 	confContent, err := yaml.Marshal(confAssign(dir))
 	if err != nil {
 		return "", err
@@ -72,6 +73,7 @@ func CreateTestConfigYaml(dir string) (string, error) {
 func CreateTestTaskYaml(dir, tskType, srcFs, dstFs string,
 	srcOpt, dstOpt interface{}) (string, error) {
 	taskFile, err := ioutil.TempFile(dir, "task*.yaml")
+	defer taskFile.Close()
 	if err != nil {
 		return "", err
 	}

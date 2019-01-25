@@ -20,6 +20,11 @@ const GB = MB * 1024
 
 // caculate Geometric series sum
 func seriesSum(dirnum, depth int) int {
+	if dirnum == 0 {
+		return 0
+	} else if dirnum == 1 {
+		return depth * dirnum
+	}
 	return dirnum * int(((1 - math.Pow(float64(dirnum), float64(depth))) / float64(1-dirnum)))
 }
 
@@ -37,12 +42,13 @@ func CreateRandomByteStream(size int64) ([]byte, error) {
 // in the `dir` directory.
 func CreateTestRandomFile(filePerDir int, fileSize int64, dir string) error {
 	for i := 0; i < filePerDir; i++ {
-		name, err := ioutil.TempFile(dir+"/", "TESTFILE*.camel")
+		file, err := ioutil.TempFile(dir+"/", "TESTFILE*.camel")
 		if err == nil {
 			content, err := CreateRandomByteStream(fileSize)
 			if err == nil {
-				_, err := name.Write(content)
+				_, err := file.Write(content)
 				if err == nil {
+					defer file.Close()
 					continue
 				}
 			}

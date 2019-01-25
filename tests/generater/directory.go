@@ -24,7 +24,7 @@ func CleanTestTempFile(fmap *map[string]string) error {
 // , pid file path etc.)
 // "task" is the task file path for run a task on random path
 func CreateTestConfigFile(tskType, srcFs, dstFs string,
-	srcOpt, dstOpt interface{}) (*map[string]string, error) {
+	srcOpt, dstOpt interface{}, p bool) (*map[string]string, error) {
 	fileMap := make(map[string]string)
 
 	// create temp directory
@@ -33,7 +33,6 @@ func CreateTestConfigFile(tskType, srcFs, dstFs string,
 		return nil, err
 	}
 	fileMap["dir"] = dir
-	fmt.Println("create temp dir at", dir)
 
 	// create a temp config file
 	confName, err := CreateTestConfigYaml(dir)
@@ -41,7 +40,6 @@ func CreateTestConfigFile(tskType, srcFs, dstFs string,
 		return nil, err
 	}
 	fileMap["config"] = confName
-	fmt.Println("create temp config file at ", confName)
 
 	// create a temp task file
 	taskName, err := CreateTestTaskYaml(dir, tskType, srcFs, dstFs, srcOpt, dstOpt)
@@ -52,9 +50,13 @@ func CreateTestConfigFile(tskType, srcFs, dstFs string,
 	// extract the taskname(taskXXXXX) from task file path(/tmp/qscamelXXXXX/taskXXXX.yaml) .
 	_, taskName = path.Split(taskName)
 	runName := strings.Split(taskName, ".")
-	fileMap["run"] = runName[0]
-	fmt.Println("create temp task file at ", taskName)
+	fileMap["name"] = runName[0]
 
+	if p {
+		fmt.Println("create temp dir at", dir)
+		fmt.Println("create temp config file at ", confName)
+		fmt.Println("create temp task file at ", taskName)
+	}
 	return &fileMap, nil
 }
 
@@ -76,7 +78,9 @@ func CreateLocalSrcTestRandDirFile(fmap *map[string]string, filePerDir int, dirP
 	done := make(chan error, 0)
 
 	// generate create directory recursively task for goroutine
-	dirch <- (*fmap)["src"]
+	if chsz >= 1 {
+		dirch <- (*fmap)["src"]
+	}
 
 	go func() {
 		for i := 0; i < chsz && subchsz > 0; i++ {
