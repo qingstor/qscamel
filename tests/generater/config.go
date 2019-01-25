@@ -1,192 +1,86 @@
 package generater
 
 import (
-	"crypto/rand"
-	"fmt"
 	"io/ioutil"
-	"math"
-	"os"
-	"testing"
+
+	"gopkg.in/yaml.v2"
+
+	"github.com/yunify/qscamel/config"
 )
 
+// ConfigContentfmt is alias of Config struct
+type ConfigContentfmt config.Config
 
-var (
-	ConfigContentfmtForTest =
-`
-concurrency: 0
-log_file: %s/qscamel.log
-log_level: info
-pid_file: %s/qscamel.pid
-database_file: %s/db`
-	TaskContentfmtForTest =
-`
-type: copy
-source:
-  type: fs
-  path: %s/src
-destination:
-  type: fs
-  path: %s/dst
-`)
+// TaskContentfmt is struct that will
+// be serialized to yaml format
+type TaskContentfmt struct {
+	Tasktype string `yaml:"type"`
+	Src      struct {
+		FSType  string      `yaml:"type"`
+		Path    string      `yaml:"path"`
+		Options interface{} `yaml:"options,omitempty"`
+	} `yaml:"source"`
+	Dst struct {
+		FSType  string      `yaml:"type"`
+		Path    string      `yaml:"path"`
+		Options interface{} `yaml:"options,omitempty"`
+	} `yaml:"destination"`
+}
 
-
-
-
-const B int64 = 1
-const KB int64 = 1 * 1024
-const MB int64 = KB * 1024
-const GB int64  = MB * 1024
-
-// CleanTestTempFile will clean the temp file which created
-// by corresponded task.
-func CleanTestTempFile(t *testing.T, fmap map[string]string) {
-	if err := os.RemoveAll(fmap["dir"]); err != nil {
-		t.Fatal(err)
+func confAssign(dir string) *ConfigContentfmt {
+	return &ConfigContentfmt{
+		0, dir + "/qscamel.log",
+		"info", dir + "/qscamel.pid",
+		dir + "/db",
 	}
 }
 
-// CreateTestConfigFile create the config file for one test
-// it return a mapping of some configuration of the test
-// "dir" is the base directory path of the test
-// "config" is the config file path (point to database path
-// , pid file path etc.)
-// "task" is the task file path for run a task on random path
-func CreateTestConfigFile(t *testing.T) map[string]string{
-	fileMap := make(map[string] string)
+func taskAssign(dir, tskType, srcFs, dstFs string,
+	srcOpt interface{}, dstOpt interface{}) *TaskContentfmt {
+	t := TaskContentfmt{}
+	t.Tasktype = tskType
+	t.Src.Path = dir + "/src"
+	t.Src.FSType = srcFs
+	t.Src.Options = srcOpt
+	t.Dst.Path = dir + "/dst"
+	t.Dst.FSType = dstFs
+	t.Dst.Options = dstOpt
+	return &t
+}
 
-	// create temp directory
-	dir, err := ioutil.TempDir("", "qscamel")
-	if err != nil {
-		t.Fatal(err)
-	}
-	fileMap["dir"] = dir
-	fmt.Println("create temp dir at", dir)
-
-	// create a temp config file
-	confContent := fmt.Sprintf(ConfigContentfmtForTest, dir, dir, dir)
+// CreateTestConfigYaml create config yaml file for test
+// in the `dir` directory, and return the config file
+// name if there are no errors.
+func CreateTestConfigYaml(dir string) (string, error) {
 	confFile, err := ioutil.TempFile(dir, "config*.yaml")
 	if err != nil {
-		Fatal(t, fileMap, err)
+		return "", err
 	}
-	if _, err := confFile.WriteString(confContent); err != nil {
-		t.Fatal(err)
+	confContent, err := yaml.Marshal(confAssign(dir))
+	if err != nil {
+		return "", err
 	}
-	fileMap["config"] = confFile.Name()
-	fmt.Println("create temp config file at ", confFile.Name())
-	// create a temp task file
-	taskContent := fmt.Sprintf(TaskContentfmtForTest, dir, dir)
+	if _, err := confFile.Write(confContent); err != nil {
+		return "", err
+	}
+	return confFile.Name(), nil
+}
+
+// CreateTestTaskYaml creat task yaml file for test
+// in the `dir` directory, and return the task file name
+// if there are no errors
+func CreateTestTaskYaml(dir, tskType, srcFs, dstFs string,
+	srcOpt, dstOpt interface{}) (string, error) {
 	taskFile, err := ioutil.TempFile(dir, "task*.yaml")
 	if err != nil {
-		Fatal(t, fileMap, err)
+		return "", err
 	}
-	if _, err := taskFile.WriteString(taskContent); err != nil {
-		Fatal(t, fileMap, err)
-	}
-	fileMap["task"] = taskFile.Name()
-	fmt.Println("create temp task file at ", taskFile.Name())
-	return fileMap
-}
-
-func Fatal(t *testing.T, fmap map[string]string, err error){
-	CleanTestTempFile(t, fmap)
-	t.Fatal(err)
-}
-
-
-// CreateTestRandDirFile generate the random name directory and file in
-// the base directory in the `fmap`. it first creat two directory, and the
-// name is "src" and "dst" respective, it create `filePerDir` file and
-// `dirPerDir` directory in every directory, and the file size is `fileSize`
-// `dirDepth` point to the directory depth to generate(best `2`).
-func CreateTestRandDirFile(t *testing.T, fmap map[string]string,
-	filePerDir int, dirPerDir int, fileSize int64, dirDepth int, isRandom bool) {
-	err := os.MkdirAll(fmap["dir"] + "/src",0755)
-	err = os.MkdirAll(fmap["dir"] + "/dst", 0755)
+	taskContent, err := yaml.Marshal(taskAssign(dir, tskType, srcFs, dstFs, srcOpt, dstOpt))
 	if err != nil {
-		Fatal(t, fmap, err)
+		return "", err
 	}
-	fmap["src"] = fmap["dir"]+"/src"
-	fmap["dst"] = fmap["dir"]+"/dst"
-
-	chsz := seriesSum(dirPerDir, dirDepth)
-	subchsz := seriesSum(dirPerDir, dirDepth-1)
-	dirch := make(chan string, chsz)
-	done := make(chan int, 0)
-	if err := CreateTestSubDirectory(dirch, dirPerDir, fmap["src"]); err != nil {
-		Fatal(t, fmap, err)
+	if _, err := taskFile.Write(taskContent); err != nil {
+		return "", err
 	}
-	//fmt.Println(chsz, subchsz)
-	go func() {
-		for i := 0;i < chsz; i++{
-			if path, ok := <-dirch; ok != false{
-				fmt.Println("create temp directory", path)
-
-				if err := CreateTestRandomFile(filePerDir, fileSize, path); err != nil {
-					Fatal(t, fmap, err)
-				}
-				if i >= subchsz {
-					continue
-				}
-				if err := CreateTestSubDirectory(dirch, dirPerDir, path); err != nil {
-					Fatal(t, fmap, err)
-				}
-			}
-		}
-		done <-1
-	}()
-
-	if err := CreateTestRandomFile(filePerDir, fileSize, fmap["src"]); err != nil {
-		Fatal(t, fmap, err)
-	}
-	<-done
-
-
-}
-
-// CreateTestRandomFile create the `filePerDir` number of random file
-// in the `dir` directory.
-func CreateTestRandomFile(filePerDir int, fileSize int64, dir string) error {
-	for i := 0; i < filePerDir; i++ {
-		name, err := ioutil.TempFile(dir+"/", "TestFile*.camel")
-		if err == nil {
-			content, err := CreateRandomByteStream(fileSize)
-			if err == nil {
-				_, err := name.Write(content)
-				if err == nil {
-					continue
-				}
-			}
-		}
-		return err
-	}
-	return nil
-}
-
-// CreateTestSubDirectory create the `dirPerDir` number of directory in
-// `dir` directory
-func CreateTestSubDirectory(dirch chan string, dirPerDir int, dir string) error {
-	for ; dirPerDir >0; dirPerDir-- {
-		name, err := ioutil.TempDir(dir, "DIR")
-		fmt.Println(name)
-		if err != nil {
-			return err
-		}
-		dirch <- name
-	}
-	return nil
-}
-
-// CreateRandomByteStream return `size` of random bytes
-func CreateRandomByteStream(size int64) ([]byte,error) {
-	p := make([]byte, size)
-	_, err := rand.Read(p)
-	if err != nil {
-		return nil, err
-	}
-	return p, nil
-}
-
-// caculate Geometric series sum
-func seriesSum(dirnum, depth int) int {
-	return dirnum * int(((1 - math.Pow(float64(dirnum), float64(depth))) /float64( 1 - dirnum)))
+	return taskFile.Name(), nil
 }
