@@ -12,13 +12,17 @@ import (
 
 // Execute base on task directory, executing the command
 // on different platform, and the output will be redirected
-// to a OXXXX.output
+// to a 'comm'+XXXX.output
 func Execute(fmap *map[string]string, comm string) error {
 
 	// generate corrisponding argument to qscamel
 	arg := strings.Join([]string{"-c", (*fmap)["config"]}, " ")
 	if comm == "run" {
 		arg = strings.Join([]string{"run", (*fmap)["name"], "-t", (*fmap)["task"], arg}, " ")
+	} else if comm == "delete" {
+		arg = strings.Join([]string{comm, (*fmap)["delname"], arg}, " ")
+	} else {
+		arg = strings.Join([]string{comm, arg}, " ")
 	}
 
 	var c *exec.Cmd
@@ -28,7 +32,7 @@ func Execute(fmap *map[string]string, comm string) error {
 	}
 
 	// set output file
-	out, err := ioutil.TempFile((*fmap)["dir"], "O*.output")
+	out, err := ioutil.TempFile((*fmap)["dir"], comm+"*.output")
 	if err != nil {
 		return err
 	}
@@ -61,17 +65,15 @@ func CheckOutput(fmap *map[string]string, expectPattern string, n int, p bool) e
 		return err
 	}
 	sl, err := ExpectOutput(&stm, expectPattern)
+	fmt.Printf("re: %s ... (expect: %d/got: %d)\n", expectPattern[:5], n, len(*sl))
 	if err != nil {
 		return err
 	} else if len(*sl) != n {
-		return detecter{fmt.Sprintf(
-			"`%s` ouccurs %d times, expect %d",
-			expectPattern, len(*sl), n)}
+		return detecter{fmt.Sprintf("not satisfied")}
 	}
-
 	if p {
 		for _, s := range *sl {
-			fmt.Printf("'%s' got\n", s)
+			fmt.Printf("%s\n", s)
 		}
 	}
 	return nil

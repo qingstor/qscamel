@@ -85,8 +85,6 @@ func CreateLocalSrcTestRandDirFile(fmap *map[string]string, filePerDir int, dirP
 	go func() {
 		for i := 0; i < chsz && subchsz > 0; i++ {
 			if onePath, ok := <-dirch; ok != false {
-				fmt.Println("create temp directory", onePath)
-
 				if err := CreateTestRandomFile(filePerDir, fileSize, onePath); err != nil {
 					done <- err
 				}
@@ -112,7 +110,6 @@ func CreateLocalSrcTestRandDirFile(fmap *map[string]string, filePerDir int, dirP
 func CreateTestSubDirectory(dirch chan string, dirPerDir int, dir string) error {
 	for ; dirPerDir > 0; dirPerDir-- {
 		name, err := ioutil.TempDir(dir, "DIR")
-		fmt.Println(name)
 		if err != nil {
 			return err
 		}
