@@ -18,7 +18,6 @@ func TestTaskRunCopy(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
 	// run command
 	if err = executer.Execute(fileMap, "run"); err != nil {
 		t.Fatal(err)

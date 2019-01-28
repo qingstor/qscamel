@@ -15,20 +15,34 @@ import (
 // to a 'comm'+XXXX.output
 func Execute(fmap *map[string]string, comm string) error {
 
+	var arg string
 	// generate corrisponding argument to qscamel
-	arg := strings.Join([]string{"-c", (*fmap)["config"]}, " ")
-	if comm == "run" {
+	if _, has := (*fmap)["config"]; has == true {
+		arg = strings.Join([]string{"-c", (*fmap)["config"]}, " ")
+	}
+	args := strings.Split(arg, " ")
+
+	switch comm {
+	case "run":
 		arg = strings.Join([]string{"run", (*fmap)["name"], "-t", (*fmap)["task"], arg}, " ")
-	} else if comm == "delete" {
+	case "delete":
 		arg = strings.Join([]string{comm, (*fmap)["delname"], arg}, " ")
-	} else {
+	default:
 		arg = strings.Join([]string{comm, arg}, " ")
+	}
+
+	// remove ""
+	args = strings.Split(arg, " ")
+	if args[len(args)-1] == "" {
+		args = args[:len(args)-1]
 	}
 
 	var c *exec.Cmd
 	switch runtime.GOOS {
+	case "windows":
+		// TODO
 	default:
-		c = cmdOnUnix("qscamel", strings.Split(arg, " ")...)
+		c = cmdOnUnix("qscamel", args...)
 	}
 
 	// set output file

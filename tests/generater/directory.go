@@ -2,6 +2,7 @@ package generater
 
 import (
 	"fmt"
+	"github.com/yunify/qscamel/tests/utils"
 	"io/ioutil"
 	"os"
 	"path"
@@ -47,10 +48,7 @@ func CreateTestConfigFile(tskType, srcFs, dstFs string,
 		return nil, err
 	}
 	fileMap["task"] = taskName
-	// extract the taskname(taskXXXXX) from task file path(/tmp/qscamelXXXXX/taskXXXX.yaml) .
-	_, taskName = path.Split(taskName)
-	runName := strings.Split(taskName, ".")
-	fileMap["name"] = runName[0]
+	fileMap["name"] = extractTaskName(taskName)
 
 	if p {
 		fmt.Println("create temp dir at", dir)
@@ -58,6 +56,33 @@ func CreateTestConfigFile(tskType, srcFs, dstFs string,
 		fmt.Println("create temp task file at ", taskName)
 	}
 	return &fileMap, nil
+}
+
+// CreateTestDefaultFile will be used to generate
+// task file, but the config file will be yield
+// by qscamel itself
+func CreateTestDefaultFile(tskType, srcFs, dstFs string,
+	srcOpt, dstOpt interface{}, p bool) (*map[string]string, error) {
+	fileMap := make(map[string]string)
+	fileMap["dir"] = utils.GetHome() + "/.qscamel"
+	if err := os.MkdirAll(fileMap["dir"], 0700); err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	taskname, err := CreateTestTaskYaml(fileMap["dir"], tskType, srcFs, dstFs, srcOpt, dstOpt)
+	if err != nil {
+		return nil, err
+	}
+	fileMap["task"] = taskname
+	fileMap["name"] = extractTaskName(taskname)
+	return &fileMap, nil
+}
+
+func extractTaskName(pn string) string {
+	// extract the taskname(taskXXXXX) from task file path(/tmp/qscamelXXXXX/taskXXXX.yaml) .
+	_, taskName := path.Split(pn)
+	runName := strings.Split(taskName, ".")
+	return runName[0]
 }
 
 // CreateLocalSrcTestRandDirFile generate the random name directory and file in
