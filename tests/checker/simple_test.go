@@ -13,7 +13,7 @@ func TestTaskRunCopy(t *testing.T) {
 		"copy", "fs", "fs", nil, nil, false)
 	defer generater.CleanTestTempFile(fileMap)
 	err = generater.CreateLocalSrcTestRandDirFile(
-		fileMap, 4, 1, generater.MB*2, 2, true)
+		fileMap, 4, 1, generater.MB*2, 2)
 	err = generater.CreateLocalDstDir(fileMap)
 	if err != nil {
 		t.Fatal(err)
@@ -39,7 +39,7 @@ func TestTaskDelete(t *testing.T) {
 		"copy", "fs", "fs", nil, nil, false)
 	defer generater.CleanTestTempFile(fileMap)
 	err = generater.CreateLocalSrcTestRandDirFile(
-		fileMap, 1, 0, generater.MB*2, 1, true)
+		fileMap, 1, 0, generater.MB*2, 1)
 	err = generater.CreateLocalDstDir(fileMap)
 	if err != nil {
 		t.Fatal(err)
@@ -71,7 +71,7 @@ func TestTaskStatus(t *testing.T) {
 		"copy", "fs", "fs", nil, nil, false)
 	defer generater.CleanTestTempFile(fileMap)
 	err = generater.CreateLocalSrcTestRandDirFile(
-		fileMap, 1, 0, generater.MB*2, 1, true)
+		fileMap, 1, 0, generater.MB*2, 1)
 	err = generater.CreateLocalDstDir(fileMap)
 	if err != nil {
 		t.Fatal(err)
@@ -101,7 +101,7 @@ func TestTaskClean(t *testing.T) {
 		"copy", "fs", "fs", nil, nil, false)
 	defer generater.CleanTestTempFile(fileMap)
 	err = generater.CreateLocalSrcTestRandDirFile(
-		fileMap, 1, 0, generater.MB*2, 1, true)
+		fileMap, 1, 0, generater.MB*2, 1)
 	err = generater.CreateLocalDstDir(fileMap)
 	if err != nil {
 		t.Fatal(err)

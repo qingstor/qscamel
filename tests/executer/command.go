@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"qiniupkg.com/x/log.v7"
 	"regexp"
 	"runtime"
 	"strings"
@@ -87,9 +88,39 @@ func CheckOutput(fmap *map[string]string, expectPattern string, n int, p bool) e
 	}
 	if p {
 		for _, s := range *sl {
-			fmt.Printf("%s\n", s)
+			log.Infof("%s\n", s)
 		}
 	}
+	return nil
+}
+
+// CheckOutputUnexpect will check the output file after executing a command
+// and return error if the unexpected string has occurrences
+func CheckOutputUnexpect(fmap *map[string]string, expectPattern string, p bool) error {
+	out, err := os.Open((*fmap)["output"])
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	// check out put
+	stm, err := ioutil.ReadAll(out)
+	if err != nil {
+		return err
+	}
+	sl, err := ExpectOutput(&stm, expectPattern)
+	if err != nil {
+		return err
+	} else if len(*sl) != 0 {
+
+		if p {
+			for _, s := range *sl {
+				log.Infof("Unexpected string '%s'\n", s)
+			}
+		}
+		return detecter{fmt.Sprintf("Unexpected string")}
+	}
+
 	return nil
 }
 

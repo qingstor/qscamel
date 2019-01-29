@@ -2,11 +2,12 @@ package generater
 
 import (
 	"fmt"
-	"github.com/yunify/qscamel/tests/utils"
 	"io/ioutil"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/yunify/qscamel/utils"
 )
 
 // CleanTestTempFile will clean the temp file which created
@@ -64,7 +65,11 @@ func CreateTestConfigFile(tskType, srcFs, dstFs string,
 func CreateTestDefaultFile(tskType, srcFs, dstFs string,
 	srcOpt, dstOpt interface{}, p bool) (*map[string]string, error) {
 	fileMap := make(map[string]string)
-	fileMap["dir"] = utils.GetHome() + "/.qscamel"
+	home, err := utils.Dir()
+	if err != nil {
+		return nil, err
+	}
+	fileMap["dir"] = home + "/.qscamel"
 	if err := os.MkdirAll(fileMap["dir"], 0700); err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -90,7 +95,7 @@ func extractTaskName(pn string) string {
 // `dirPerDir` numbers directory in every directory, and the file size is `fileSize`
 // `dirDepth` point to the directory depth to generate(advised depth is `2`).
 func CreateLocalSrcTestRandDirFile(fmap *map[string]string, filePerDir int, dirPerDir int,
-	fileSize int64, dirDepth int, isRandom bool) error {
+	fileSize int64, dirDepth int) error {
 	err := os.MkdirAll((*fmap)["dir"]+"/src", 0755)
 	if err != nil {
 		return err
@@ -109,7 +114,8 @@ func CreateLocalSrcTestRandDirFile(fmap *map[string]string, filePerDir int, dirP
 
 	go func() {
 		for i := 0; i < chsz && subchsz > 0; i++ {
-			if onePath, ok := <-dirch; ok != false {
+			select {
+			case onePath := <-dirch:
 				if err := CreateTestRandomFile(filePerDir, fileSize, onePath); err != nil {
 					done <- err
 				}
@@ -119,9 +125,11 @@ func CreateLocalSrcTestRandDirFile(fmap *map[string]string, filePerDir int, dirP
 				if err := CreateTestSubDirectory(dirch, dirPerDir, onePath); err != nil {
 					done <- err
 				}
+			default:
+				done <- nil
 			}
 		}
-		done <- nil
+
 	}()
 
 	if err := CreateTestRandomFile(filePerDir, fileSize, (*fmap)["src"]); err != nil {
