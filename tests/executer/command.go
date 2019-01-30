@@ -2,6 +2,7 @@ package executer
 
 import (
 	"fmt"
+	"github.com/yunify/qscamel/utils"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -133,6 +134,19 @@ func ExpectOutput(content *[]byte, regex string) (*[]string, error) {
 	}
 	sl := re.FindAllString(string(*content), -1)
 	return &sl, nil
+}
+
+// CheckDirectroyEqual check two dirctory if is equal
+func CheckDirectroyEqual(fmap *map[string]string) error {
+	eq, err := utils.CompareLocalDirectoryMD5((*fmap)["dir"]+"/src", (*fmap)["dir"]+"/dst")
+	if err != nil {
+		return err
+	}
+	if eq == false {
+		return detecter{"check directory is finished: not equal"}
+	}
+	log.Info("check directory is finished: equal")
+	return nil
 }
 
 func cmdOnWin(comm string, arg ...string) *exec.Cmd {

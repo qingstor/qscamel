@@ -129,12 +129,14 @@ func CreateLocalSrcTestRandDirFile(fmap *map[string]string, filePerDir int, dirP
 				done <- nil
 			}
 		}
-
+		done <- nil
 	}()
-
-	if err := CreateTestRandomFile(filePerDir, fileSize, (*fmap)["src"]); err != nil {
-		return err
+	if dirDepth == 1 {
+		if err := CreateTestRandomFile(filePerDir, fileSize, (*fmap)["src"]); err != nil {
+			return err
+		}
 	}
+
 	return <-done
 }
 
@@ -155,6 +157,17 @@ func CreateTestSubDirectory(dirch chan string, dirPerDir int, dir string) error 
 // in the local machine
 func CreateLocalDstDir(fmap *map[string]string) error {
 	err := os.MkdirAll((*fmap)["dir"]+"/dst", 0755)
+	if err != nil {
+		return err
+	}
+	(*fmap)["dst"] = (*fmap)["dir"] + "/dst"
+	return nil
+}
+
+// CreateLocalSrcDir create the source directory
+// in the local machine
+func CreateLocalSrcDir(fmap *map[string]string) error {
+	err := os.MkdirAll((*fmap)["dir"]+"/src", 0755)
 	if err != nil {
 		return err
 	}

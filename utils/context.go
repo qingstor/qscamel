@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"fmt"
 )
 
 // ContextKey is the type for context key.
@@ -18,6 +19,7 @@ func FromTaskContext(ctx context.Context) string {
 		return ""
 	}
 	if v, ok := ctx.Value(ContextKeyTask).(string); ok {
+		fmt.Println(v)
 		return v
 	}
 	return ""

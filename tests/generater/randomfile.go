@@ -48,7 +48,7 @@ func CreateTestRandomFile(filePerDir int, fileSize int64, dir string) error {
 			if err == nil {
 				_, err := file.Write(content)
 				if err == nil {
-					defer file.Close()
+					file.Close()
 					continue
 				}
 			}
