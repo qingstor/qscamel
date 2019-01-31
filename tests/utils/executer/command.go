@@ -2,14 +2,16 @@ package executer
 
 import (
 	"fmt"
-	"github.com/yunify/qscamel/utils"
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"qiniupkg.com/x/log.v7"
 	"regexp"
 	"runtime"
 	"strings"
+
+	"qiniupkg.com/x/log.v7"
+
+	"github.com/yunify/qscamel/utils"
 )
 
 // Execute base on task directory, executing the command

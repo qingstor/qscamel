@@ -1,14 +1,15 @@
 package utils
 
 import (
+	"bufio"
 	"crypto/md5"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"reflect"
 	"sync"
 	"sync/atomic"
-
-	"github.com/qiniu/x/log.v7"
 )
 
 const (
@@ -73,22 +74,14 @@ func GetDirKvPair(dir string) (map[string]string, error) {
 			for {
 				select {
 				case f := <-fch:
-					fp, err := os.Open(f)
-					if err != nil {
-						log.Info(err)
-						errch <- err
-						continue
-					}
-					cnt, err := ioutil.ReadAll(fp)
-					fp.Close()
-					if err != nil {
-						log.Info(err)
-					}
-					h := md5.New()
-					h.Write(cnt)
+
+					sum, err := MD5sum(f)
 					name := f[len(dir)+1:]
+					if err != nil {
+						errch <- err
+					}
 					Lock.Lock()
-					md5Pair[name] = string(h.Sum(nil))
+					md5Pair[name] = sum
 					Lock.Unlock()
 				default:
 					if listdone == dirworker {
@@ -124,4 +117,35 @@ func CompareLocalDirectoryMD5(d1, d2 string) (bool, error) {
 		return false, err
 	}
 	return reflect.DeepEqual(kv1, kv2), nil
+}
+
+// MD5sum returns MD5 checksum of filename
+func MD5sum(filename string) (string, error) {
+	if info, err := os.Stat(filename); err != nil {
+		return "", err
+	} else if info.IsDir() {
+		return "", nil
+	}
+
+	file, err := os.Open(filename)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	hash := md5.New()
+	for buf, reader := make([]byte, 4096), bufio.NewReader(file); ; {
+		n, err := reader.Read(buf)
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return "", err
+		}
+
+		hash.Write(buf[:n])
+	}
+
+	checksum := fmt.Sprintf("%x", hash.Sum(nil))
+	return checksum, nil
 }

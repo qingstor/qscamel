@@ -1,4 +1,4 @@
-package dbtester
+package checker
 
 import (
 	"fmt"

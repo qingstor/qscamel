@@ -1,4 +1,4 @@
-package generater
+package generator
 
 import (
 	"crypto/rand"
@@ -18,6 +18,9 @@ const MB = KB * 1024
 // GB means gigabytes
 const GB = MB * 1024
 
+// piece used to allocate bytes slice
+const piece = 256 * MB
+
 // caculate Geometric series sum
 func seriesSum(dirnum, depth int) int {
 	if dirnum == 0 {
@@ -29,13 +32,12 @@ func seriesSum(dirnum, depth int) int {
 }
 
 // CreateRandomByteStream return `size` of random bytes
-func CreateRandomByteStream(size int64) ([]byte, error) {
-	p := make([]byte, size)
-	_, err := rand.Read(p)
+func CreateRandomByteStream(stm *[]byte) error {
+	_, err := rand.Read(*stm)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return p, nil
+	return nil
 }
 
 // CreateTestRandomFile create the `filePerDir` number of random file
@@ -44,7 +46,23 @@ func CreateTestRandomFile(filePerDir int, fileSize int64, dir string) error {
 	for i := 0; i < filePerDir; i++ {
 		file, err := ioutil.TempFile(dir+"/", "TESTFILE*.camel")
 		if err == nil {
-			content, err := CreateRandomByteStream(fileSize)
+			content := make([]byte, piece)
+			bs := fileSize
+			// avoid the slice allocation out of memory
+			for bs = fileSize; bs > piece; bs -= piece {
+				err := CreateRandomByteStream(&content)
+				if err == nil {
+					_, err := file.Write(content)
+					err = file.Sync()
+					if err == nil {
+						continue
+					}
+				}
+				return err
+			}
+
+			content = make([]byte, bs)
+			err := CreateRandomByteStream(&content)
 			if err == nil {
 				_, err := file.Write(content)
 				if err == nil {

@@ -1,4 +1,4 @@
-package generater
+package generator
 
 import (
 	"io/ioutil"
@@ -12,7 +12,8 @@ func CreateHoleFile(dir string, fileSize, holeSize, offset int64, n int) error {
 		if err != nil {
 			return err
 		}
-		content, err := CreateRandomByteStream(offset)
+		content := make([]byte, offset)
+		err = CreateRandomByteStream(&content)
 		if err != nil {
 			return err
 		}
@@ -25,7 +26,8 @@ func CreateHoleFile(dir string, fileSize, holeSize, offset int64, n int) error {
 			return err
 		}
 
-		content, err = CreateRandomByteStream(fileSize - offset)
+		content = make([]byte, fileSize-offset)
+		err = CreateRandomByteStream(&content)
 		if err != nil {
 			return err
 		}

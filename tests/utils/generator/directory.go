@@ -1,4 +1,4 @@
-package generater
+package generator
 
 import (
 	"fmt"
@@ -118,6 +118,7 @@ func CreateLocalSrcTestRandDirFile(fmap *map[string]string, filePerDir int, dirP
 			case onePath := <-dirch:
 				if err := CreateTestRandomFile(filePerDir, fileSize, onePath); err != nil {
 					done <- err
+					return
 				}
 				if i >= subchsz {
 					continue
