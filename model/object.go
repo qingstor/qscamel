@@ -3,7 +3,6 @@ package model
 import (
 	"bytes"
 	"context"
-
 	"github.com/sirupsen/logrus"
 	"github.com/syndtr/goleveldb/leveldb/util"
 	"github.com/vmihailenco/msgpack"
@@ -148,7 +147,6 @@ func NextDirectoryObject(ctx context.Context, p string) (o *DirectoryObject, err
 
 	it := contexts.DB.NewIterator(
 		util.BytesPrefix(constants.FormatDirectoryObjectKey(t, "")), nil)
-
 	for ok := it.Seek(constants.FormatDirectoryObjectKey(t, p)); ok; ok = it.Next() {
 		k := it.Key()
 

@@ -20,7 +20,7 @@ before_install:
           tar -vxzf glide-v0.12.3-linux-amd64.tar.gz &&
           mv linux-amd64 glide-v0.12.3;
       fi
-    - export PATH=${HOME}/source/glide-v0.12.3:$PATH
+    - export PATH=${HOME}/source/glide-v0.12.3:${GOPATH}/bin:$PATH
     - popd
     - make --version
     - glide --version

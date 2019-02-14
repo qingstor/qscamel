@@ -3,8 +3,9 @@ SHELL := /bin/bash
 .PHONY: all check format　vet lint build install uninstall release clean test coverage
 
 VERSION=$(shell cat ./constants/version.go | grep "Version\ =" | sed -e s/^.*\ //g | sed -e s/\"//g)
-DIRS_TO_CHECK=$(shell ls -d */ | grep -vE "vendor|test")
-PKGS_TO_CHECK=$(shell go list ./... | grep -v "/vendor/")
+DIRS_TO_CHECK=$(shell go list ./... | grep -v "/vendor/")
+PKGS_TO_CHECK=$(shell go list ./... | grep -vE "/vendor/|/tests/")
+INGR_TEST=$(shell go list ./... | grep "/tests/" | grep -v "/utils")
 
 help:
 	@echo "Please use \`make <target>\` where <target> is one of"
@@ -25,8 +26,8 @@ format:
 	@echo "ok"
 
 vet:
-	@echo "go tool vet, skipping vendor packages"
-	@go tool vet -all ${DIRS_TO_CHECK}
+	@echo "go vet, skipping vendor packages"
+	@go vet -all ${DIRS_TO_CHECK}
 	@echo "ok"
 
 lint:
@@ -85,6 +86,11 @@ clean:
 test:
 	@echo "run test"
 	@go test -v ${PKGS_TO_CHECK}
+	@echo "ok"
+
+integration-test:
+	@echo "run integration-test"
+	@go test -v ${INGR_TEST}
 	@echo "ok"
 
 coverage:
