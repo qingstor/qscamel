@@ -3,7 +3,7 @@ package utils
 import (
 	"testing"
 
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/yunify/qscamel/utils"
 )
@@ -24,7 +24,7 @@ func CompareLocalDirectoryMD5(t *testing.T, d1, d2 string) {
 }
 
 // CheckDirectroyEqual check two dirctory if is equal
-func CheckDirectroyEqual(t *testing.T, fmap *map[string]string) {
-	CompareLocalDirectoryMD5(t, (*fmap)["dir"]+"/src", (*fmap)["dir"]+"/dst")
+func CheckDirectroyEqual(t *testing.T, fmap map[string]string) {
+	CompareLocalDirectoryMD5(t, fmap["dir"]+"/src", fmap["dir"]+"/dst")
 	t.Logf("check directory is finished: equal")
 }

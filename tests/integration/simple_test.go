@@ -25,7 +25,7 @@ func TestTaskDelete(t *testing.T) {
 	utils.Execute(t, fileMap, "run")
 
 	// delete command
-	(*fileMap)["delname"] = (*fileMap)["name"]
+	fileMap["delname"] = fileMap["name"]
 	utils.Execute(t, fileMap, "delete")
 
 	// check delete output

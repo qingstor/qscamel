@@ -14,20 +14,20 @@ import (
 // Execute base on task directory, executing the command
 // on different platform, and the output will be redirected
 // to a 'comm'+XXXX.output
-func Execute(t *testing.T, fmap *map[string]string, comm string) {
+func Execute(t *testing.T, fmap map[string]string, comm string) {
 
 	var arg string
 	// generate corrisponding argument to qscamel
-	if _, has := (*fmap)["config"]; has == true {
-		arg = strings.Join([]string{"-c", (*fmap)["config"]}, " ")
+	if _, has := fmap["config"]; has == true {
+		arg = strings.Join([]string{"-c", fmap["config"]}, " ")
 	}
 	args := strings.Split(arg, " ")
 
 	switch comm {
 	case "run":
-		arg = strings.Join([]string{"run", (*fmap)["name"], "-t", (*fmap)["task"], arg}, " ")
+		arg = strings.Join([]string{"run", fmap["name"], "-t", fmap["task"], arg}, " ")
 	case "delete":
-		arg = strings.Join([]string{comm, (*fmap)["delname"], arg}, " ")
+		arg = strings.Join([]string{comm, fmap["delname"], arg}, " ")
 	default:
 		arg = strings.Join([]string{comm, arg}, " ")
 	}
@@ -47,13 +47,13 @@ func Execute(t *testing.T, fmap *map[string]string, comm string) {
 	}
 
 	// set output file
-	out, err := ioutil.TempFile((*fmap)["dir"], comm+"*.output")
+	out, err := ioutil.TempFile(fmap["dir"], comm+"*.output")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer out.Close()
 
-	(*fmap)["output"] = out.Name()
+	fmap["output"] = out.Name()
 	c.Stdout = out
 	c.Stderr = out
 
@@ -67,8 +67,8 @@ func Execute(t *testing.T, fmap *map[string]string, comm string) {
 // CheckOutput will check the output file after executing a command
 // and fatal if the expect count 'n' is not equal to the count
 // of satisfied string.
-func CheckOutput(t *testing.T, fmap *map[string]string, expectPattern string, n int) {
-	out, err := os.Open((*fmap)["output"])
+func CheckOutput(t *testing.T, fmap map[string]string, expectPattern string, n int) {
+	out, err := os.Open(fmap["output"])
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,8 +91,8 @@ func CheckOutput(t *testing.T, fmap *map[string]string, expectPattern string, n 
 
 // CheckOutputUnexpect will check the output file after executing a command
 // and fatal if the unexpected string has occurrences
-func CheckOutputUnexpect(t *testing.T, fmap *map[string]string, expectPattern string) {
-	out, err := os.Open((*fmap)["output"])
+func CheckOutputUnexpect(t *testing.T, fmap map[string]string, expectPattern string) {
+	out, err := os.Open(fmap["output"])
 	if err != nil {
 		t.Fatal(err)
 	}

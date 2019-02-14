@@ -19,7 +19,7 @@ func TestDefaultDelete(t *testing.T) {
 	fileMap, clean := utils.PrepareDefaultTest(t)
 	defer clean(fileMap)
 	utils.Execute(t, fileMap, "run")
-	(*fileMap)["delname"] = (*fileMap)["name"]
+	fileMap["delname"] = fileMap["name"]
 	utils.Execute(t, fileMap, "delete")
 	utils.CheckOutput(t, fileMap, "Task [a-z0-9]* has been deleted", 1)
 	utils.CheckDBNoObject(t, fileMap)
