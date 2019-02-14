@@ -3,116 +3,60 @@ package integration
 import (
 	"testing"
 
-	"github.com/yunify/qscamel/tests/utils/executer"
-	"github.com/yunify/qscamel/tests/utils/generator"
+	"github.com/yunify/qscamel/tests/utils"
 )
-
-var (
-	printReg  bool
-	printFile bool
-)
-
-func init() {
-	printReg = false
-	printFile = false
-}
 
 func TestTaskRunCopy(t *testing.T) {
 	// env set
-	fileMap, clean, err := generator.PrepareNormalTest(printFile)
+	fileMap, clean := utils.PrepareNormalTest(t)
 	defer clean(fileMap)
-	if err != nil {
-		t.Fatal(err)
-	}
+
 	// run command
-	if err = executer.Execute(fileMap, "run"); err != nil {
-		t.Fatal(err)
-	}
-	//syscall.Pause()
+	utils.Execute(t, fileMap, "run")
+
 	// check running ouput
-	if err := executer.CheckOutput(fileMap,
-		"Start copying single object ([A-Z0-9/]*){0,1}/TESTFILE\\d+.camel", 8, printReg); err != nil {
-		t.Fatal(err)
-	}
-	if err := executer.CheckOutput(fileMap,
-		"Task [a-z0-9]* has been finished", 1, printReg); err != nil {
-		t.Fatal(err)
-	}
+	utils.CheckOutput(t, fileMap, "Task [a-z0-9]* has been finished", 1)
+	utils.CheckDBNoObject(t, fileMap)
 }
 
 func TestTaskDelete(t *testing.T) {
-	// env set
-	fileMap, clean, err := generator.PrepareNormalTest(printFile)
+	fileMap, clean := utils.PrepareNormalTest(t)
 	defer clean(fileMap)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// run command
-	if err = executer.Execute(fileMap, "run"); err != nil {
-		t.Fatal(err)
-	}
+	utils.Execute(t, fileMap, "run")
+
 	// delete command
 	(*fileMap)["delname"] = (*fileMap)["name"]
-	if err := executer.Execute(fileMap, "delete"); err != nil {
-		t.Fatal(err)
-	}
-	// check delete output
-	if err := executer.CheckOutput(fileMap,
-		"Task [a-z0-9]* has been deleted", 1, printReg); err != nil {
-		t.Fatal(err)
-	}
+	utils.Execute(t, fileMap, "delete")
 
+	// check delete output
+	utils.CheckOutput(t, fileMap, "Task [a-z0-9]* has been deleted", 1)
+	utils.CheckDBNoObject(t, fileMap)
 }
 
 func TestTaskStatus(t *testing.T) {
-	// env set
-	fileMap, clean, err := generator.PrepareNormalTest(printFile)
+	fileMap, clean := utils.PrepareNormalTest(t)
 	defer clean(fileMap)
-	err = generator.CreateLocalDstDir(fileMap)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// run command
-	if err = executer.Execute(fileMap, "run"); err != nil {
-		t.Fatal(err)
-	}
-	// status command
-	if err = executer.Execute(fileMap, "status"); err != nil {
-		t.Fatal(err)
-	}
-	// check status output
-	if err := executer.CheckOutput(fileMap,
-		"Show status started", 1, printReg); err != nil {
-		t.Fatal(err)
-	}
-	if err := executer.CheckOutput(fileMap,
-		"There are 1 tasks totally", 1, printReg); err != nil {
-		t.Fatal(err)
-	}
+	utils.Execute(t, fileMap, "run")
 
+	// status command
+	utils.Execute(t, fileMap, "status")
+
+	// check status output
+	utils.CheckOutput(t, fileMap, "Show status started", 1)
+	utils.CheckOutput(t, fileMap, "There are 1 tasks totally", 1)
+	utils.CheckDBNoObject(t, fileMap)
 }
 
 func TestTaskClean(t *testing.T) {
-	fileMap, clean, err := generator.PrepareNormalTest(printFile)
+	fileMap, clean := utils.PrepareNormalTest(t)
 	defer clean(fileMap)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// run command
-	if err = executer.Execute(fileMap, "run"); err != nil {
-		t.Fatal(err)
-	}
+	utils.Execute(t, fileMap, "run")
+
 	// clean command
-	if err = executer.Execute(fileMap, "clean"); err != nil {
-		t.Fatal(err)
-	}
+	utils.Execute(t, fileMap, "clean")
+
 	// check clean output
-	if err := executer.CheckOutput(fileMap,
-		"Clean started", 1, printReg); err != nil {
-		t.Fatal(err)
-	}
-	if err := executer.CheckOutput(fileMap,
-		"Task [a-z0-9]* has been cleaned", 1, printReg); err != nil {
-		t.Fatal(err)
-	}
+	utils.CheckOutput(t, fileMap, "Clean started", 1)
+	utils.CheckOutput(t, fileMap, "Task [a-z0-9]* has been cleaned", 1)
+	utils.CheckDBNoObject(t, fileMap)
 }

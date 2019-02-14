@@ -1,4 +1,4 @@
-package generator
+package utils
 
 import (
 	"crypto/rand"
@@ -72,6 +72,41 @@ func CreateTestRandomFile(filePerDir int, fileSize int64, dir string) error {
 			}
 		}
 		return err
+	}
+	return nil
+}
+
+// CreateHoleFile create numbers of file with hole in pointed directory
+func CreateHoleFile(dir string, fileSize, holeSize, offset int64, n int) error {
+	for i := 0; i < n; i++ {
+		file, err := ioutil.TempFile(dir+"/", "FILE*.hole")
+		if err != nil {
+			return err
+		}
+		content := make([]byte, offset)
+		err = CreateRandomByteStream(&content)
+		if err != nil {
+			return err
+		}
+
+		if _, err = file.Write(content); err != nil {
+			return err
+		}
+
+		if _, err = file.Seek(holeSize, 0); err != nil {
+			return err
+		}
+
+		content = make([]byte, fileSize-offset)
+		err = CreateRandomByteStream(&content)
+		if err != nil {
+			return err
+		}
+
+		if _, err = file.Write(content); err != nil {
+			return err
+		}
+		file.Close()
 	}
 	return nil
 }

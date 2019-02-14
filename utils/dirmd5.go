@@ -7,7 +7,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"reflect"
 	"sync"
 	"sync/atomic"
 )
@@ -103,20 +102,6 @@ func GetDirKvPair(dir string) (map[string]string, error) {
 	close(fch)
 	close(dirch)
 	return md5Pair, nil
-}
-
-// CompareLocalDirectoryMD5 will compare all the md5
-// of file in the directory, return true is equal
-func CompareLocalDirectoryMD5(d1, d2 string) (bool, error) {
-	kv1, err := GetDirKvPair(d1)
-	if err != nil {
-		return false, err
-	}
-	kv2, err := GetDirKvPair(d2)
-	if err != nil {
-		return false, err
-	}
-	return reflect.DeepEqual(kv1, kv2), nil
 }
 
 // MD5sum returns MD5 checksum of filename

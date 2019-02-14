@@ -1,4 +1,4 @@
-package executer
+package utils
 
 import (
 	"fmt"
@@ -8,16 +8,13 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
-
-	"qiniupkg.com/x/log.v7"
-
-	"github.com/yunify/qscamel/utils"
+	"testing"
 )
 
 // Execute base on task directory, executing the command
 // on different platform, and the output will be redirected
 // to a 'comm'+XXXX.output
-func Execute(fmap *map[string]string, comm string) error {
+func Execute(t *testing.T, fmap *map[string]string, comm string) {
 
 	var arg string
 	// generate corrisponding argument to qscamel
@@ -52,7 +49,7 @@ func Execute(fmap *map[string]string, comm string) error {
 	// set output file
 	out, err := ioutil.TempFile((*fmap)["dir"], comm+"*.output")
 	if err != nil {
-		return err
+		t.Fatal(err)
 	}
 	defer out.Close()
 
@@ -61,70 +58,62 @@ func Execute(fmap *map[string]string, comm string) error {
 	c.Stderr = out
 
 	// run command
-	if err = c.Start(); err != nil {
-		return err
+	if err = c.Run(); err != nil {
+		t.Fatal(err)
 	}
-	return c.Wait()
+
 }
 
 // CheckOutput will check the output file after executing a command
-// and return error if the expect count 'n' is not equal to the count
+// and fatal if the expect count 'n' is not equal to the count
 // of satisfied string.
-func CheckOutput(fmap *map[string]string, expectPattern string, n int, p bool) error {
+func CheckOutput(t *testing.T, fmap *map[string]string, expectPattern string, n int) {
 	out, err := os.Open((*fmap)["output"])
 	if err != nil {
-		return err
+		t.Fatal(err)
 	}
 	defer out.Close()
 
 	// check out put
 	stm, err := ioutil.ReadAll(out)
 	if err != nil {
-		return err
+		t.Fatal(err)
 	}
 	sl, err := ExpectOutput(&stm, expectPattern)
-	fmt.Printf("re: %s ... (expect: %d/got: %d)\n", expectPattern[:5], n, len(*sl))
+	t.Logf("regexp: %s ... (expect: %d/got: %d)\n", expectPattern[:5], n, len(*sl))
 	if err != nil {
-		return err
+		t.Fatal(err)
 	} else if len(*sl) != n {
-		return detecter{fmt.Sprintf("not satisfied")}
+		t.Fatal(detecter{fmt.Sprintf("not satisfied '%s'", expectPattern)})
 	}
-	if p {
-		for _, s := range *sl {
-			log.Infof("%s\n", s)
-		}
-	}
-	return nil
+
 }
 
 // CheckOutputUnexpect will check the output file after executing a command
-// and return error if the unexpected string has occurrences
-func CheckOutputUnexpect(fmap *map[string]string, expectPattern string, p bool) error {
+// and fatal if the unexpected string has occurrences
+func CheckOutputUnexpect(t *testing.T, fmap *map[string]string, expectPattern string) {
 	out, err := os.Open((*fmap)["output"])
 	if err != nil {
-		return err
+		t.Fatal(err)
 	}
 	defer out.Close()
 
 	// check out put
 	stm, err := ioutil.ReadAll(out)
 	if err != nil {
-		return err
+		t.Fatal(err)
 	}
 	sl, err := ExpectOutput(&stm, expectPattern)
 	if err != nil {
-		return err
+		t.Fatal(err)
 	} else if len(*sl) != 0 {
-
-		if p {
-			for _, s := range *sl {
-				log.Infof("Unexpected string '%s'\n", s)
-			}
+		for _, s := range *sl {
+			t.Logf("Unexpected string '%s'\n", s)
 		}
-		return detecter{fmt.Sprintf("Unexpected string")}
+
+		t.Fatal(detecter{fmt.Sprintf("Unexpected string")})
 	}
 
-	return nil
 }
 
 // ExpectOutput use the regular expession to check the byte stream
@@ -136,19 +125,6 @@ func ExpectOutput(content *[]byte, regex string) (*[]string, error) {
 	}
 	sl := re.FindAllString(string(*content), -1)
 	return &sl, nil
-}
-
-// CheckDirectroyEqual check two dirctory if is equal
-func CheckDirectroyEqual(fmap *map[string]string) error {
-	eq, err := utils.CompareLocalDirectoryMD5((*fmap)["dir"]+"/src", (*fmap)["dir"]+"/dst")
-	if err != nil {
-		return err
-	}
-	if eq == false {
-		return detecter{"check directory is finished: not equal"}
-	}
-	log.Info("check directory is finished: equal")
-	return nil
 }
 
 func cmdOnWin(comm string, arg ...string) *exec.Cmd {

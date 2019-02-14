@@ -1,7 +1,8 @@
-package generator
+package utils
 
 import (
 	"io/ioutil"
+	"testing"
 
 	"gopkg.in/yaml.v2"
 
@@ -51,38 +52,38 @@ func taskAssign(dir, tskType, srcFs, dstFs string,
 // CreateTestConfigYaml create config yaml file for test
 // in the `dir` directory, and return the config file
 // name if there are no errors.
-func CreateTestConfigYaml(dir string) (string, error) {
+func CreateTestConfigYaml(t *testing.T, dir string) string {
 	confFile, err := ioutil.TempFile(dir, "config*.yaml")
 	if err != nil {
-		return "", err
+		t.Fatal(err)
 	}
 	defer confFile.Close()
 	confContent, err := yaml.Marshal(confAssign(dir))
 	if err != nil {
-		return "", err
+		t.Fatal(err)
 	}
 	if _, err := confFile.Write(confContent); err != nil {
-		return "", err
+		t.Fatal(err)
 	}
-	return confFile.Name(), nil
+	return confFile.Name()
 }
 
 // CreateTestTaskYaml creat task yaml file for test
 // in the `dir` directory, and return the task file name
 // if there are no errors
-func CreateTestTaskYaml(dir, tskType, srcFs, dstFs string,
-	srcOpt, dstOpt interface{}) (string, error) {
+func CreateTestTaskYaml(t *testing.T, dir, tskType, srcFs, dstFs string,
+	srcOpt, dstOpt interface{}) string {
 	taskFile, err := ioutil.TempFile(dir, "task*.yaml")
 	defer taskFile.Close()
 	if err != nil {
-		return "", err
+		t.Fatal(err)
 	}
 	taskContent, err := yaml.Marshal(taskAssign(dir, tskType, srcFs, dstFs, srcOpt, dstOpt))
 	if err != nil {
-		return "", err
+		t.Fatal(err)
 	}
 	if _, err := taskFile.Write(taskContent); err != nil {
-		return "", err
+		t.Fatal(err)
 	}
-	return taskFile.Name(), nil
+	return taskFile.Name()
 }
