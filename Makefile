@@ -3,7 +3,7 @@ SHELL := /bin/bash
 .PHONY: all check format　vet lint build install uninstall release clean test coverage
 
 VERSION=$(shell cat ./constants/version.go | grep "Version\ =" | sed -e s/^.*\ //g | sed -e s/\"//g)
-DIRS_TO_CHECK=$(shell go list ./... | grep -v "/vendor/")
+DIRS_TO_CHECK=$(shell ls -d */ | grep -vE "vendor|test")
 PKGS_TO_CHECK=$(shell go list ./... | grep -vE "/vendor/|/tests/")
 INGR_TEST=$(shell go list ./... | grep "/tests/" | grep -v "/utils")
 
@@ -27,7 +27,7 @@ format:
 
 vet:
 	@echo "go vet, skipping vendor packages"
-	@go vet -all ${DIRS_TO_CHECK}
+	@go tool vet -all ${DIRS_TO_CHECK}
 	@echo "ok"
 
 lint:
@@ -40,6 +40,7 @@ lint:
 build: check
 	@echo "build qscamel"
 	@mkdir -p ./bin
+	@go mod vendor
 	@go build -tags netgo -o ./bin/qscamel .
 	@echo "ok"
 
@@ -87,6 +88,16 @@ test:
 	@echo "run test"
 	@go test -v ${PKGS_TO_CHECK}
 	@echo "ok"
+
+install-after-check:
+	@mkdir -p ./bin
+	@go build -tags netgo -o ./bin/qscamel .
+	@echo "ok"
+	@echo "install qscamel to GOPATH"
+	@mkdir -p ${GOPATH}/bin
+	@cp ./bin/qscamel ${GOPATH}/bin/qscamel
+	@echo "ok"
+
 
 integration-test:
 	@echo "run integration-test"
