@@ -52,7 +52,7 @@ func taskAssign(dir, tskType, srcFs, dstFs string,
 // CreateTestConfigYaml create config yaml file for test
 // in the `dir` directory, and return the config file
 // name if there are no errors.
-func CreateTestConfigYaml(t *testing.T, dir string) string {
+func CreateTestConfigYaml(t testing.TB, dir string) string {
 	confFile, err := ioutil.TempFile(dir, "config*.yaml")
 	if err != nil {
 		t.Fatal(err)
@@ -71,7 +71,7 @@ func CreateTestConfigYaml(t *testing.T, dir string) string {
 // CreateTestTaskYaml creat task yaml file for test
 // in the `dir` directory, and return the task file name
 // if there are no errors
-func CreateTestTaskYaml(t *testing.T, dir, tskType, srcFs, dstFs string,
+func CreateTestTaskYaml(t testing.TB, dir, tskType, srcFs, dstFs string,
 	srcOpt, dstOpt interface{}) string {
 	taskFile, err := ioutil.TempFile(dir, "task*.yaml")
 	defer taskFile.Close()

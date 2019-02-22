@@ -14,7 +14,7 @@ import (
 // Execute base on task directory, executing the command
 // on different platform, and the output will be redirected
 // to a 'comm'+XXXX.output
-func Execute(t *testing.T, fmap map[string]string, comm string) {
+func Execute(t testing.TB, fmap map[string]string, comm string) {
 
 	var arg string
 	// generate corrisponding argument to qscamel
@@ -67,7 +67,7 @@ func Execute(t *testing.T, fmap map[string]string, comm string) {
 // CheckOutput will check the output file after executing a command
 // and fatal if the expect count 'n' is not equal to the count
 // of satisfied string.
-func CheckOutput(t *testing.T, fmap map[string]string, expectPattern string, n int) {
+func CheckOutput(t testing.TB, fmap map[string]string, expectPattern string, n int) {
 	out, err := os.Open(fmap["output"])
 	if err != nil {
 		t.Fatal(err)
@@ -91,7 +91,7 @@ func CheckOutput(t *testing.T, fmap map[string]string, expectPattern string, n i
 
 // CheckOutputUnexpect will check the output file after executing a command
 // and fatal if the unexpected string has occurrences
-func CheckOutputUnexpect(t *testing.T, fmap map[string]string, expectPattern string) {
+func CheckOutputUnexpect(t testing.TB, fmap map[string]string, expectPattern string) {
 	out, err := os.Open(fmap["output"])
 	if err != nil {
 		t.Fatal(err)
