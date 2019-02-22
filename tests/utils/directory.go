@@ -25,7 +25,7 @@ func CleanTestTempFile(fmap map[string]string) error {
 // "config" is the config file path (point to database path
 // , pid file path etc.)
 // "task" is the task file path for run a task on random path
-func CreateTestConfigFile(t *testing.T, tskType, srcFs, dstFs string, srcOpt, dstOpt interface{}) map[string]string {
+func CreateTestConfigFile(t testing.TB, tskType, srcFs, dstFs string, srcOpt, dstOpt interface{}) map[string]string {
 	fileMap := make(map[string]string)
 
 	// create temp directory
@@ -59,7 +59,7 @@ func CreateTestConfigFile(t *testing.T, tskType, srcFs, dstFs string, srcOpt, ds
 // CreateTestDefaultFile will be used to generate
 // task file, but the config file will be yield
 // by qscamel itself
-func CreateTestDefaultFile(t *testing.T, tskType, srcFs, dstFs string, srcOpt, dstOpt interface{}) map[string]string {
+func CreateTestDefaultFile(t testing.TB, tskType, srcFs, dstFs string, srcOpt, dstOpt interface{}) map[string]string {
 	fileMap := make(map[string]string)
 	home, err := utils.Dir()
 	if err != nil {
@@ -90,7 +90,7 @@ func extractTaskName(pn string) string {
 // the base directory in the `fmap`. it create `filePerDir` numbers file and
 // `dirPerDir` numbers directory in every directory, and the file size is `fileSize`
 // `dirDepth` point to the directory depth to generate(advised depth is `2`).
-func CreateLocalSrcTestRandDirFile(t *testing.T, fmap map[string]string, filePerDir int, dirPerDir int, fileSize int64, dirDepth int) {
+func CreateLocalSrcTestRandDirFile(t testing.TB, fmap map[string]string, filePerDir int, dirPerDir int, fileSize int64, dirDepth int) {
 	err := os.MkdirAll(fmap["dir"]+"/src", 0755)
 	if err != nil {
 		t.Fatal(err)
@@ -150,7 +150,7 @@ func CreateTestSubDirectory(dirch chan string, dirPerDir int, dir string) error 
 
 // CreateLocalDstDir create the destination directory
 // in the local machine
-func CreateLocalDstDir(t *testing.T, fmap map[string]string) {
+func CreateLocalDstDir(t testing.TB, fmap map[string]string) {
 	err := os.MkdirAll(fmap["dir"]+"/dst", 0755)
 	if err != nil {
 		t.Fatal(err)
@@ -161,7 +161,7 @@ func CreateLocalDstDir(t *testing.T, fmap map[string]string) {
 
 // CreateLocalSrcDir create the source directory
 // in the local machine
-func CreateLocalSrcDir(t *testing.T, fmap map[string]string) {
+func CreateLocalSrcDir(t testing.TB, fmap map[string]string) {
 	err := os.MkdirAll(fmap["dir"]+"/src", 0755)
 	if err != nil {
 		t.Fatal(err)
