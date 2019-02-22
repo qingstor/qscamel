@@ -93,6 +93,18 @@ integration-test:
 	@go test -v ${INGR_TEST}
 	@echo "ok"
 
+build-runner: check
+	@echo "build qscamel-runner"
+	@mkdir -p ./bin
+	@go build -tags netgo -o ./bin/qscamel-runner ./tests/runner
+	@echo "ok"
+
+install-runner: build-runner
+	@echo "install qscamel-runner to GOPATH/bin"
+	@cp ./bin/qscamel-runner ${GOPATH}/bin/qscamel-runner
+	@echo "ok"
+
+
 coverage:
 	@echo "run test with coverage"
 	@for pkg in ${PKGS_TO_CHECK}; do \

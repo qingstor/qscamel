@@ -11,7 +11,7 @@ import (
 
 // CheckDBEmpty check the temp dbfile and testing
 // whether the Database is empty.
-func CheckDBEmpty(t *testing.T, fmap map[string]string) {
+func CheckDBEmpty(t testing.TB, fmap map[string]string) {
 	resultDB, err := db.NewDB(&db.DatabaseOptions{Address: fmap["dir"] + "/db"})
 	if err != nil {
 		t.Fatal(err)
@@ -26,7 +26,7 @@ func CheckDBEmpty(t *testing.T, fmap map[string]string) {
 
 // CheckDBNoObject check the temp dbfile and testing
 // whether the Database has any object
-func CheckDBNoObject(t *testing.T, fmap map[string]string) {
+func CheckDBNoObject(t testing.TB, fmap map[string]string) {
 	resultDB, err := db.NewDB(&db.DatabaseOptions{Address: fmap["dir"] + "/db"})
 	if err != nil {
 		t.Fatal(err)
