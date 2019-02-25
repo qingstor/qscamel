@@ -80,7 +80,11 @@ var RunCmd = &cobra.Command{
 			logrus.Errorf("Task check failed for %v.", err)
 			return
 		}
-
+		err = t.Save(nil)
+		if err != nil {
+			logrus.Errorf("Task save failed for %v.", err)
+			return
+		}
 		ctx = utils.NewTaskContext(ctx, t.Name)
 
 		// Start migrate.

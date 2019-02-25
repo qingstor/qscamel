@@ -70,10 +70,7 @@ func LoadTask(name, taskPath string) (t *Task, err error) {
 	// created and save it.
 	task.Status = constants.TaskStatusCreated
 	task.Name = name
-	err = task.Save(nil)
-	if err != nil {
-		return
-	}
+
 	return task, nil
 }
 
