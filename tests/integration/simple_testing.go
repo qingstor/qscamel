@@ -6,7 +6,7 @@ import (
 	"github.com/yunify/qscamel/tests/utils"
 )
 
-func TestTaskRunCopy(t *testing.T) {
+func TestTaskRunCopy(t testing.TB) {
 	// env set
 	fileMap, clean := utils.PrepareNormalTest(t)
 	defer clean(fileMap)
@@ -19,7 +19,7 @@ func TestTaskRunCopy(t *testing.T) {
 	utils.CheckDBNoObject(t, fileMap)
 }
 
-func TestTaskDelete(t *testing.T) {
+func TestTaskDelete(t testing.TB) {
 	fileMap, clean := utils.PrepareNormalTest(t)
 	defer clean(fileMap)
 	utils.Execute(t, fileMap, "run")
@@ -33,7 +33,7 @@ func TestTaskDelete(t *testing.T) {
 	utils.CheckDBNoObject(t, fileMap)
 }
 
-func TestTaskStatus(t *testing.T) {
+func TestTaskStatus(t testing.TB) {
 	fileMap, clean := utils.PrepareNormalTest(t)
 	defer clean(fileMap)
 	utils.Execute(t, fileMap, "run")
@@ -47,7 +47,7 @@ func TestTaskStatus(t *testing.T) {
 	utils.CheckDBNoObject(t, fileMap)
 }
 
-func TestTaskClean(t *testing.T) {
+func TestTaskClean(t testing.TB) {
 	fileMap, clean := utils.PrepareNormalTest(t)
 	defer clean(fileMap)
 	utils.Execute(t, fileMap, "run")

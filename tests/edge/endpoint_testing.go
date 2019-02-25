@@ -7,12 +7,13 @@ import (
 	"github.com/yunify/qscamel/tests/utils"
 )
 
-// directory isn't exist
+
 func TestFSInvalidSrc(t testing.TB) {
 	// env set
 	fileMap, clean := utils.PrepareNormalTest(t)
 	defer clean(fileMap)
 
+	// source directory isn't exist
 	err := os.RemoveAll(fileMap["src"])
 	if err != nil {
 		t.Fatal(err)
@@ -22,6 +23,7 @@ func TestFSInvalidSrc(t testing.TB) {
 	utils.Execute(t, fileMap, "run")
 	// check output
 	utils.CheckOutput(t, fileMap, "no such file or directory", 1)
+	utils.CheckDBEmpty(t, fileMap)
 }
 
 func TestFSInvalidDst(t testing.TB) {
@@ -39,4 +41,5 @@ func TestFSInvalidDst(t testing.TB) {
 	utils.Execute(t, fileMap, "run")
 	// check output
 	utils.CheckOutput(t, fileMap, "operation not permitted", 1)
+	utils.CheckDBEmpty(t, fileMap)
 }

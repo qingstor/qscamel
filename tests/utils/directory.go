@@ -37,22 +37,18 @@ func CreateTestConfigFile(t testing.TB, tskType, srcFs, dstFs string, srcOpt, ds
 
 	// create a temp config file
 	confName := CreateTestConfigYaml(t, dir)
-	if err != nil {
-		t.Fatal(err)
-	}
 	fileMap["config"] = confName
 
 	// create a temp task file
 	taskName := CreateTestTaskYaml(t, dir, tskType, srcFs, dstFs, srcOpt, dstOpt)
-	if err != nil {
-		t.Fatal(err)
-	}
 	fileMap["task"] = taskName
 	fileMap["name"] = extractTaskName(taskName)
 
+	// log config file information for debug
 	t.Log("create temp dir at", dir)
 	t.Log("create temp config file at ", confName)
 	t.Log("create temp task file at ", taskName)
+
 	return fileMap
 }
 
@@ -65,16 +61,17 @@ func CreateTestDefaultFile(t testing.TB, tskType, srcFs, dstFs string, srcOpt, d
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	fileMap["dir"] = home + "/.qscamel"
 	if err := os.MkdirAll(fileMap["dir"], 0700); err != nil {
 		t.Fatal(err)
 	}
+
 	taskname := CreateTestTaskYaml(t, fileMap["dir"], tskType, srcFs, dstFs, srcOpt, dstOpt)
-	if err != nil {
-		t.Fatal(err)
-	}
 	fileMap["task"] = taskname
 	fileMap["name"] = extractTaskName(taskname)
+
+	t.Log("create testing config/task file in ~/.qscamel")
 
 	return fileMap
 }

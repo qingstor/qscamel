@@ -6,7 +6,7 @@ import (
 	"github.com/yunify/qscamel/tests/utils"
 )
 
-func TestDefaultRunCopy(t *testing.T) {
+func TestDefaultRunCopy(t testing.TB) {
 	fileMap, clean := utils.PrepareDefaultTest(t)
 	defer clean(fileMap)
 	utils.Execute(t, fileMap, "run")
@@ -15,7 +15,7 @@ func TestDefaultRunCopy(t *testing.T) {
 
 }
 
-func TestDefaultDelete(t *testing.T) {
+func TestDefaultDelete(t testing.TB) {
 	fileMap, clean := utils.PrepareDefaultTest(t)
 	defer clean(fileMap)
 	utils.Execute(t, fileMap, "run")
@@ -26,17 +26,17 @@ func TestDefaultDelete(t *testing.T) {
 
 }
 
-func TestDefalutStatus(t *testing.T) {
+func TestDefalutStatus(t testing.TB) {
 	fileMap, clean := utils.PrepareDefaultTest(t)
 	defer clean(fileMap)
 	utils.Execute(t, fileMap, "run")
 	utils.Execute(t, fileMap, "status")
 	utils.CheckOutput(t, fileMap, "Show status started", 1)
-	utils.CheckOutput(t, fileMap, "There are 1 tasks totally", 1)
+	utils.CheckOutput(t, fileMap, "There are [0-9]* tasks totally", 1)
 	utils.CheckDBNoObject(t, fileMap)
 }
 
-func TestDefaultClean(t *testing.T) {
+func TestDefaultClean(t testing.TB) {
 	fileMap, clean := utils.PrepareDefaultTest(t)
 	defer clean(fileMap)
 	utils.Execute(t, fileMap, "run")
