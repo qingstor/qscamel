@@ -3,8 +3,8 @@ package utils
 import (
 	"crypto/rand"
 	"io/ioutil"
+	"log"
 	"math"
-	"testing"
 )
 
 // B means Bytes
@@ -78,34 +78,34 @@ func CreateTestRandomFile(filePerDir int, fileSize int64, dir string) error {
 }
 
 // CreateHoleFile create numbers of file with hole in pointed directory
-func CreateHoleFile(t testing.TB, dir string, fileSize, holeSize, offset int64, n int) {
+func CreateHoleFile(dir string, fileSize, holeSize, offset int64, n int) {
 	for i := 0; i < n; i++ {
 		file, err := ioutil.TempFile(dir+"/", "FILE*.hole")
 		if err != nil {
-			t.Fatal(err)
+			log.Fatal(err)
 		}
 		content := make([]byte, offset)
 		err = CreateRandomByteStream(&content)
 		if err != nil {
-			t.Fatal(err)
+			log.Fatal(err)
 		}
 
 		if _, err = file.Write(content); err != nil {
-			t.Fatal(err)
+			log.Fatal(err)
 		}
 
 		if _, err = file.Seek(holeSize, 0); err != nil {
-			t.Fatal(err)
+			log.Fatal(err)
 		}
 
 		content = make([]byte, fileSize-offset)
 		err = CreateRandomByteStream(&content)
 		if err != nil {
-			t.Fatal(err)
+			log.Fatal(err)
 		}
 
 		if _, err = file.Write(content); err != nil {
-			t.Fatal(err)
+			log.Fatal(err)
 		}
 		file.Close()
 	}
