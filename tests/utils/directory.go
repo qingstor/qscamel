@@ -2,10 +2,10 @@ package utils
 
 import (
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"strings"
-	"testing"
 
 	"github.com/yunify/qscamel/utils"
 )
@@ -25,56 +25,53 @@ func CleanTestTempFile(fmap map[string]string) error {
 // "config" is the config file path (point to database path
 // , pid file path etc.)
 // "task" is the task file path for run a task on random path
-func CreateTestConfigFile(t testing.TB, tskType, srcFs, dstFs string, srcOpt, dstOpt interface{}) map[string]string {
+func CreateTestConfigFile(tskType, srcFs, dstFs string, srcOpt, dstOpt interface{}) map[string]string {
 	fileMap := make(map[string]string)
 
 	// create temp directory
 	dir, err := ioutil.TempDir("", "qscamel")
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 	fileMap["dir"] = dir
 
 	// create a temp config file
-	confName := CreateTestConfigYaml(t, dir)
-	if err != nil {
-		t.Fatal(err)
-	}
+	confName := CreateTestConfigYaml(dir)
 	fileMap["config"] = confName
 
 	// create a temp task file
-	taskName := CreateTestTaskYaml(t, dir, tskType, srcFs, dstFs, srcOpt, dstOpt)
-	if err != nil {
-		t.Fatal(err)
-	}
+	taskName := CreateTestTaskYaml(dir, tskType, srcFs, dstFs, srcOpt, dstOpt)
 	fileMap["task"] = taskName
 	fileMap["name"] = extractTaskName(taskName)
 
-	t.Log("create temp dir at", dir)
-	t.Log("create temp config file at ", confName)
-	t.Log("create temp task file at ", taskName)
+	// log config file information for debug
+	log.Println("create temp dir at", dir)
+	log.Println("create temp config file at ", confName)
+	log.Println("create temp task file at ", taskName)
+
 	return fileMap
 }
 
 // CreateTestDefaultFile will be used to generate
 // task file, but the config file will be yield
 // by qscamel itself
-func CreateTestDefaultFile(t testing.TB, tskType, srcFs, dstFs string, srcOpt, dstOpt interface{}) map[string]string {
+func CreateTestDefaultFile(tskType, srcFs, dstFs string, srcOpt, dstOpt interface{}) map[string]string {
 	fileMap := make(map[string]string)
 	home, err := utils.Dir()
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
+
 	fileMap["dir"] = home + "/.qscamel"
 	if err := os.MkdirAll(fileMap["dir"], 0700); err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
-	taskname := CreateTestTaskYaml(t, fileMap["dir"], tskType, srcFs, dstFs, srcOpt, dstOpt)
-	if err != nil {
-		t.Fatal(err)
-	}
+
+	taskname := CreateTestTaskYaml(fileMap["dir"], tskType, srcFs, dstFs, srcOpt, dstOpt)
 	fileMap["task"] = taskname
 	fileMap["name"] = extractTaskName(taskname)
+
+	log.Println("create testing config/task file in ~/.qscamel")
 
 	return fileMap
 }
@@ -90,10 +87,10 @@ func extractTaskName(pn string) string {
 // the base directory in the `fmap`. it create `filePerDir` numbers file and
 // `dirPerDir` numbers directory in every directory, and the file size is `fileSize`
 // `dirDepth` point to the directory depth to generate(advised depth is `2`).
-func CreateLocalSrcTestRandDirFile(t testing.TB, fmap map[string]string, filePerDir int, dirPerDir int, fileSize int64, dirDepth int) {
+func CreateLocalSrcTestRandDirFile(fmap map[string]string, filePerDir int, dirPerDir int, fileSize int64, dirDepth int) {
 	err := os.MkdirAll(fmap["dir"]+"/src", 0755)
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 	fmap["src"] = fmap["dir"] + "/src"
 
@@ -112,13 +109,13 @@ func CreateLocalSrcTestRandDirFile(t testing.TB, fmap map[string]string, filePer
 			select {
 			case onePath := <-dirch:
 				if err := CreateTestRandomFile(filePerDir, fileSize, onePath); err != nil {
-					t.Fatal(err)
+					log.Fatal(err)
 				}
 				if i >= subchsz {
 					continue
 				}
 				if err := CreateTestSubDirectory(dirch, dirPerDir, onePath); err != nil {
-					t.Fatal(err)
+					log.Fatal(err)
 				}
 			default:
 				done <- nil
@@ -128,7 +125,7 @@ func CreateLocalSrcTestRandDirFile(t testing.TB, fmap map[string]string, filePer
 	}()
 	if dirDepth == 1 {
 		if err := CreateTestRandomFile(filePerDir, fileSize, fmap["src"]); err != nil {
-			t.Fatal(err)
+			log.Fatal(err)
 		}
 	}
 
@@ -150,10 +147,10 @@ func CreateTestSubDirectory(dirch chan string, dirPerDir int, dir string) error 
 
 // CreateLocalDstDir create the destination directory
 // in the local machine
-func CreateLocalDstDir(t testing.TB, fmap map[string]string) {
+func CreateLocalDstDir(fmap map[string]string) {
 	err := os.MkdirAll(fmap["dir"]+"/dst", 0755)
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 	fmap["dst"] = fmap["dir"] + "/dst"
 
@@ -161,10 +158,10 @@ func CreateLocalDstDir(t testing.TB, fmap map[string]string) {
 
 // CreateLocalSrcDir create the source directory
 // in the local machine
-func CreateLocalSrcDir(t testing.TB, fmap map[string]string) {
+func CreateLocalSrcDir(fmap map[string]string) {
 	err := os.MkdirAll(fmap["dir"]+"/src", 0755)
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 	fmap["src"] = fmap["dir"] + "/src"
 }

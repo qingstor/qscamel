@@ -1,10 +1,9 @@
 package utils
 
 import (
-	"io/ioutil"
-	"testing"
-
 	"gopkg.in/yaml.v2"
+	"io/ioutil"
+	"log"
 
 	"github.com/yunify/qscamel/config"
 )
@@ -52,18 +51,18 @@ func taskAssign(dir, tskType, srcFs, dstFs string,
 // CreateTestConfigYaml create config yaml file for test
 // in the `dir` directory, and return the config file
 // name if there are no errors.
-func CreateTestConfigYaml(t testing.TB, dir string) string {
+func CreateTestConfigYaml(dir string) string {
 	confFile, err := ioutil.TempFile(dir, "config*.yaml")
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 	defer confFile.Close()
 	confContent, err := yaml.Marshal(confAssign(dir))
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 	if _, err := confFile.Write(confContent); err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 	return confFile.Name()
 }
@@ -71,19 +70,19 @@ func CreateTestConfigYaml(t testing.TB, dir string) string {
 // CreateTestTaskYaml creat task yaml file for test
 // in the `dir` directory, and return the task file name
 // if there are no errors
-func CreateTestTaskYaml(t testing.TB, dir, tskType, srcFs, dstFs string,
+func CreateTestTaskYaml(dir, tskType, srcFs, dstFs string,
 	srcOpt, dstOpt interface{}) string {
 	taskFile, err := ioutil.TempFile(dir, "task*.yaml")
 	defer taskFile.Close()
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 	taskContent, err := yaml.Marshal(taskAssign(dir, tskType, srcFs, dstFs, srcOpt, dstOpt))
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 	if _, err := taskFile.Write(taskContent); err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 	return taskFile.Name()
 }

@@ -89,9 +89,15 @@ test:
 	@echo "ok"
 
 integration-test:
-	@echo "run integration-test"
-	@go test -v ${INGR_TEST}
+	@echo "run integration-tests"
+	@qscamel-runner run integration
 	@echo "ok"
+
+edge-test:
+	@echo "run edge-tests"
+	@qscamel-runner run edge
+	@echo "ok"
+
 
 build-runner: check
 	@echo "build qscamel-runner"
