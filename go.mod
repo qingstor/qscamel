@@ -12,6 +12,7 @@ require (
 	github.com/googleapis/gax-go v0.0.0-20180702194919-1ef592c90f47 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af // indirect
+	github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515 // indirect
 	github.com/pengsrc/go-shared v0.0.0-20180504052330-db9bcfc42355
 	github.com/qiniu/api.v7 v7.2.4+incompatible
 	github.com/qiniu/x v0.0.0-20150721034113-f512abcf45ab

@@ -111,6 +111,24 @@ func (t *Task) Check() error {
 		return constants.ErrTaskInvalid
 	}
 
+	// check source readable
+	switch t.Src.Type {
+	case "fs":
+		if err := utils.CheckExist(t.Src.Path); err != nil {
+			return err
+		}
+	default:
+	}
+
+	// check destination writable
+	switch t.Dst.Type {
+	case "fs":
+		if val, err := utils.CheckWritable(t.Dst.Path); !val {
+			return err
+		}
+	default:
+	}
+
 	return nil
 }
 

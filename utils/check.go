@@ -3,6 +3,7 @@ package utils
 import (
 	"os"
 	"runtime/debug"
+	"syscall"
 
 	"github.com/sirupsen/logrus"
 	"github.com/syndtr/goleveldb/leveldb"
@@ -35,4 +36,27 @@ func Recover() {
 	if x := recover(); x != nil {
 		logrus.Fatalf("Caught panic: %v, Trace: %s", x, debug.Stack())
 	}
+}
+
+// CheckExist return error if file not exist.
+func CheckExist(path string) error {
+	_, err := os.Stat(path)
+	return err
+}
+
+// CheckWritable return error if the directory can not be write.
+func CheckWritable(path string) (bool, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		err = os.MkdirAll(path, 0777)
+		if err != nil {
+			return false, err
+		}
+	}
+
+	if info.Mode().Perm()&0200 == 0 {
+		return false, &os.PathError{Op: "write", Path: path, Err: syscall.EPERM}
+
+	}
+	return true, nil
 }

@@ -28,6 +28,8 @@ var RunCmd = &cobra.Command{
 			runPart(t, 1)
 		case "special":
 			runPart(t, 2)
+		case "endpoint":
+			runPart(t, 3)
 		default:
 			runMatchCase(t, fmt.Sprintf("*%s*", args[0]))
 		}
@@ -36,32 +38,7 @@ var RunCmd = &cobra.Command{
 
 var TestCase []map[string] func (t testing.TB)
 
-func init() {
-	var TDIR, TFIL, TSPF map[string] func (t testing.TB)
 
-	TDIR = map[string] func (t testing.TB) {
-		"TestEmptyDirectory":	edge.TestEmptyDirectory,
-		"TestOneDirectory": 	edge.TestOneDirectory,
-		"TestDeepDirectory": 	edge.TestDeepDirectory,
-		"TestManyDirectory": 	edge.TestManyDirectory,
-	}
-	TFIL = map[string] func (t testing.TB) {
-		"TestEmptyFile": 	  edge.TestEmptyFile,
-		"TestBigFile": 		  edge.TestBigFile,
-		"TestManyFile": 	  edge.TestManyFile,
-		"TestDeepFile": 	  edge.TestDeepFile,
-		"TestMutiDirAndFile": edge.TestMutiDirAndFile,
-	}
-	TSPF = map[string] func (t testing.TB) {
-		"TestFileHole":    edge.TestFileHole,
-		"TestDstSameFile": edge.TestDstSameFile,
-	}
-	logrus.SetFormatter(&logrus.TextFormatter{
-		DisableColors: false,
-		DisableTimestamp: true,
-	})
-	TestCase = []map[string] func (t testing.TB){TDIR, TFIL, TSPF}
-}
 
 func runAll(t testing.TB) {
 	for i, _ := range TestCase {
@@ -96,4 +73,36 @@ func process(t testing.TB, name string, fn func (t testing.TB)) {
 	s := time.Now()
 	fn(t)
 	fmt.Printf("--- PASS: %s (%.2fs)\n", name, time.Now().Sub(s).Seconds())
+}
+
+func init() {
+	var TDIR, TFIL, TSPF, TEND map[string] func (t testing.TB)
+
+	TDIR = map[string] func (t testing.TB) {
+		"TestEmptyDirectory":	edge.TestEmptyDirectory,
+		"TestOneDirectory": 	edge.TestOneDirectory,
+		"TestDeepDirectory": 	edge.TestDeepDirectory,
+		"TestManyDirectory": 	edge.TestManyDirectory,
+	}
+	TFIL = map[string] func (t testing.TB) {
+		"TestEmptyFile": 	  edge.TestEmptyFile,
+		"TestBigFile": 		  edge.TestBigFile,
+		"TestManyFile": 	  edge.TestManyFile,
+		"TestDeepFile": 	  edge.TestDeepFile,
+		"TestMutiDirAndFile": edge.TestMutiDirAndFile,
+	}
+	TSPF = map[string] func (t testing.TB) {
+		"TestFileHole":    edge.TestFileHole,
+		"TestDstSameFile": edge.TestDstSameFile,
+	}
+	TEND = map[string] func (t testing.TB) {
+		"TestFSInvalidDst":    edge.TestFSInvalidDst,
+		"TestFSInvalidSrc": edge.TestFSInvalidSrc,
+	}
+	TestCase = []map[string] func (t testing.TB){TDIR, TFIL, TSPF, TEND}
+
+	logrus.SetFormatter(&logrus.TextFormatter{
+		DisableColors: false,
+		DisableTimestamp: true,
+	})
 }
