@@ -75,6 +75,7 @@ var RunCmd = &cobra.Command{
 			logrus.Errorf("Task load failed for %v.", err)
 			return
 		}
+
 		err = t.Check()
 		if err != nil {
 			logrus.Errorf("Task check failed for %v.", err)

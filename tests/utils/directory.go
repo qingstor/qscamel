@@ -88,8 +88,10 @@ func CreateTestDefaultFile(tskType, srcFs, dstFs string, srcOpt, dstOpt interfac
 	return fileMap
 }
 
+
 func extractTaskName(pn string) string {
-	// extract the taskname(taskXXXXX) from task file path(/tmp/qscamelXXXXX/taskXXXX.yaml) .
+	// extract the taskname(taskXXXXX) from
+	// task file path(/tmp/qscamelXXXXX/taskXXXX.yaml) .
 	_, taskName := path.Split(pn)
 	runName := strings.Split(taskName, ".")
 	return runName[0]

@@ -2,11 +2,11 @@ package command
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"log"
 	"regexp"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/yunify/qscamel/tests/edge"
@@ -157,3 +157,4 @@ const (
 	SPECIAL
 	ENDPOINT
 )
+

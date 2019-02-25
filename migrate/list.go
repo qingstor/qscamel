@@ -36,6 +36,7 @@ func List(ctx context.Context) (err error) {
 		if err != nil {
 			logrus.Panic(err)
 		}
+
 		if do == nil {
 			break
 		}
