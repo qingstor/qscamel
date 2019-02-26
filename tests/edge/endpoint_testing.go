@@ -1,45 +1,45 @@
 package edge
 
 import (
+	"log"
 	"os"
-	"testing"
 
 	"github.com/yunify/qscamel/tests/utils"
 )
 
 
-func TestFSInvalidSrc(t testing.TB) {
+func TestFSInvalidSrc() {
 	// env set
-	fileMap, clean := utils.PrepareNormalTest(t)
+	fileMap, clean := utils.PrepareNormalTest()
 	defer clean(fileMap)
 
 	// source directory isn't exist
 	err := os.RemoveAll(fileMap["src"])
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 
 	// run command
-	utils.Execute(t, fileMap, "run")
+	utils.Execute(fileMap, "run")
 	// check output
-	utils.CheckOutput(t, fileMap, "no such file or directory", 1)
-	utils.CheckDBEmpty(t, fileMap)
+	utils.CheckOutput(fileMap, "no such file or directory", 1)
+	utils.CheckDBEmpty(fileMap)
 }
 
-func TestFSInvalidDst(t testing.TB) {
+func TestFSInvalidDst() {
 	// env set
-	fileMap, clean := utils.PrepareNormalTest(t)
+	fileMap, clean := utils.PrepareNormalTest()
 	defer clean(fileMap)
 
 	//make destination not writable
 	err := os.Chmod(fileMap["dst"], 0555)
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 
 	// run command
-	utils.Execute(t, fileMap, "run")
+	utils.Execute(fileMap, "run")
 	// check output
-	utils.CheckOutput(t, fileMap, "operation not permitted", 1)
-	utils.CheckDBEmpty(t, fileMap)
+	utils.CheckOutput(fileMap, "operation not permitted", 1)
+	utils.CheckDBEmpty(fileMap)
 }

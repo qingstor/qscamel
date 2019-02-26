@@ -1,62 +1,60 @@
 package integration
 
 import (
-	"testing"
-
 	"github.com/yunify/qscamel/tests/utils"
 )
 
-func TestTaskRunCopy(t testing.TB) {
+func TestTaskRunCopy() {
 	// env set
-	fileMap, clean := utils.PrepareNormalTest(t)
+	fileMap, clean := utils.PrepareNormalTest()
 	defer clean(fileMap)
 
 	// run command
-	utils.Execute(t, fileMap, "run")
+	utils.Execute(fileMap, "run")
 
 	// check running ouput
-	utils.CheckOutput(t, fileMap, "Task [a-z0-9]* has been finished", 1)
-	utils.CheckDBNoObject(t, fileMap)
+	utils.CheckOutput(fileMap, "Task [a-z0-9]* has been finished", 1)
+	utils.CheckDBNoObject(fileMap)
 }
 
-func TestTaskDelete(t testing.TB) {
-	fileMap, clean := utils.PrepareNormalTest(t)
+func TestTaskDelete() {
+	fileMap, clean := utils.PrepareNormalTest()
 	defer clean(fileMap)
-	utils.Execute(t, fileMap, "run")
+	utils.Execute(fileMap, "run")
 
 	// delete command
 	fileMap["delname"] = fileMap["name"]
-	utils.Execute(t, fileMap, "delete")
+	utils.Execute(fileMap, "delete")
 
 	// check delete output
-	utils.CheckOutput(t, fileMap, "Task [a-z0-9]* has been deleted", 1)
-	utils.CheckDBNoObject(t, fileMap)
+	utils.CheckOutput(fileMap, "Task [a-z0-9]* has been deleted", 1)
+	utils.CheckDBNoObject(fileMap)
 }
 
-func TestTaskStatus(t testing.TB) {
-	fileMap, clean := utils.PrepareNormalTest(t)
+func TestTaskStatus() {
+	fileMap, clean := utils.PrepareNormalTest()
 	defer clean(fileMap)
-	utils.Execute(t, fileMap, "run")
+	utils.Execute(fileMap, "run")
 
 	// status command
-	utils.Execute(t, fileMap, "status")
+	utils.Execute(fileMap, "status")
 
 	// check status output
-	utils.CheckOutput(t, fileMap, "Show status started", 1)
-	utils.CheckOutput(t, fileMap, "There are 1 tasks totally", 1)
-	utils.CheckDBNoObject(t, fileMap)
+	utils.CheckOutput(fileMap, "Show status started", 1)
+	utils.CheckOutput(fileMap, "There are 1 tasks totally", 1)
+	utils.CheckDBNoObject(fileMap)
 }
 
-func TestTaskClean(t testing.TB) {
-	fileMap, clean := utils.PrepareNormalTest(t)
+func TestTaskClean() {
+	fileMap, clean := utils.PrepareNormalTest()
 	defer clean(fileMap)
-	utils.Execute(t, fileMap, "run")
+	utils.Execute(fileMap, "run")
 
 	// clean command
-	utils.Execute(t, fileMap, "clean")
+	utils.Execute(fileMap, "clean")
 
 	// check clean output
-	utils.CheckOutput(t, fileMap, "Clean started", 1)
-	utils.CheckOutput(t, fileMap, "Task [a-z0-9]* has been cleaned", 1)
-	utils.CheckDBNoObject(t, fileMap)
+	utils.CheckOutput(fileMap, "Clean started", 1)
+	utils.CheckOutput(fileMap, "Task [a-z0-9]* has been cleaned", 1)
+	utils.CheckDBNoObject(fileMap)
 }

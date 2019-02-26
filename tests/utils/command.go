@@ -3,18 +3,18 @@ package utils
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"regexp"
 	"runtime"
 	"strings"
-	"testing"
 )
 
 // Execute base on task directory, executing the command
 // on different platform, and the output will be redirected
 // to a 'comm'+XXXX.output
-func Execute(t testing.TB, fmap map[string]string, comm string) {
+func Execute(fmap map[string]string, comm string) {
 
 	var arg string
 	// generate corrisponding argument to qscamel
@@ -49,7 +49,7 @@ func Execute(t testing.TB, fmap map[string]string, comm string) {
 	// set output file
 	out, err := ioutil.TempFile(fmap["dir"], comm+"*.output")
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 	defer out.Close()
 
@@ -59,7 +59,7 @@ func Execute(t testing.TB, fmap map[string]string, comm string) {
 
 	// run command
 	if err = c.Run(); err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 
 }
@@ -67,51 +67,51 @@ func Execute(t testing.TB, fmap map[string]string, comm string) {
 // CheckOutput will check the output file after executing a command
 // and fatal if the expect count 'n' is not equal to the count
 // of satisfied string.
-func CheckOutput(t testing.TB, fmap map[string]string, expectPattern string, n int) {
+func CheckOutput(fmap map[string]string, expectPattern string, n int) {
 	out, err := os.Open(fmap["output"])
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 	defer out.Close()
 
 	// check out put
 	stm, err := ioutil.ReadAll(out)
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 	sl, err := ExpectOutput(&stm, expectPattern)
-	t.Logf("regexp: %s ... (expect: %d/got: %d)\n", expectPattern[:5], n, len(*sl))
+	log.Printf("regexp: %s ... (expect: %d/got: %d)\n", expectPattern[:5], n, len(*sl))
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	} else if len(*sl) != n {
-		t.Fatal(detecter{fmt.Sprintf("not satisfied '%s'", expectPattern)})
+		log.Fatal(detecter{fmt.Sprintf("not satisfied '%s'", expectPattern)})
 	}
 
 }
 
 // CheckOutputUnexpect will check the output file after executing a command
 // and fatal if the unexpected string has occurrences
-func CheckOutputUnexpect(t testing.TB, fmap map[string]string, expectPattern string) {
+func CheckOutputUnexpect(fmap map[string]string, expectPattern string) {
 	out, err := os.Open(fmap["output"])
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 	defer out.Close()
 
 	// check out put
 	stm, err := ioutil.ReadAll(out)
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	}
 	sl, err := ExpectOutput(&stm, expectPattern)
 	if err != nil {
-		t.Fatal(err)
+		log.Fatal(err)
 	} else if len(*sl) != 0 {
 		for _, s := range *sl {
-			t.Logf("Unexpected string '%s'\n", s)
+			log.Printf("Unexpected string '%s'\n", s)
 		}
 
-		t.Fatal(detecter{fmt.Sprintf("Unexpected string")})
+		log.Fatal(detecter{fmt.Sprintf("Unexpected string")})
 	}
 
 }

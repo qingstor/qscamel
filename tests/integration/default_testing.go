@@ -1,47 +1,45 @@
 package integration
 
 import (
-	"testing"
-
 	"github.com/yunify/qscamel/tests/utils"
 )
 
-func TestDefaultRunCopy(t testing.TB) {
-	fileMap, clean := utils.PrepareDefaultTest(t)
+func TestDefaultRunCopy() {
+	fileMap, clean := utils.PrepareDefaultTest()
 	defer clean(fileMap)
-	utils.Execute(t, fileMap, "run")
-	utils.CheckOutput(t, fileMap, "Task [a-z0-9]* has been finished", 1)
-	utils.CheckDBNoObject(t, fileMap)
+	utils.Execute(fileMap, "run")
+	utils.CheckOutput(fileMap, "Task [a-z0-9]* has been finished", 1)
+	utils.CheckDBNoObject(fileMap)
 
 }
 
-func TestDefaultDelete(t testing.TB) {
-	fileMap, clean := utils.PrepareDefaultTest(t)
+func TestDefaultDelete() {
+	fileMap, clean := utils.PrepareDefaultTest()
 	defer clean(fileMap)
-	utils.Execute(t, fileMap, "run")
+	utils.Execute(fileMap, "run")
 	fileMap["delname"] = fileMap["name"]
-	utils.Execute(t, fileMap, "delete")
-	utils.CheckOutput(t, fileMap, "Task [a-z0-9]* has been deleted", 1)
-	utils.CheckDBNoObject(t, fileMap)
+	utils.Execute(fileMap, "delete")
+	utils.CheckOutput(fileMap, "Task [a-z0-9]* has been deleted", 1)
+	utils.CheckDBNoObject(fileMap)
 
 }
 
-func TestDefalutStatus(t testing.TB) {
-	fileMap, clean := utils.PrepareDefaultTest(t)
+func TestDefalutStatus() {
+	fileMap, clean := utils.PrepareDefaultTest()
 	defer clean(fileMap)
-	utils.Execute(t, fileMap, "run")
-	utils.Execute(t, fileMap, "status")
-	utils.CheckOutput(t, fileMap, "Show status started", 1)
-	utils.CheckOutput(t, fileMap, "There are [0-9]* tasks totally", 1)
-	utils.CheckDBNoObject(t, fileMap)
+	utils.Execute(fileMap, "run")
+	utils.Execute(fileMap, "status")
+	utils.CheckOutput(fileMap, "Show status started", 1)
+	utils.CheckOutput(fileMap, "There are [0-9]* tasks totally", 1)
+	utils.CheckDBNoObject(fileMap)
 }
 
-func TestDefaultClean(t testing.TB) {
-	fileMap, clean := utils.PrepareDefaultTest(t)
+func TestDefaultClean() {
+	fileMap, clean := utils.PrepareDefaultTest()
 	defer clean(fileMap)
-	utils.Execute(t, fileMap, "run")
-	utils.Execute(t, fileMap, "clean")
-	utils.CheckOutput(t, fileMap, "Clean started", 1)
-	utils.CheckOutput(t, fileMap, "Task [a-z0-9]* has been cleaned", 1)
-	utils.CheckDBNoObject(t, fileMap)
+	utils.Execute(fileMap, "run")
+	utils.Execute(fileMap, "clean")
+	utils.CheckOutput(fileMap, "Clean started", 1)
+	utils.CheckOutput(fileMap, "Task [a-z0-9]* has been cleaned", 1)
+	utils.CheckDBNoObject(fileMap)
 }

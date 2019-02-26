@@ -1,45 +1,43 @@
 package edge
 
 import (
-	"testing"
-
 	"github.com/yunify/qscamel/tests/utils"
 )
 
-func TestEmptyFile(t testing.TB) {
+func TestEmptyFile() {
 
-	fileMap, clean := utils.PrepareDefinedTest(t, 3, 0, 0, 1)
+	fileMap, clean := utils.PrepareDefinedTest(3, 0, 0, 1)
 	defer clean(fileMap)
-	utils.Execute(t, fileMap, "run")
+	utils.Execute(fileMap, "run")
 	// check file equal
-	utils.CheckDirectroyEqual(t, fileMap)
+	utils.CheckDirectroyEqual(fileMap)
 }
 
 // TODO: File Size should be adjusted appropriately
-func TestBigFile(t testing.TB) {
-	fileMap, clean := utils.PrepareDefinedTest(t, 1, 0, 1*utils.GB, 1)
+func TestBigFile() {
+	fileMap, clean := utils.PrepareDefinedTest(1, 0, 1*utils.GB, 1)
 	defer clean(fileMap)
-	utils.Execute(t, fileMap, "run")
-	utils.CheckDirectroyEqual(t, fileMap)
+	utils.Execute(fileMap, "run")
+	utils.CheckDirectroyEqual(fileMap)
 }
 
-func TestManyFile(t testing.TB) {
-	fileMap, clean := utils.PrepareDefinedTest(t, 10000, 0, 1, 1)
+func TestManyFile() {
+	fileMap, clean := utils.PrepareDefinedTest(10000, 0, 1, 1)
 	defer clean(fileMap)
-	utils.Execute(t, fileMap, "run")
-	utils.CheckDirectroyEqual(t, fileMap)
+	utils.Execute(fileMap, "run")
+	utils.CheckDirectroyEqual(fileMap)
 }
 
-func TestDeepFile(t testing.TB) {
-	fileMap, clean := utils.PrepareDefinedTest(t, 1, 1, 3*utils.MB, 257)
+func TestDeepFile() {
+	fileMap, clean := utils.PrepareDefinedTest(1, 1, 3*utils.MB, 257)
 	defer clean(fileMap)
-	utils.Execute(t, fileMap, "run")
-	utils.CheckDirectroyEqual(t, fileMap)
+	utils.Execute(fileMap, "run")
+	utils.CheckDirectroyEqual(fileMap)
 }
 
-func TestMutiDirAndFile(t testing.TB) {
-	fileMap, clean := utils.PrepareDefinedTest(t, 10, 3, 2*utils.MB, 3,)
+func TestMutiDirAndFile() {
+	fileMap, clean := utils.PrepareDefinedTest(10, 3, 2*utils.MB, 3,)
 	defer clean(fileMap)
-	utils.Execute(t, fileMap, "run")
-	utils.CheckDirectroyEqual(t, fileMap)
+	utils.Execute(fileMap, "run")
+	utils.CheckDirectroyEqual(fileMap)
 }
