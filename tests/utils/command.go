@@ -80,10 +80,16 @@ func CheckOutput(fmap map[string]string, expectPattern string, n int) {
 		log.Fatal(err)
 	}
 	sl, err := ExpectOutput(&stm, expectPattern)
-	log.Printf("regexp: %s ... (expect: %d/got: %d)\n", expectPattern[:5], n, len(*sl))
+
+	if n != -1 {
+		log.Printf("regexp: %s ... (expect: %d/got: %d)\n", expectPattern[:5], n, len(*sl))
+	} else {
+		log.Printf("regexp: %s ... (got: %d)\n", expectPattern[:5], len(*sl))
+	}
+
 	if err != nil {
 		log.Fatal(err)
-	} else if len(*sl) != n {
+	} else if len(*sl) != n && n != -1 || (n == -1 && len(*sl) == 0) {
 		log.Fatal(detecter{fmt.Sprintf("not satisfied '%s'", expectPattern)})
 	}
 

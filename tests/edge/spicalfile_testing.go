@@ -1,6 +1,7 @@
 package edge
 
 import (
+	"fmt"
 	"log"
 	"os/exec"
 
@@ -25,12 +26,12 @@ func TestDstSameFile() {
 	utils.CreateLocalSrcDir(fileMap)
 	utils.CreateLocalDstDir(fileMap)
 	err := utils.CreateTestRandomFile(20, 2*utils.MB, fileMap["src"])
-	cmd := exec.Command("cp", "-r", fileMap["src"]+"/*", fileMap["dir"]+"/"+"dst")
+	fmt.Println(fileMap["src"]+"/*", fileMap["dir"]+"/"+"dst")
+	cmd := exec.Command("cp", "-r", fileMap["src"]+"/.", fileMap["dir"]+"/"+"dst")
 	err = cmd.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	// run command
 	utils.Execute(fileMap, "run")
 	// check file equal

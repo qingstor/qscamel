@@ -13,9 +13,21 @@ import (
 // CleanTestTempFile will clean the temp file which created
 // by corresponded task.
 func CleanTestTempFile(fmap map[string]string) error {
-	if err := os.RemoveAll(fmap["dir"]); err != nil {
+	if fmap["dir"][0:4] == "/tmp" {
+		err := os.RemoveAll(fmap["dir"])
 		return err
 	}
+
+	// locate in ~/.qscamel
+	for k, v := range fmap {
+		if k ==  "dir" {
+			continue
+		}
+		if err := os.RemoveAll(v); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
