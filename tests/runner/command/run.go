@@ -39,7 +39,7 @@ var RunCmd = &cobra.Command{
 			runPart(int(DIRECTORY), int(FILE),
 				int(SPECIAL))
 		default:
-			runMatchCase(fmt.Sprintf("*%s*", args[0]))
+			runMatchCase(fmt.Sprintf(".*%s.*", args[0]))
 		}
 	},
 }
@@ -60,11 +60,13 @@ func runPart(i... int) {
 }
 
 func runMatchCase(Pattern string) {
+	fmt.Println(Pattern)
 	r, _ := regexp.Compile(Pattern)
 	toTest := make(map[string] func())
 	for _, set := range TestCase {
 		for k, v := range set {
-			if has := r.MatchString(k); has {
+			has := r.MatchString(k)
+			if has {
 				toTest[k] = v
 			}
 		}
