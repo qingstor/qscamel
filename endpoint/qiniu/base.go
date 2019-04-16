@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/qiniu/api.v7/storage"
-	"github.com/qiniu/x/rpc.v7"
 	"github.com/sirupsen/logrus"
 
 	"github.com/yunify/qscamel/model"
@@ -65,7 +64,7 @@ func (c *Client) Stat(ctx context.Context, p string) (o *model.SingleObject, err
 
 	fi, err := c.bucket.Stat(c.BucketName, cp)
 	if err != nil {
-		if e, ok := err.(*rpc.ErrorInfo); ok {
+		if e, ok := err.(*storage.ErrorInfo); ok {
 			// If object not found, we just need to return a nil object.
 			if e.Code == ErrorCodeNotFound {
 				return nil, nil
