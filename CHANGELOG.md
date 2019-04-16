@@ -2,6 +2,12 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.6] - 2019-04-16
+
+### Added
+
+- endpoint: s3: Add signature v2 support
+
 ## [v2.0.5] - 2018-08-20
 
 ### Added
@@ -97,6 +103,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 - QingStor qscamel.
 
+[v2.0.6]: https://github.com/yunify/qscamel/compare/v2.0.6...v2.0.5
 [v2.0.5]: https://github.com/yunify/qscamel/compare/v2.0.4...v2.0.5
 [v2.0.4]: https://github.com/yunify/qscamel/compare/v2.0.3...v2.0.4
 [v2.0.3]: https://github.com/yunify/qscamel/compare/v2.0.2...v2.0.3
