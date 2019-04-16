@@ -1,10 +1,31 @@
 package v2
 
+// Source: https://github.com/pivotal-golang/s3cli
+
+// Copyright (c) 2013 Damien Le Berrigaud and Nick Wade
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
 import (
 	"crypto/hmac"
-	"crypto/sha256"
+	"crypto/sha1"
 	"encoding/base64"
-	"errors"
 	"net/http"
 	"net/url"
 	"sort"
@@ -15,48 +36,49 @@ import (
 	"github.com/aws/aws-sdk-go/aws/request"
 )
 
-var (
-	errInvalidMethod = errors.New("v2 signer only handles HTTP POST")
-)
-
-const (
-	signatureVersion = "2"
-	signatureMethod  = "HmacSHA256"
-	timeFormat       = "2006-01-02T15:04:05Z"
-)
-
 type signer struct {
 	// Values that must be populated from the request
-	Request     *http.Request
-	Time        time.Time
-	Credentials *credentials.Credentials
-
+	Request      *http.Request
+	Time         time.Time
+	Credentials  *credentials.Credentials
 	Query        url.Values
 	stringToSign string
 	signature    string
 }
 
-// SignRequestHandler is a named request handler the SDK will use to sign
-// service client request with using the V4 signature.
-var SignRequestHandler = request.NamedHandler{
-	Name: "v2.SignRequestHandler", Fn: SignSDKRequest,
+var s3ParamsToSign = map[string]bool{
+	"acl":                          true,
+	"location":                     true,
+	"logging":                      true,
+	"notification":                 true,
+	"partNumber":                   true,
+	"policy":                       true,
+	"requestPayment":               true,
+	"torrent":                      true,
+	"uploadId":                     true,
+	"uploads":                      true,
+	"versionId":                    true,
+	"versioning":                   true,
+	"versions":                     true,
+	"response-content-type":        true,
+	"response-content-language":    true,
+	"response-expires":             true,
+	"response-cache-control":       true,
+	"response-content-disposition": true,
+	"response-content-encoding":    true,
+	"website":                      true,
+	"delete":                       true,
 }
 
-// SignSDKRequest requests with signature version 2.
+// Sign requests with signature version 2.
 //
 // Will sign the requests with the service config's Credentials object
-// Signing is skipped if the credentials is the aws.AnonymousCredentials
+// Signing is skipped if the credentials is the credentials.AnonymousCredentials
 // object.
-func SignSDKRequest(req *request.Request) {
+func Sign(req *request.Request) {
 	// If the request does not need to be signed ignore the signing of the
 	// request if the AnonymousCredentials object is used.
 	if req.Config.Credentials == credentials.AnonymousCredentials {
-		return
-	}
-
-	if req.HTTPRequest.Method != "POST" && req.HTTPRequest.Method != "GET" {
-		// The V2 signer only supports GET and POST
-		req.Error = errInvalidMethod
 		return
 	}
 
@@ -65,24 +87,7 @@ func SignSDKRequest(req *request.Request) {
 		Time:        req.Time,
 		Credentials: req.Config.Credentials,
 	}
-
-	req.Error = v2.Sign()
-
-	if req.Error != nil {
-		return
-	}
-
-	if req.HTTPRequest.Method == "POST" {
-		// Set the body of the request based on the modified query parameters
-		req.SetStringBody(v2.Query.Encode())
-
-		// Now that the body has changed, remove any Content-Length header,
-		// because it will be incorrect
-		req.HTTPRequest.ContentLength = 0
-		req.HTTPRequest.Header.Del("Content-Length")
-	} else {
-		req.HTTPRequest.URL.RawQuery = v2.Query.Encode()
-	}
+	v2.Sign()
 }
 
 func (v2 *signer) Sign() error {
@@ -90,68 +95,99 @@ func (v2 *signer) Sign() error {
 	if err != nil {
 		return err
 	}
+	accessKey := credValue.AccessKeyID
+	var (
+		md5, ctype, date, xamz string
+		xamzDate               bool
+		sarray                 []string
+		smap                   map[string]string
+		sharray                []string
+	)
 
-	if v2.Request.Method == "POST" {
-		// Parse the HTTP request to obtain the query parameters that will
-		// be used to build the string to sign. Note that because the HTTP
-		// request will need to be modified, the PostForm and Form properties
-		// are reset to nil after parsing.
-		v2.Request.ParseForm()
-		v2.Query = v2.Request.PostForm
-		v2.Request.PostForm = nil
-		v2.Request.Form = nil
-	} else {
-		v2.Query = v2.Request.URL.Query()
+	headers := v2.Request.Header
+	params := v2.Request.URL.Query()
+	parsedURL, err := url.Parse(v2.Request.URL.String())
+	if err != nil {
+		return err
 	}
-
-	// Set new query parameters
-	v2.Query.Set("AWSAccessKeyId", credValue.AccessKeyID)
-	v2.Query.Set("SignatureVersion", signatureVersion)
-	v2.Query.Set("SignatureMethod", signatureMethod)
-	v2.Query.Set("Timestamp", v2.Time.UTC().Format(timeFormat))
+	host, canonicalPath := parsedURL.Host, parsedURL.Path
+	v2.Request.Header["Host"] = []string{host}
+	v2.Request.Header["date"] = []string{v2.Time.In(time.UTC).Format(time.RFC1123)}
 	if credValue.SessionToken != "" {
-		v2.Query.Set("SecurityToken", credValue.SessionToken)
+		v2.Request.Header["x-amz-security-token"] = []string{credValue.SessionToken}
 	}
 
-	// in case this is a retry, ensure no signature present
-	v2.Query.Del("Signature")
-
-	method := v2.Request.Method
-	host := v2.Request.URL.Host
-	path := v2.Request.URL.Path
-	if path == "" {
-		path = "/"
+	smap = make(map[string]string)
+	for k, v := range headers {
+		k = strings.ToLower(k)
+		switch k {
+		case "content-md5":
+			md5 = v[0]
+		case "content-type":
+			ctype = v[0]
+		case "date":
+			if !xamzDate {
+				date = v[0]
+			}
+		default:
+			if strings.HasPrefix(k, "x-amz-") {
+				vall := strings.Join(v, ",")
+				smap[k] = k + ":" + vall
+				if k == "x-amz-date" {
+					xamzDate = true
+					date = ""
+				}
+				sharray = append(sharray, k)
+			}
+		}
+	}
+	if len(sharray) > 0 {
+		sort.StringSlice(sharray).Sort()
+		for _, h := range sharray {
+			sarray = append(sarray, smap[h])
+		}
+		xamz = strings.Join(sarray, "\n") + "\n"
 	}
 
-	// obtain all of the query keys and sort them
-	queryKeys := make([]string, 0, len(v2.Query))
-	for key := range v2.Query {
-		queryKeys = append(queryKeys, key)
-	}
-	sort.Strings(queryKeys)
-
-	// build URL-encoded query keys and values
-	queryKeysAndValues := make([]string, len(queryKeys))
-	for i, key := range queryKeys {
-		k := strings.Replace(url.QueryEscape(key), "+", "%20", -1)
-		v := strings.Replace(url.QueryEscape(v2.Query.Get(key)), "+", "%20", -1)
-		queryKeysAndValues[i] = k + "=" + v
+	expires := false
+	if v, ok := params["Expires"]; ok {
+		expires = true
+		date = v[0]
+		params["AWSAccessKeyId"] = []string{accessKey}
 	}
 
-	// join into one query string
-	query := strings.Join(queryKeysAndValues, "&")
+	sarray = sarray[0:0]
+	for k, v := range params {
+		if s3ParamsToSign[k] {
+			for _, vi := range v {
+				if vi == "" {
+					sarray = append(sarray, k)
+				} else {
+					sarray = append(sarray, k+"="+vi)
+				}
+			}
+		}
+	}
+	if len(sarray) > 0 {
+		sort.StringSlice(sarray).Sort()
+		canonicalPath = canonicalPath + "?" + strings.Join(sarray, "&")
+	}
 
-	// build the canonical string for the V2 signature
 	v2.stringToSign = strings.Join([]string{
-		method,
-		host,
-		path,
-		query,
+		v2.Request.Method,
+		md5,
+		ctype,
+		date,
+		xamz + canonicalPath,
 	}, "\n")
-
-	hash := hmac.New(sha256.New, []byte(credValue.SecretAccessKey))
+	hash := hmac.New(sha1.New, []byte(credValue.SecretAccessKey))
 	hash.Write([]byte(v2.stringToSign))
 	v2.signature = base64.StdEncoding.EncodeToString(hash.Sum(nil))
-	v2.Query.Set("Signature", v2.signature)
+
+	if expires {
+		params["Signature"] = []string{v2.signature}
+	} else {
+		headers["Authorization"] = []string{"AWS " + accessKey + ":" + v2.signature}
+	}
 	return nil
 }
