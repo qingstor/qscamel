@@ -2,11 +2,13 @@ package s3
 
 import (
 	"context"
+
 	"net/http"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/aws/signer/v4"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
@@ -94,10 +96,13 @@ func New(ctx context.Context, et uint8, hc *http.Client) (c *Client, err error) 
 	if err != nil {
 		return
 	}
-	if c.EnableSignatureV2 {
-		sess.Handlers.Sign.SwapNamed(v2.SignRequestHandler)
-	}
 	c.client = s3.New(sess)
-
+	if c.EnableSignatureV2 {
+		// s3.New will push v4.SignRequestHandler into the sign handlers.
+		// In order to force client use v2.SignRequestHandler, we should remove it
+		// and add the v2.SignRequestHandler after client initiation.
+		c.client.Handlers.Sign.Remove(v4.SignRequestHandler)
+		c.client.Handlers.Sign.PushBackNamed(v2.SignRequestHandler)
+	}
 	return
 }
