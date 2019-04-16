@@ -2,6 +2,12 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.7] - 2019-04-16
+
+### Added
+
+- endpoint: s3: Fix v2 signer not swap correctly
+
 ## [v2.0.6] - 2019-04-16
 
 ### Added
