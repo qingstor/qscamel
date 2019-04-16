@@ -13,6 +13,7 @@ import (
 
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
+	"github.com/yunify/qscamel/endpoint/s3/signer/v2"
 )
 
 // Client is the client to visit service.
@@ -26,6 +27,7 @@ type Client struct {
 	UseAccelerate       bool   `yaml:"use_accelerate"`
 	PathStyle           bool   `yaml:"path_style"`
 	EnableListObjectsV2 bool   `yaml:"enable_list_objects_v2"`
+	EnableSignatureV2   bool   `yaml:"enable_signature_v2"`
 
 	Path string
 
@@ -91,6 +93,9 @@ func New(ctx context.Context, et uint8, hc *http.Client) (c *Client, err error) 
 	sess, err := session.NewSession(cfg)
 	if err != nil {
 		return
+	}
+	if c.EnableSignatureV2 {
+		sess.Handlers.Sign.SwapNamed(v2.SignRequestHandler)
 	}
 	c.client = s3.New(sess)
 

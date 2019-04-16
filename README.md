@@ -242,7 +242,12 @@ access_key_id: example_access_key_id
 secret_access_key: example_secret_access_key
 disable_ssl: false
 use_accelerate: false
+path_style: false
+enable_list_objects_v2: false
+enable_signature_v2: false
 ```
+
+`enable_signature_v2` is added for compatible usage in ceph and other S3-alike service.
 
 ### Endpoint upyun
 
