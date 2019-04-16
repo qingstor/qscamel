@@ -12,8 +12,8 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/yunify/qscamel/constants"
-	"github.com/yunify/qscamel/model"
 	"github.com/yunify/qscamel/endpoint/s3/signer/v2"
+	"github.com/yunify/qscamel/model"
 )
 
 // Client is the client to visit service.

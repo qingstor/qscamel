@@ -2,7 +2,6 @@ package v2
 
 import (
 	"bytes"
-	"github.com/aws/aws-sdk-go/aws/request"
 	"net/http"
 	"net/url"
 	"testing"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/awstesting"
 )
 
