@@ -106,11 +106,22 @@ func (v2 *signer) Sign() error {
 
 	headers := v2.Request.Header
 	params := v2.Request.URL.Query()
-	parsedURL, err := url.Parse(v2.Request.URL.String())
-	if err != nil {
-		return err
-	}
-	host, canonicalPath := parsedURL.Host, parsedURL.Path
+
+	// Encode rules borrowed from [s3cmd](https://github.com/s3tools/s3cmd/blob/master/S3/Crypto.py):
+	//
+	// URI encode every byte. UriEncode() must enforce the following rules:
+	// - URI encode every byte except the unreserved characters: 'A'-'Z', 'a'-'z', '0'-'9', '-', '.', '_', and '~'.
+	// - The space character is a reserved character and must be encoded as "%20" (and not as "+").
+	// - Each URI encoded byte is formed by a '%' and the two-digit hexadecimal value of the byte.
+	// - Letters in the hexadecimal value must be uppercase, for example "%1A".
+	// - Encode the forward slash character, '/', everywhere except in the object key name.
+	// 	For example, if the object key name is photos/Jan/sample.jpg, the forward slash in the key name is not encoded.
+	host, canonicalPath := v2.Request.URL.Host, v2.Request.URL.Path
+	canonicalPath = url.QueryEscape(canonicalPath)
+	canonicalPath = strings.Replace(canonicalPath, "%2F", "/", -1)
+	canonicalPath = strings.Replace(canonicalPath, "%3D", "=", -1)
+	canonicalPath = strings.Replace(canonicalPath, "+", "%20", -1)
+
 	v2.Request.Header["Host"] = []string{host}
 	v2.Request.Header["date"] = []string{v2.Time.In(time.UTC).Format(time.RFC1123)}
 	if credValue.SessionToken != "" {
