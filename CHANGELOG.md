@@ -2,6 +2,16 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.10] - 2019-04-19
+
+### Added
+
+- endpoint: s3: Add disable_uri_cleaning support
+
+### Fixed
+
+- utils: Fix path not join correctly
+
 ## [v2.0.9] - 2019-04-18
 
 ### Fixed
@@ -121,6 +131,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 - QingStor qscamel.
 
+[v2.0.10]: https://github.com/yunify/qscamel/compare/v2.0.10...v2.0.9
 [v2.0.9]: https://github.com/yunify/qscamel/compare/v2.0.9...v2.0.8
 [v2.0.8]: https://github.com/yunify/qscamel/compare/v2.0.8...v2.0.7
 [v2.0.7]: https://github.com/yunify/qscamel/compare/v2.0.7...v2.0.6
