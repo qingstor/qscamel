@@ -14,14 +14,16 @@ type joinCase struct {
 func TestJoin(t *testing.T) {
 	joinTestCases := []joinCase{
 		{[]string{"/"}, ""},
-		{[]string{"//"}, ""},
-		{[]string{"//", "/"}, ""},
 
 		{[]string{"a"}, "a"},
+		{[]string{"/", "/a"}, "/a"},
 
 		{[]string{"a", "b"}, "a/b"},
 		{[]string{"a/", "b"}, "a/b"},
 		{[]string{"a/", "b/"}, "a/b"},
+		{[]string{"/a", "/b"}, "a//b"},
+
+		{[]string{"a", "", "b"}, "a/b"},
 	}
 
 	for _, v := range joinTestCases {

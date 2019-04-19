@@ -1,17 +1,32 @@
 package utils
 
 import (
-	"path"
 	"strings"
 )
 
 // Join will join path together which will make sure not leading or trailing "/"
 func Join(in ...string) string {
-	// Add "/" to list specific prefix.
-	cp := path.Join(in...)
-	// Trim "/" to prevent object start or end with "/"
-	cp = strings.Trim(cp, "/")
+	x := make([]string, 0)
+	for k, v := range in {
+		if k == 0 {
+			v = strings.TrimLeft(v, "/")
+		}
+		// Trim all trailing "/"
+		v = strings.TrimRight(v, "/")
 
+		// Ignore empty string after trim.
+		if v == "" {
+			continue
+		}
+
+		x = append(x, v)
+	}
+	if len(x) == 0 {
+		return ""
+	}
+
+	// Add "/" to list specific prefix.
+	cp := strings.Join(x, "/")
 	return cp
 }
 
