@@ -30,6 +30,7 @@ type Client struct {
 	PathStyle           bool   `yaml:"path_style"`
 	EnableListObjectsV2 bool   `yaml:"enable_list_objects_v2"`
 	EnableSignatureV2   bool   `yaml:"enable_signature_v2"`
+	DisableURICleaning  bool   `yaml:"disable_uri_cleaning"`
 
 	Path string
 
@@ -91,6 +92,8 @@ func New(ctx context.Context, et uint8, hc *http.Client) (c *Client, err error) 
 		S3UseAccelerate:  aws.Bool(c.UseAccelerate),
 		S3ForcePathStyle: aws.Bool(c.PathStyle),
 		HTTPClient:       hc,
+		// AWS S3 SDK will clean the url automatically which will convert "abc//bcd" -> "abc/bcd"
+		DisableRestProtocolURICleaning: aws.Bool(c.DisableURICleaning),
 	}
 	sess, err := session.NewSession(cfg)
 	if err != nil {

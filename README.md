@@ -245,9 +245,11 @@ use_accelerate: false
 path_style: false
 enable_list_objects_v2: false
 enable_signature_v2: false
+disable_uri_cleaning: false
 ```
 
-`enable_signature_v2` is added for compatible usage in ceph and other S3-alike service.
+- `enable_signature_v2` is added for compatible usage in ceph and other S3-alike service.
+- `disable_uri_cleaning` is added to control aws s3 sdk's url clean behavior.
 
 ### Endpoint upyun
 
