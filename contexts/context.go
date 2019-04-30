@@ -3,6 +3,7 @@ package contexts
 import (
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 
@@ -57,6 +58,14 @@ func SetupContexts(c *config.Config) (err error) {
 		return
 	}
 
+	var proxy *url.URL
+	if c.Proxy != "" {
+		proxy, err = url.Parse(c.Proxy)
+		if err != nil {
+			return
+		}
+	}
+
 	// Setup http client.
 	Client = &http.Client{
 		// We do not use the timeout in http client,
@@ -76,7 +85,9 @@ func SetupContexts(c *config.Config) (err error) {
 			IdleConnTimeout:       time.Second * 20,
 			TLSHandshakeTimeout:   time.Second * 10,
 			ExpectContinueTimeout: time.Second * 2,
+			Proxy:                 http.ProxyURL(proxy),
 		},
 	}
+
 	return nil
 }

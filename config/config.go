@@ -18,6 +18,7 @@ type Config struct {
 	LogLevel     string `yaml:"log_level"`
 	PIDFile      string `yaml:"pid_file"`
 	DatabaseFile string `yaml:"database_file"`
+	Proxy        string `yaml:"proxy"`
 }
 
 // New will create a new Config.

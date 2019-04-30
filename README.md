@@ -78,6 +78,8 @@ log_file: ~/.qscamel/qscamel.log
 # database_file controls where the database folder will create.
 # Default value: ~/.qscamel/db
 database_file: ~/.qscamel/db
+# Proxy that qscamel used to connect endpoint.
+proxy: ""
 ```
 
 The default config will read from `~/.qscamel/qscamel.yaml`, you can also specify the config path with flag `-c` or `--config`.

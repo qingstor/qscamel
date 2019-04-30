@@ -31,7 +31,7 @@ func confAssign(dir string) *ConfigContentfmt {
 	return &ConfigContentfmt{
 		0, dir + "/qscamel.log",
 		"info", dir + "/qscamel.pid",
-		dir + "/db",
+		dir + "/db", "",
 	}
 }
 
