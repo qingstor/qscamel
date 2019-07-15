@@ -18,7 +18,7 @@ require (
 	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af // indirect
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
-	github.com/pengsrc/go-shared v0.0.0-20180504052330-db9bcfc42355
+	github.com/pengsrc/go-shared v0.2.1-0.20190131101655-1999055a4a14
 	github.com/qiniu/api.v7 v0.0.0-20190307065957-039fdba59f73
 	github.com/qiniu/x v7.0.8+incompatible
 	github.com/satori/go.uuid v1.2.0 // indirect
@@ -26,11 +26,11 @@ require (
 	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a // indirect
 	github.com/spf13/cobra v0.0.1
 	github.com/spf13/pflag v1.0.0 // indirect
-	github.com/stretchr/testify v1.3.0
+	github.com/stretchr/testify v1.3.1-0.20190311161405-34c6fa2dc709
 	github.com/syndtr/goleveldb v0.0.0-20180521045021-5d6fca44a948
 	github.com/upyun/go-sdk v2.1.0+incompatible
 	github.com/vmihailenco/msgpack v3.3.3+incompatible
-	github.com/yunify/qingstor-sdk-go v2.2.15+incompatible
+	github.com/yunify/qingstor-sdk-go/v3 v3.0.2
 	go.opencensus.io v0.0.0-20180816223706-1789eaf7638d // indirect
 	golang.org/x/oauth2 v0.0.0-20180724155351-3d292e4d0cdc // indirect
 	golang.org/x/sync v0.0.0-20190412183630-56d357773e84 // indirect
@@ -42,7 +42,7 @@ require (
 	gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2 // indirect
 	gopkg.in/ini.v1 v1.42.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0-20170531160350-a96e63847dc3
-	gopkg.in/yaml.v2 v2.2.1
+	gopkg.in/yaml.v2 v2.2.2
 )
 
 replace github.com/qiniu/x => github.com/Xuanwo/qiniu_x v0.0.0-20190416044656-4dd63e731f37
