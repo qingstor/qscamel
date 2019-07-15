@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
-	"github.com/yunify/qingstor-sdk-go/config"
-	"github.com/yunify/qingstor-sdk-go/service"
+	"github.com/yunify/qingstor-sdk-go/v3/config"
+	"github.com/yunify/qingstor-sdk-go/v3/service"
 	"gopkg.in/yaml.v2"
 
 	"github.com/yunify/qscamel/constants"
