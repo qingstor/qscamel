@@ -6,23 +6,6 @@ go:
 env:
   - GO111MODULE=on
 
-cache:
-  directories:
-    - ${HOME}/source
-
-before_install:
-  - pushd ${HOME}/source
-  - if [[ ! -d "./make-4.0" ]]; then
-    wget http://ftp.gnu.org/gnu/make/make-4.0.tar.gz &&
-    tar -vxzf make-4.0.tar.gz &&
-    pushd make-4.0 && ./configure && make && popd;
-    fi
-  - pushd make-4.0 && sudo make install && popd
-  - export PATH=${GOPATH}/bin:$PATH
-  - popd
-  - make --version
-  - mkdir ${HOME}/.qscamel
-
 install:
   - go get -u golang.org/x/lint/golint
 
@@ -31,3 +14,17 @@ script:
   - make build
   - make test
   - make coverage
+
+after_success:
+  - make release
+
+deploy:
+  provider: releases
+  api_key: $API_KEY
+  file_glob: true
+  file: release/*
+  skip_cleanup: true
+  draft: true
+  on:
+    tags: true
+    condition: $TRAVIS_GO_VERSION = 1.12
