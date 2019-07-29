@@ -14,6 +14,9 @@ import (
 // List implement source.List
 func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o model.Object)) (err error) {
 	cp := utils.Join(c.Path, j.Key) + "/"
+	if cp == "/" {
+		cp = ""
+	}
 
 	marker := j.Marker
 
