@@ -10,6 +10,7 @@ const (
 	EndpointQiniu    = "qiniu"
 	EndpointS3       = "s3"
 	EndpointUpyun    = "upyun"
+	EndpointCOS      = "cos"
 )
 
 // Constants for endpoint type.

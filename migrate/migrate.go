@@ -28,6 +28,7 @@ import (
 	"github.com/yunify/qscamel/contexts"
 	"github.com/yunify/qscamel/endpoint"
 	"github.com/yunify/qscamel/endpoint/aliyun"
+	"github.com/yunify/qscamel/endpoint/cos"
 	"github.com/yunify/qscamel/endpoint/filelist"
 	"github.com/yunify/qscamel/endpoint/fs"
 	"github.com/yunify/qscamel/endpoint/gcs"
@@ -118,6 +119,11 @@ func check(ctx context.Context) (err error) {
 		}
 	case constants.EndpointUpyun:
 		src, err = upyun.New(ctx, constants.SourceEndpoint, contexts.Client)
+		if err != nil {
+			return
+		}
+	case constants.EndpointCOS:
+		src, err = cos.New(ctx, constants.SourceEndpoint, contexts.Client)
 		if err != nil {
 			return
 		}
