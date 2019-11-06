@@ -28,6 +28,7 @@ require (
 	github.com/spf13/pflag v1.0.0 // indirect
 	github.com/stretchr/testify v1.3.1-0.20190311161405-34c6fa2dc709
 	github.com/syndtr/goleveldb v0.0.0-20180521045021-5d6fca44a948
+	github.com/tencentyun/cos-go-sdk-v5 v0.0.0-20191022140025-978604eaa44d
 	github.com/upyun/go-sdk v2.1.0+incompatible
 	github.com/vmihailenco/msgpack v3.3.3+incompatible
 	github.com/yunify/qingstor-sdk-go/v3 v3.0.2
@@ -46,3 +47,5 @@ require (
 )
 
 replace github.com/qiniu/x => github.com/Xuanwo/qiniu_x v0.0.0-20190416044656-4dd63e731f37
+
+go 1.13
