@@ -104,7 +104,7 @@ type: copy
 # source 是任务的 source 端点。
 source:
   # type 是当前端点的类型。
-  # 可选值: aliyun, fs, filelist, gcs, qingstor, qiniu, s3, upyun.
+  # 可选值: aliyun, cos, fs, filelist, gcs, qingstor, qiniu, s3, upyun.
   type: fs
   # path 是当前端点的路径。
   path: "/path/to/source"
@@ -148,6 +148,20 @@ endpoint: example_endpoint
 bucket_name: example_bucket
 access_key_id: example_access_key_id
 access_key_secret: example_access_key_secret
+```
+
+### Endpoint cos
+
+能够用做 **source** 端点。
+
+COS 是 [Tencent Cloud](https://cloud.tencent.com/product/cos) 提供的对象存储服务。
+
+cos 端点有如下配置内容:
+
+```yaml
+bucket_url: https://example-123456789.cos.ap-beijing.myqcloud.com
+secret_id: example_secret_id
+secret_key: example_secret_key
 ```
 
 ### Endpoint fs

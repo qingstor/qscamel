@@ -102,7 +102,7 @@ type: copy
 # source is the source endpoint for current task.
 source:
   # type is the type for endpoint.
-  # Available value: aliyun, fs, filelist, gcs, qingstor, qiniu, s3, upyun.
+  # Available value: aliyun, cos, fs, filelist, gcs, qingstor, qiniu, s3, upyun.
   type: fs
   # path is the path for endpoint.
   path: "/path/to/source"
@@ -147,6 +147,20 @@ endpoint: example_endpoint
 bucket_name: example_bucket
 access_key_id: example_access_key_id
 access_key_secret: example_access_key_secret
+```
+
+### Endpoint cos
+
+Can be used as **source** endpoint.
+
+COS is the object storage service provided by [Tencent Cloud](https://cloud.tencent.com/product/cos).
+
+cos endpoint has following options:
+
+```yaml
+bucket_url: https://example-123456789.cos.ap-beijing.myqcloud.com
+secret_id: example_secret_id
+secret_key: example_secret_key
 ```
 
 ### Endpoint fs
