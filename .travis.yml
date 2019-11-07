@@ -1,6 +1,6 @@
 language: go
 go:
-  - "1.12"
+  - "1.13"
 
 env:
   - GO111MODULE=on
@@ -26,4 +26,4 @@ deploy:
   draft: true
   on:
     tags: true
-    condition: $TRAVIS_GO_VERSION = 1.12
+    condition: $TRAVIS_GO_VERSION = 1.13

@@ -1,5 +1,7 @@
 module github.com/yunify/qscamel
 
+go 1.13
+
 require (
 	cloud.google.com/go v0.26.0
 	contrib.go.opencensus.io/exporter/stackdriver v0.0.0-20180815171500-f7f575859225 // indirect
@@ -47,5 +49,3 @@ require (
 )
 
 replace github.com/qiniu/x => github.com/Xuanwo/qiniu_x v0.0.0-20190416044656-4dd63e731f37
-
-go 1.13

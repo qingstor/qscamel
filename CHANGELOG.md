@@ -2,6 +2,12 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.13] - 2019-11-07
+
+### Fixed
+
+- endpoint/cos: Add support for tencent cloud cos
+
 ## [v2.0.12] - 2019-07-29
 
 ### Fixed
@@ -143,6 +149,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 - QingStor qscamel.
 
+[v2.0.13]: https://github.com/yunify/qscamel/compare/v2.0.12...v2.0.13
 [v2.0.12]: https://github.com/yunify/qscamel/compare/v2.0.11...v2.0.12
 [v2.0.11]: https://github.com/yunify/qscamel/compare/v2.0.10...v2.0.11
 [v2.0.10]: https://github.com/yunify/qscamel/compare/v2.0.10...v2.0.9
