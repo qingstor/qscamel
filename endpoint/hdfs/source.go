@@ -6,7 +6,6 @@ import (
 
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
-	"github.com/yunify/qscamel/utils"
 )
 
 // List implement source.List
@@ -21,7 +20,7 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 	for _, v := range fi {
 		if v.IsDir() {
 			o := &model.DirectoryObject{
-				Key: "/" + utils.Join(j.Key, v.Name()),
+				Key: filepath.Join(j.Key, v.Name()),
 			}
 
 			fn(o)
@@ -29,7 +28,7 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 			continue
 		}
 		o := &model.SingleObject{
-			Key:  "/" + utils.Join(j.Key, v.Name()),
+			Key:  filepath.Join(j.Key, v.Name()),
 			Size: v.Size(),
 		}
 
