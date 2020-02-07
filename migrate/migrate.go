@@ -32,6 +32,7 @@ import (
 	"github.com/yunify/qscamel/endpoint/filelist"
 	"github.com/yunify/qscamel/endpoint/fs"
 	"github.com/yunify/qscamel/endpoint/gcs"
+	"github.com/yunify/qscamel/endpoint/hdfs"
 	"github.com/yunify/qscamel/endpoint/qingstor"
 	"github.com/yunify/qscamel/endpoint/qiniu"
 	"github.com/yunify/qscamel/endpoint/s3"
@@ -99,6 +100,11 @@ func check(ctx context.Context) (err error) {
 		}
 	case constants.EndpointGCS:
 		src, err = gcs.New(ctx, constants.SourceEndpoint, contexts.Client)
+		if err != nil {
+			return
+		}
+	case constants.EndpointHDFS:
+		src, err = hdfs.New(ctx, constants.SourceEndpoint, contexts.Client)
 		if err != nil {
 			return
 		}

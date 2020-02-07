@@ -6,6 +6,7 @@ const (
 	EndpointFileList = "filelist"
 	EndpointFs       = "fs"
 	EndpointGCS      = "gcs"
+	EndpointHDFS     = "hdfs"
 	EndpointQingStor = "qingstor"
 	EndpointQiniu    = "qiniu"
 	EndpointS3       = "s3"
