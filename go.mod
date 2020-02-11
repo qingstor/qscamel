@@ -7,7 +7,7 @@ require (
 	contrib.go.opencensus.io/exporter/stackdriver v0.0.0-20180815171500-f7f575859225 // indirect
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/aliyun/aliyun-oss-go-sdk v0.0.0-20180615125516-36bf7aa2f916
-	github.com/aws/aws-sdk-go v1.15.15
+	github.com/aws/aws-sdk-go v1.28.14
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/cenkalti/backoff v1.1.0
 	github.com/go-ini/ini v1.38.2 // indirect
