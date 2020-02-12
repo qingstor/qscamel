@@ -3,7 +3,7 @@ module github.com/yunify/qscamel
 go 1.13
 
 require (
-	cloud.google.com/go v0.26.0
+	cloud.google.com/go v0.52.0
 	contrib.go.opencensus.io/exporter/stackdriver v0.0.0-20180815171500-f7f575859225 // indirect
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/aliyun/aliyun-oss-go-sdk v0.0.0-20180615125516-36bf7aa2f916
