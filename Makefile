@@ -37,7 +37,12 @@ lint:
 	 if [[ -n $${lint} ]]; then echo "$${lint}"; exit 1; fi
 	@echo "ok"
 
-build: check
+tidy:
+	@echo "Tidy and check the go mod files"
+	@go mod tidy && go mod verify
+	@echo "Done"
+
+build: tidy check
 	@echo "build qscamel"
 	@mkdir -p ./bin
 	@go build -tags netgo -o ./bin/qscamel .

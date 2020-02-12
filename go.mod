@@ -10,6 +10,7 @@ require (
 	github.com/aws/aws-sdk-go v1.15.15
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/cenkalti/backoff v1.1.0
+	github.com/colinmarc/hdfs/v2 v2.1.1
 	github.com/go-ini/ini v1.38.2 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
@@ -36,7 +37,6 @@ require (
 	github.com/yunify/qingstor-sdk-go/v3 v3.0.2
 	go.opencensus.io v0.0.0-20180816223706-1789eaf7638d // indirect
 	golang.org/x/oauth2 v0.0.0-20180724155351-3d292e4d0cdc // indirect
-	golang.org/x/sync v0.0.0-20190412183630-56d357773e84 // indirect
 	google.golang.org/api v0.0.0-20180818000503-e21acd801f91
 	google.golang.org/appengine v0.0.0-20180731164958-4216e58b9158 // indirect
 	google.golang.org/genproto v0.0.0-20180731170733-daca94659cb5 // indirect
