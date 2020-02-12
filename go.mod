@@ -27,7 +27,7 @@ require (
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a // indirect
-	github.com/spf13/cobra v0.0.1
+	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.0 // indirect
 	github.com/stretchr/testify v1.3.1-0.20190311161405-34c6fa2dc709
 	github.com/syndtr/goleveldb v0.0.0-20180521045021-5d6fca44a948
