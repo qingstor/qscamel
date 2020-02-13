@@ -22,6 +22,8 @@ qscamel 是一个用于在不同的端点 (Endpoint) 中高效迁移数据的工
   - [Qiniu](https://www.qiniu.com/)
   - [AWS S3](https://amazonaws-china.com/cn/s3)
   - [Upyun](https://www.upyun.com/)
+  - [Tencent COS](https://cloud.tencent.com/product/cos)
+  - [HDFS](http://hadoop.apache.org/)
 
 ## 快速入门
 
@@ -191,6 +193,16 @@ gcs 端点有如下配置内容:
 ```yaml
 api_key: example_api_key
 bucket_name: exmaple_bukcet
+```
+
+### Endpoint hdfs
+
+能够用做 **source** 端点。
+
+hdfs 端点有如下配置内容:
+
+```yaml
+address: 127.0.0.1:8080
 ```
 
 ### Endpoint qingstor

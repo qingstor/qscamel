@@ -22,6 +22,8 @@ qscamel is a command line tool to migrate data between different endpoint effici
   - [Qiniu](https://www.qiniu.com/)
   - [AWS S3](https://amazonaws-china.com/cn/s3)
   - [Upyun](https://www.upyun.com/)
+  - [Tencent COS](https://cloud.tencent.com/product/cos)
+  - [HDFS](http://hadoop.apache.org/)
 
 ## Quick start
 
@@ -190,6 +192,16 @@ gcs endpoint has following options:
 ```yaml
 api_key: example_api_key
 bucket_name: exmaple_bukcet
+```
+
+### Endpoint hdfs
+
+Can be used as **source** endpoint.
+
+hdfs endpoint has following options:
+
+```yaml
+address: 127.0.0.1:8080
 ```
 
 ### Endpoint qingstor
