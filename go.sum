@@ -123,6 +123,8 @@ github.com/vmihailenco/msgpack v3.3.3+incompatible/go.mod h1:fy3FlTQTDXWkZ7Bh6Ac
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 github.com/yunify/qingstor-sdk-go/v3 v3.0.2 h1:2pL3tEj6eEESsHKrqsLZ5D+OkHEhYfsW1xwYRcHCgZs=
 github.com/yunify/qingstor-sdk-go/v3 v3.0.2/go.mod h1:KciFNuMu6F4WLk9nGwwK69sCGKLCdd9f97ac/wfumS4=
+github.com/yunify/qingstor-sdk-go/v3 v3.1.1 h1:jQkY9N+zSL8h8CqgrDQpXe8/mqJOx8vgGjk6O//RA/4=
+github.com/yunify/qingstor-sdk-go/v3 v3.1.1/go.mod h1:KciFNuMu6F4WLk9nGwwK69sCGKLCdd9f97ac/wfumS4=
 go.opencensus.io v0.0.0-20180816223706-1789eaf7638d h1:6Mb6Qi1O3OETFMHYI0QUlNk6jteYdkOlfE8yUELT4os=
 go.opencensus.io v0.0.0-20180816223706-1789eaf7638d/go.mod h1:UffZAU+4sDEINUGP/B7UfBBkq4fqLu9zXAX7ke6CHW0=
 golang.org/x/crypto v0.0.0-20180723164146-c126467f60eb/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
