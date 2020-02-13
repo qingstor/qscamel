@@ -2,9 +2,15 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.14] - 2020-02-13
+
+### Added
+
+- endpoint: Add hdfs support (#59) 
+
 ## [v2.0.13] - 2019-11-07
 
-### Fixed
+### Added
 
 - endpoint/cos: Add support for tencent cloud cos
 
