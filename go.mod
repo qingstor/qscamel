@@ -34,7 +34,7 @@ require (
 	github.com/tencentyun/cos-go-sdk-v5 v0.0.0-20191022140025-978604eaa44d
 	github.com/upyun/go-sdk v2.1.0+incompatible
 	github.com/vmihailenco/msgpack v3.3.3+incompatible
-	github.com/yunify/qingstor-sdk-go/v3 v3.0.2
+	github.com/yunify/qingstor-sdk-go/v3 v3.2.0
 	go.opencensus.io v0.0.0-20180816223706-1789eaf7638d // indirect
 	golang.org/x/oauth2 v0.0.0-20180724155351-3d292e4d0cdc // indirect
 	google.golang.org/api v0.0.0-20180818000503-e21acd801f91
