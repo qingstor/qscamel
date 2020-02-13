@@ -225,6 +225,10 @@ secret_access_key: example_secret_access_key
 # 可选值: STANDARD, STANDARD_IA
 # 默认值: STANDARD
 storage_class: STANDARD
+# disable_uri_cleaning 会控制 SDK 是否清理 URL: `abc//def` -> `abc/def`
+# 可选值: true, false
+# 默认值: false
+disable_uri_cleaning: false
 ```
 
 ### Endpoint qiniu

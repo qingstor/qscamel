@@ -23,7 +23,8 @@ type Client struct {
 	AccessKeyID     string `yaml:"access_key_id"`
 	SecretAccessKey string `yaml:"secret_access_key"`
 
-	StorageClass string `yaml:"storage_class"`
+	StorageClass       string `yaml:"storage_class"`
+	DisableURICleaning bool   `yaml:"disbale_uri_cleaning"`
 
 	Path string
 
@@ -114,6 +115,7 @@ func New(ctx context.Context, et uint8, hc *http.Client) (c *Client, err error) 
 	qc.Port = c.Port
 	qc.Connection = hc
 	qc.AdditionalUserAgent = "qscamel " + constants.Version
+	qc.DisableURICleaning = c.DisableURICleaning
 
 	// Set qingstor service.
 	qs, _ := service.Init(qc)
