@@ -7,6 +7,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 ### Added
 
 - endpoint: Add hdfs support (#59) 
+- endpoint/qingstor: Add disable uri cleaning support (#72)
 
 ## [v2.0.13] - 2019-11-07
 
