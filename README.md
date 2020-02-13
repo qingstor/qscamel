@@ -223,6 +223,11 @@ secret_access_key: example_secret_access_key
 # Available value: STANDARD, STANDARD_IA
 # Default value: STANDARD
 storage_class: STANDARD
+# disable_uri_cleaning will control whether or not the SDK will do
+# cleaning on object key: `abc//def` -> `abc/def`
+# Available value: true, false
+# Default value: false
+disable_uri_cleaning: false
 ```
 
 ### Endpoint qiniu
