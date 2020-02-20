@@ -30,4 +30,7 @@ require (
 	gopkg.in/yaml.v2 v2.2.8
 )
 
-replace github.com/qiniu/x => github.com/Xuanwo/qiniu_x v0.0.0-20190416044656-4dd63e731f37
+replace (
+	github.com/colinmarc/hdfs/v2 => github.com/Xuanwo/hdfs/v2 v2.1.2-0.20200220140332-94d2de338735
+	github.com/qiniu/x => github.com/Xuanwo/qiniu_x v0.0.0-20190416044656-4dd63e731f37
+)
