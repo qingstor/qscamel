@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go v0.53.0 // indirect
 	cloud.google.com/go/storage v1.5.0
 	github.com/aliyun/aliyun-oss-go-sdk v0.0.0-20180615125516-36bf7aa2f916
-	github.com/aws/aws-sdk-go v1.29.6
+	github.com/aws/aws-sdk-go v1.29.7
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/cenkalti/backoff v1.1.0
 	github.com/colinmarc/hdfs/v2 v2.1.1
