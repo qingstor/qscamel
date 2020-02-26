@@ -25,7 +25,7 @@ require (
 	github.com/upyun/go-sdk v2.1.0+incompatible
 	github.com/vmihailenco/msgpack v3.3.3+incompatible
 	github.com/yunify/qingstor-sdk-go/v3 v3.2.0
-	google.golang.org/api v0.17.0
+	google.golang.org/api v0.19.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0-20170531160350-a96e63847dc3
 	gopkg.in/yaml.v2 v2.2.8
 )
