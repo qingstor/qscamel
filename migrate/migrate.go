@@ -151,6 +151,11 @@ func check(ctx context.Context) (err error) {
 		if err != nil {
 			return
 		}
+	case constants.EndpointS3:
+		dst, err = s3.New(ctx, constants.DestinationEndpoint, contexts.Client)
+		if err != nil {
+			return
+		}
 	default:
 		logrus.Errorf("Type %s is not supported.", t.Src.Type)
 		err = constants.ErrEndpointNotSupported
