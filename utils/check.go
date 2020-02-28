@@ -33,6 +33,6 @@ func CheckClosedDB(err error) {
 // Recover will recover a goroutine from panic.
 func Recover() {
 	if x := recover(); x != nil {
-		logrus.Fatalf("Caught panic: %v, Trace: %s", x, debug.Stack())
+		logrus.Errorf("Caught panic: %v, Trace: %s", x, debug.Stack())
 	}
 }
