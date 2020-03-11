@@ -9,7 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/sirupsen/logrus"
-
 	"github.com/yunify/qscamel/model"
 	"github.com/yunify/qscamel/utils"
 )
@@ -62,7 +61,12 @@ func (c *Client) Stat(ctx context.Context, p string) (o *model.SingleObject, err
 		Key:    aws.String(cp),
 	})
 	if err != nil {
-		if e, ok := err.(awserr.Error); ok {
+		switch e := err.(type) {
+		case awserr.RequestFailure:
+			if e.StatusCode() == 404 {
+				return nil, nil
+			}
+		case awserr.Error:
 			if e.Code() == "NoSuchKey" {
 				return nil, nil
 			}
