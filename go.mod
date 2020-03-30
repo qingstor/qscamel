@@ -18,7 +18,7 @@ require (
 	github.com/qiniu/x v7.0.8+incompatible
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.5.0
-	github.com/spf13/cobra v0.0.6
+	github.com/spf13/cobra v0.0.7
 	github.com/stretchr/testify v1.5.1
 	github.com/syndtr/goleveldb v0.0.0-20180521045021-5d6fca44a948
 	github.com/tencentyun/cos-go-sdk-v5 v0.0.0-20191022140025-978604eaa44d
