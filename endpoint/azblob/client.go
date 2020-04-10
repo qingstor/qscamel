@@ -6,6 +6,7 @@ import (
 
 	"github.com/Xuanwo/storage"
 	"github.com/Xuanwo/storage/pkg/credential"
+	"github.com/Xuanwo/storage/pkg/endpoint"
 	"github.com/Xuanwo/storage/services/azblob"
 	"github.com/Xuanwo/storage/types/pairs"
 	"github.com/sirupsen/logrus"
@@ -20,6 +21,7 @@ type Client struct {
 	AccountName string `yaml:"account_name"`
 	AccountKey  string `yaml:"account_key"`
 	BucketName  string `yaml:"bucket_name"`
+	Endpoint    string `yaml:"endpoint"`
 
 	Path string
 
@@ -74,6 +76,7 @@ func New(ctx context.Context, et uint8, _ *http.Client) (c *Client, err error) {
 		pairs.WithCredential(credential.MustNewHmac(c.AccountName, c.AccountKey)),
 		pairs.WithName(c.BucketName),
 		pairs.WithWorkDir(c.Path),
+		pairs.WithEndpoint(endpoint.NewHTTPS(c.Endpoint, 443)),
 	)
 	return
 }

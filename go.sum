@@ -59,8 +59,8 @@ github.com/Xuanwo/hdfs/v2 v2.1.2-0.20200220140332-94d2de338735 h1:uEJ5/a/i2cErik
 github.com/Xuanwo/hdfs/v2 v2.1.2-0.20200220140332-94d2de338735/go.mod h1:M3x+k8UKKmxtFu++uAZ0OtDU8jR3jnaZIAc6yK4Ue0c=
 github.com/Xuanwo/qiniu_x v0.0.0-20190416044656-4dd63e731f37 h1:b0m92UQVajQb10i2p3UoiZJKuSiVyUhGt5tPxRMMryA=
 github.com/Xuanwo/qiniu_x v0.0.0-20190416044656-4dd63e731f37/go.mod h1:q06LeOfHbnXMW4B2OGAuIKAWDAqrWoCzryOWvn2Rji8=
-github.com/Xuanwo/storage v0.9.1-0.20200409134512-82568754b167 h1:Yd8YLOfMNyhU4Y4+hCc4KzHM2K5L2KoGxeg8sI9sklk=
-github.com/Xuanwo/storage v0.9.1-0.20200409134512-82568754b167/go.mod h1:1s5ztPzL/K31s4XrcCrHAg2N9Qf6dDXqKD6Fu+LMqr8=
+github.com/Xuanwo/storage v0.9.1-0.20200410190418-7d66698ee1ad h1:ynHg8QYqK4aw9NUncP9Y7hEm3o4qKGi7X2KUTxqGk6I=
+github.com/Xuanwo/storage v0.9.1-0.20200410190418-7d66698ee1ad/go.mod h1:1s5ztPzL/K31s4XrcCrHAg2N9Qf6dDXqKD6Fu+LMqr8=
 github.com/aliyun/aliyun-oss-go-sdk v2.0.7+incompatible h1:HXvOJsZw8JT/ldxjX74Aq4H2IY4ojV/mXMDPWFitpv8=
 github.com/aliyun/aliyun-oss-go-sdk v2.0.7+incompatible/go.mod h1:T/Aws4fEfogEE9v+HPhhw+CntffsBHJ8nXQCwKr0/g8=
 github.com/armon/consul-api v0.0.0-20180202201655-eb2c6b5be1b6/go.mod h1:grANhF5doyWs3UAsr3K4I6qtAmlQcZDesFNEHPZAzj8=

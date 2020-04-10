@@ -6,14 +6,17 @@ import (
 	"github.com/Xuanwo/storage"
 	"github.com/Xuanwo/storage/types"
 	"github.com/Xuanwo/storage/types/pairs"
-
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
 )
 
 // List implement source.List
 func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o model.Object)) (err error) {
-	err = c.client.(storage.PrefixLister).ListPrefix(j.Key,
+	cp := j.Key
+	if cp == "/" {
+		cp = ""
+	}
+	err = c.client.(storage.PrefixLister).ListPrefix(cp,
 		pairs.WithObjectFunc(func(object *types.Object) {
 			o := &model.SingleObject{
 				Key:  object.Name,

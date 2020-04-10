@@ -3,6 +3,7 @@ package constants
 // Endpoint the const for all supported endpoint.
 const (
 	EndpointAliyun   = "aliyun"
+	EndpointAzblob   = "azblob"
 	EndpointFileList = "filelist"
 	EndpointFs       = "fs"
 	EndpointGCS      = "gcs"

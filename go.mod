@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	cloud.google.com/go/storage v1.6.0
-	github.com/Xuanwo/storage v0.9.1-0.20200409134512-82568754b167
+	github.com/Xuanwo/storage v0.9.1-0.20200410190418-7d66698ee1ad
 	github.com/aliyun/aliyun-oss-go-sdk v2.0.7+incompatible
 	github.com/aws/aws-sdk-go v1.29.29
 	github.com/cenkalti/backoff v1.1.0
