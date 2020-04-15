@@ -23,6 +23,7 @@ import (
 
 	"github.com/cenkalti/backoff"
 	"github.com/sirupsen/logrus"
+	"github.com/yunify/qscamel/endpoint/azblob"
 
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/contexts"
@@ -85,6 +86,11 @@ func check(ctx context.Context) (err error) {
 	switch t.Src.Type {
 	case constants.EndpointAliyun:
 		src, err = aliyun.New(ctx, constants.SourceEndpoint, contexts.Client)
+		if err != nil {
+			return
+		}
+	case constants.EndpointAzblob:
+		src, err = azblob.New(ctx, constants.SourceEndpoint, contexts.Client)
 		if err != nil {
 			return
 		}
