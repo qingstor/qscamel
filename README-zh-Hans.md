@@ -152,6 +152,21 @@ access_key_id: example_access_key_id
 access_key_secret: example_access_key_secret
 ```
 
+### Endpoint azblob
+
+能够用做 **source** 端点。
+
+Azblob 是 [Azure](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction) 提供的对象存储服务。
+
+azblob 端点有如下配置内容:
+
+```yaml
+account_name: exmaple_account_name
+account_key: example_account_key
+bucket_name: example_bucket_name
+endpoint: https://exmaple_account_name.blob.core.chinacloudapi.cn
+```
+
 ### Endpoint cos
 
 能够用做 **source** 端点。

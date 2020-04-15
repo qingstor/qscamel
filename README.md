@@ -151,6 +151,21 @@ access_key_id: example_access_key_id
 access_key_secret: example_access_key_secret
 ```
 
+### Endpoint azblob
+
+Can be used as **source** endpoint.
+
+Azblob is the object storage service provided by [Azure](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction)
+
+azblob endpoint has following options:
+
+```yaml
+account_name: exmaple_account_name
+account_key: example_account_key
+bucket_name: example_bucket_name
+endpoint: https://exmaple_account_name.blob.core.chinacloudapi.cn
+```
+
 ### Endpoint cos
 
 Can be used as **source** endpoint.
