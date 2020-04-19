@@ -2,6 +2,19 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.15] - 2020-04-19
+
+### Added
+
+- endpoint: Add dst support for s3 (#89)
+- endpoint: Add azblob src support (#124)
+- utils: Support migrate object key starts with / (#126)
+
+### Fixed
+
+- Fix panic on hdfs (#78)
+- endpoint/s3: Fix HeadObject not found not handled (#99)
+
 ## [v2.0.14] - 2020-02-13
 
 ### Added
@@ -156,6 +169,8 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 - QingStor qscamel.
 
+[v2.0.15]: https://github.com/yunify/qscamel/compare/v2.0.14...v2.0.15
+[v2.0.14]: https://github.com/yunify/qscamel/compare/v2.0.13...v2.0.14
 [v2.0.13]: https://github.com/yunify/qscamel/compare/v2.0.12...v2.0.13
 [v2.0.12]: https://github.com/yunify/qscamel/compare/v2.0.11...v2.0.12
 [v2.0.11]: https://github.com/yunify/qscamel/compare/v2.0.10...v2.0.11
