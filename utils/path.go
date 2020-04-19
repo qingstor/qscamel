@@ -9,7 +9,7 @@ func Join(in ...string) string {
 	x := make([]string, 0)
 	for k, v := range in {
 		if k == 0 {
-			v = strings.TrimLeft(v, "/")
+			v = strings.TrimPrefix(v, "/")
 		}
 		// Trim all trailing "/"
 		v = strings.TrimRight(v, "/")
