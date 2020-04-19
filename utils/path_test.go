@@ -24,6 +24,7 @@ func TestJoin(t *testing.T) {
 		{[]string{"/a", "/b"}, "a//b"},
 
 		{[]string{"a", "", "b"}, "a/b"},
+		{[]string{"//a/b", "c/"}, "/a/b/c"},
 	}
 
 	for _, v := range joinTestCases {
