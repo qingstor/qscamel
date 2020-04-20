@@ -24,7 +24,7 @@ type Client struct {
 	SecretAccessKey string `yaml:"secret_access_key"`
 
 	StorageClass       string `yaml:"storage_class"`
-	DisableURICleaning bool   `yaml:"disbale_uri_cleaning"`
+	DisableURICleaning bool   `yaml:"disable_uri_cleaning"`
 
 	Path string
 
