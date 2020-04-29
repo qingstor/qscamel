@@ -2,6 +2,13 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.16] - 2020-04-29
+
+### Fixed
+
+- endpoint/qingstor: Fix disable uri cleaning struct tag incorrect
+- endpoint/azblob: Fix context deadline exceeded while reading (#139)
+
 ## [v2.0.15] - 2020-04-19
 
 ### Added
@@ -169,6 +176,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 - QingStor qscamel.
 
+[v2.0.16]: https://github.com/yunify/qscamel/compare/v2.0.15...v2.0.16
 [v2.0.15]: https://github.com/yunify/qscamel/compare/v2.0.14...v2.0.15
 [v2.0.14]: https://github.com/yunify/qscamel/compare/v2.0.13...v2.0.14
 [v2.0.13]: https://github.com/yunify/qscamel/compare/v2.0.12...v2.0.13
