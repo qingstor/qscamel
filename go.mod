@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/storage v1.6.0
 	github.com/Xuanwo/storage v1.0.1-0.20200428182019-4ae37d1c83db
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.0+incompatible
-	github.com/aws/aws-sdk-go v1.30.12
+	github.com/aws/aws-sdk-go v1.30.15
 	github.com/cenkalti/backoff v1.1.0
 	github.com/colinmarc/hdfs/v2 v2.1.1
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
@@ -23,7 +23,7 @@ require (
 	github.com/upyun/go-sdk v2.1.0+incompatible
 	github.com/vmihailenco/msgpack v3.3.3+incompatible
 	github.com/yunify/qingstor-sdk-go/v3 v3.2.1-0.20200318145652-ad14af5b40e4
-	google.golang.org/api v0.21.0
+	google.golang.org/api v0.22.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0-20170531160350-a96e63847dc3
 	gopkg.in/yaml.v2 v2.2.8
 )
