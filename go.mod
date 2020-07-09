@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/storage v1.10.0
 	github.com/Xuanwo/storage v0.9.1-0.20200410190418-7d66698ee1ad
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.0+incompatible
-	github.com/aws/aws-sdk-go v1.33.3
+	github.com/aws/aws-sdk-go v1.33.4
 	github.com/cenkalti/backoff v1.1.0
 	github.com/colinmarc/hdfs/v2 v2.1.1
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
