@@ -22,26 +22,14 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 	fi.Close()
 
 	for _, v := range list {
-		isDirLink := false
-		var size int64
-		// if obj is a link, try to get target's metadata
-		if v.Mode()&os.ModeSymlink != 0 {
-			target, err := getTargetByLink("/" + utils.Join(cp, v.Name()))
-			if err != nil {
-				return err
-			}
-
-			if target.IsDir() {
-				isDirLink = true
-			} else {
-				size = target.Size()
-			}
+		target, err := checkLink(v, cp)
+		if err != nil {
+			return err
 		}
 
-		// TODO: we need to check whether this dir is transferred, in case of cycle link
-		if v.IsDir() || isDirLink {
+		if target.IsDir() {
 			o := &model.DirectoryObject{
-				Key: "/" + utils.Join(j.Key, v.Name()),
+				Key: "/" + utils.Join(j.Key, v.Name()), // always use current v's name as key
 			}
 
 			fn(o)
@@ -49,14 +37,10 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 			continue
 		}
 		o := &model.SingleObject{
-			Key:  "/" + utils.Join(j.Key, v.Name()),
-			Size: v.Size(),
+			Key:  "/" + utils.Join(j.Key, v.Name()), // always use current v's name as key
+			Size: target.Size(),
 		}
 
-		// if size not 0 (v is a link), use target size as o.Size
-		if size != 0 {
-			o.Size = size
-		}
 		fn(o)
 	}
 
@@ -73,9 +57,15 @@ func (c *Client) Reachable() bool {
 	return false
 }
 
-// getTargetByLink try to eval symlink and stat the target file
-func getTargetByLink(path string) (os.FileInfo, error) {
-	tarPath, err := filepath.EvalSymlinks(path)
+// checkLink handle a FileInfo at current path and follow link if needed
+func checkLink(v os.FileInfo, cp string) (os.FileInfo, error) {
+	// if v is not link, return directly
+	if v.Mode()&os.ModeSymlink == 0 {
+		return v, nil
+	}
+
+	// otherwise, follow the link to get the target
+	tarPath, err := filepath.EvalSymlinks("/" + utils.Join(cp, v.Name()))
 	if err != nil {
 		return nil, err
 	}
