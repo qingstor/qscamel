@@ -22,6 +22,11 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 	fi.Close()
 
 	for _, v := range list {
+		// if v is a link, and client not follow link, skip it
+		if v.Mode()&os.ModeSymlink != 0 && !c.EnableLinkFollow {
+			continue
+		}
+
 		target, err := checkLink(v, cp)
 		if err != nil {
 			return err

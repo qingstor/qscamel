@@ -10,8 +10,9 @@ import (
 
 // Client is the struct for POSIX file system endpoint.
 type Client struct {
-	Path    string
-	AbsPath string
+	Path             string
+	AbsPath          string
+	EnableLinkFollow bool
 }
 
 // New will create a Fs.
@@ -35,5 +36,10 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 		return
 	}
 
+	if v, ok := e.Options["enable_follow_link"]; ok {
+		if res, ok := v.(bool); ok {
+			c.EnableLinkFollow = res
+		}
+	}
 	return
 }
