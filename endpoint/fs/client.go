@@ -4,6 +4,8 @@ import (
 	"context"
 	"path/filepath"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
 )
@@ -12,6 +14,12 @@ import (
 type Client struct {
 	Path    string
 	AbsPath string
+	Options Options
+}
+
+// Options is the struct for fs options
+type Options struct {
+	EnableLinkFollow bool `yaml:"enable_link_follow"`
 }
 
 // New will create a Fs.
@@ -35,5 +43,16 @@ func New(ctx context.Context, et uint8) (c *Client, err error) {
 		return
 	}
 
+	opt := Options{}
+	content, err := yaml.Marshal(e.Options)
+	if err != nil {
+		return
+	}
+	err = yaml.Unmarshal(content, &opt)
+	if err != nil {
+		return
+	}
+
+	c.Options = opt
 	return
 }

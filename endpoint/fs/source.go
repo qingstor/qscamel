@@ -22,9 +22,19 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 	fi.Close()
 
 	for _, v := range list {
-		if v.IsDir() {
+		// if v is a link, and client not follow link, skip it
+		if v.Mode()&os.ModeSymlink != 0 && !c.Options.EnableLinkFollow {
+			continue
+		}
+
+		target, err := checkLink(v, cp)
+		if err != nil {
+			return err
+		}
+
+		if target.IsDir() {
 			o := &model.DirectoryObject{
-				Key: "/" + utils.Join(j.Key, v.Name()),
+				Key: "/" + utils.Join(j.Key, v.Name()), // always use current v's name as key
 			}
 
 			fn(o)
@@ -32,8 +42,8 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 			continue
 		}
 		o := &model.SingleObject{
-			Key:  "/" + utils.Join(j.Key, v.Name()),
-			Size: v.Size(),
+			Key:  "/" + utils.Join(j.Key, v.Name()), // always use current v's name as key
+			Size: target.Size(),
 		}
 
 		fn(o)
@@ -50,4 +60,19 @@ func (c *Client) Reach(ctx context.Context, p string) (url string, err error) {
 // Reachable implement source.Reachable
 func (c *Client) Reachable() bool {
 	return false
+}
+
+// checkLink handle a FileInfo at current path and follow link if needed
+func checkLink(v os.FileInfo, cp string) (os.FileInfo, error) {
+	// if v is not link, return directly
+	if v.Mode()&os.ModeSymlink == 0 {
+		return v, nil
+	}
+
+	// otherwise, follow the link to get the target
+	tarPath, err := filepath.EvalSymlinks("/" + utils.Join(cp, v.Name()))
+	if err != nil {
+		return nil, err
+	}
+	return os.Stat(tarPath)
 }
