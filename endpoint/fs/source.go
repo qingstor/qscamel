@@ -23,7 +23,7 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 
 	for _, v := range list {
 		// if v is a link, and client not follow link, skip it
-		if v.Mode()&os.ModeSymlink != 0 && !c.EnableLinkFollow {
+		if v.Mode()&os.ModeSymlink != 0 && !c.Options.EnableLinkFollow {
 			continue
 		}
 
