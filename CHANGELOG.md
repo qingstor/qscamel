@@ -2,6 +2,17 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.17] - 2020-09-15
+
+### Added
+
+- ep/fs: Add support to copy files by symlinks (#242)
+
+### Fixed
+
+- endpoint: Fix complete multipart excuated too early (#232)
+- ep/dst: Fix upload failed when file concurrent write (#238)
+
 ## [v2.0.16] - 2020-04-29
 
 ### Fixed
