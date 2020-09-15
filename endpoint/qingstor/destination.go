@@ -45,7 +45,8 @@ func (c *Client) Write(ctx context.Context, p string, size int64, r io.Reader) (
 	cp := utils.Join(c.Path, p)
 
 	_, err = c.client.PutObject(cp, &service.PutObjectInput{
-		Body:            r,
+		// wrap by limitReader to keep body consistent with size
+		Body:            io.LimitReader(r, size),
 		ContentLength:   convert.Int64(size),
 		XQSStorageClass: convert.String(c.StorageClass),
 	})
@@ -110,7 +111,8 @@ func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Re
 	cp := utils.Join(c.Path, o.Key)
 
 	_, err = c.client.UploadMultipart(cp, &service.UploadMultipartInput{
-		Body:          r,
+		// wrap by limitReader to keep body consistent with size
+		Body:          io.LimitReader(r, o.Size),
 		ContentLength: convert.Int64(o.Size),
 		UploadID:      convert.String(o.UploadID),
 		PartNumber:    convert.Int(o.PartNumber),
@@ -119,7 +121,8 @@ func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Re
 		return
 	}
 
-	next, err := model.NextPartialObject(ctx, o.Key, o.PartNumber)
+	// We need to check all partial object here.
+	next, err := model.NextPartialObject(ctx, o.Key, -1)
 	if err != nil {
 		return
 	}

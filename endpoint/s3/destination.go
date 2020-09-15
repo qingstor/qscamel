@@ -7,8 +7,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/sirupsen/logrus"
-	"github.com/yunify/qscamel/constants"
 
+	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
 	"github.com/yunify/qscamel/utils"
 )
@@ -49,9 +49,10 @@ func (c *Client) Write(ctx context.Context, p string, size int64, r io.Reader) (
 	cp := utils.Join(c.Path, p)
 
 	_, err = c.client.PutObject(&s3.PutObjectInput{
-		Bucket:        aws.String(c.BucketName),
-		Key:           aws.String(cp),
-		Body:          aws.ReadSeekCloser(r),
+		Bucket: aws.String(c.BucketName),
+		Key:    aws.String(cp),
+		// wrap by limitReader to keep body consistent with size
+		Body:          aws.ReadSeekCloser(io.LimitReader(r, size)),
 		ContentLength: aws.Int64(size),
 	})
 
@@ -110,13 +111,15 @@ func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Re
 		UploadId:      aws.String(o.UploadID),
 		ContentLength: aws.Int64(o.Size),
 		PartNumber:    aws.Int64(int64(o.PartNumber)),
-		Body:          aws.ReadSeekCloser(r),
+		// wrap by limitReader to keep body consistent with size
+		Body: aws.ReadSeekCloser(io.LimitReader(r, o.Size)),
 	})
 	if err != nil {
 		return
 	}
 
-	next, err := model.NextPartialObject(ctx, o.Key, o.PartNumber)
+	// We need to check all partial object here.
+	next, err := model.NextPartialObject(ctx, o.Key, -1)
 	if err != nil {
 		return
 	}
