@@ -15,7 +15,7 @@ help:
 	@echo "  test       to run test"
 	@echo "  coverage   to test with coverage"
 
-check: format vet lint
+check: format vet
 
 format:
 	@echo "go fmt"
@@ -25,11 +25,6 @@ format:
 vet:
 	@echo "go vet"
 	@go vet ./...
-	@echo "ok"
-
-lint:
-	@echo "golint"
-	@golint ./...
 	@echo "ok"
 
 tidy:
