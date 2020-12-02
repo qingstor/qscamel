@@ -3,12 +3,9 @@ package commands
 import (
 	"context"
 
-	"github.com/pengsrc/go-shared/pid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"github.com/yunify/qscamel/config"
-	"github.com/yunify/qscamel/contexts"
 	"github.com/yunify/qscamel/model"
 	"github.com/yunify/qscamel/utils"
 )
@@ -18,40 +15,10 @@ var DeleteCmd = &cobra.Command{
 	Use:   "delete [task name]",
 	Short: "Delete a task",
 	Args:  cobra.ExactArgs(1),
+	PreRunE: func(cmd *cobra.Command, _ []string) error {
+		return initContext(cmd.Flag("config").Value.String())
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		c := &config.Config{}
-		c.LoadFromFilePath(cmd.Flag("config").Value.String())
-
-		// Check config.
-		err := c.Check()
-		if err != nil {
-			logrus.Errorf("Config check failed for %v.", err)
-			return
-		}
-
-		// Create PID file.
-		if pidfile := c.PIDFile; pidfile != "" {
-			p, err := pid.New(pidfile)
-			if err != nil {
-				logrus.Errorf("PID create failed for %v.", err)
-				return
-			}
-			defer func() {
-				err = p.Remove()
-				if err != nil {
-					logrus.Errorf("PID remove failed for %v.", err)
-				}
-			}()
-		}
-
-		// Setup contexts.
-		err = contexts.SetupContexts(c)
-		if err != nil {
-			logrus.Errorf("Contexts setup failed for %v.", err)
-			return
-		}
-		defer contexts.DB.Close()
-
 		// Start delete.
 		ctx := context.Background()
 		// Load and check task.
@@ -76,5 +43,8 @@ var DeleteCmd = &cobra.Command{
 		}
 
 		logrus.Infof("Task %s has been deleted.", t.Name)
+	},
+	PostRunE: func(cmd *cobra.Command, args []string) error {
+		return cleanUp()
 	},
 }
