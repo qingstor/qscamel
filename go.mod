@@ -3,7 +3,7 @@ module github.com/yunify/qscamel
 go 1.14
 
 require (
-	cloud.google.com/go/storage v1.11.0
+	cloud.google.com/go/storage v1.12.0
 	github.com/Xuanwo/storage v1.0.1-0.20200428182019-4ae37d1c83db
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.5+incompatible
 	github.com/aws/aws-sdk-go v1.36.29
@@ -23,7 +23,7 @@ require (
 	github.com/upyun/go-sdk v2.1.0+incompatible
 	github.com/vmihailenco/msgpack v3.3.3+incompatible
 	github.com/yunify/qingstor-sdk-go/v3 v3.2.1-0.20200318145652-ad14af5b40e4
-	google.golang.org/api v0.30.0
+	google.golang.org/api v0.32.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0-20170531160350-a96e63847dc3
 	gopkg.in/yaml.v2 v2.4.0
 )
