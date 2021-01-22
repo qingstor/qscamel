@@ -118,8 +118,9 @@ func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Re
 		return
 	}
 
-	// We need to check all partial object here.
-	next, err := model.NextPartialObject(ctx, o.Key, -1)
+	// Trick: We need to check from current part number here.
+	// if we check from -1, then complete will be skipped, because next will never be nil.
+	next, err := model.NextPartialObject(ctx, o.Key, o.PartNumber)
 	if err != nil {
 		return
 	}
