@@ -54,14 +54,10 @@ release:
 	@mkdir -p ./release
 
 	@echo "build for linux"
-	@GOOS=linux GOARCH=386 go build -tags netgo -o ./bin/linux/qscamel_v${VERSION}_linux_i386 .
-	@tar -C ./bin/linux/ -czf ./release/qscamel_v${VERSION}_linux_i386.tar.gz qscamel_v${VERSION}_linux_i386
 	@GOOS=linux GOARCH=amd64 go build -tags netgo -o ./bin/linux/qscamel_v${VERSION}_linux_amd64 .
 	@tar -C ./bin/linux/ -czf ./release/qscamel_v${VERSION}_linux_amd64.tar.gz qscamel_v${VERSION}_linux_amd64
 
 	@echo "build for macOS"
-	@GOOS=darwin GOARCH=386 go build -tags netgo -o ./bin/macos/qscamel_v${VERSION}_macos_i386 .
-	@tar -C ./bin/macos/ -czf ./release/qscamel_v${VERSION}_macos_i386.tar.gz qscamel_v${VERSION}_macos_i386
 	@GOOS=darwin GOARCH=amd64 go build -tags netgo -o ./bin/macos/qscamel_v${VERSION}_macos_amd64 .
 	@tar -C ./bin/macos/ -czf ./release/qscamel_v${VERSION}_macos_amd64.tar.gz qscamel_v${VERSION}_macos_amd64
 

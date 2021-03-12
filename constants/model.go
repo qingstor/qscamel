@@ -1,6 +1,7 @@
 package constants
 
 import (
+	"fmt"
 	"github.com/pengsrc/go-shared/buffer"
 )
 
@@ -97,7 +98,9 @@ func FormatPartialObjectKey(t, s string, partNumber int) []byte {
 	// If part number is lower than 0, this key will be prefix for
 	// partial object with key.
 	if partNumber >= 0 {
-		buf.AppendInt(int64(partNumber))
+		// PartNumber must be [0,10000], so we can prefix enough "0"
+		// to make sure the bytes order is correct.
+		buf.AppendString(fmt.Sprintf("%05d", partNumber))
 	}
 
 	b := make([]byte, buf.Len())

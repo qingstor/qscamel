@@ -122,16 +122,18 @@ func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Re
 	}
 
 	// Trick: We need to check from current part number here.
-	// if we check from -1, then complete will be skipped, because next will never be nil.
-	next, err := model.NextPartialObject(ctx, o.Key, o.PartNumber)
+	next, err := model.NextPartialObject(ctx, o.Key, -1)
 	if err != nil {
 		return
 	}
-	if next != nil {
+	// o.TotalNumber-1 is the last part number.
+	if next != nil && next.PartNumber != o.TotalNumber-1 {
 		logrus.Debugf("QingStor wrote partial object %s at %d.", o.Key, o.Offset)
 		return nil
 	}
 
+	// If we don't have next part or the next's part number is the last part,
+	// we can do complete part here.
 	parts := make([]*service.ObjectPartType, o.TotalNumber)
 	for i := 0; i < o.TotalNumber; i++ {
 		parts[i] = &service.ObjectPartType{
