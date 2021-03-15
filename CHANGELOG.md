@@ -2,6 +2,12 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.18] - 2021-03-15
+
+### Fixed
+
+- endpoint: Fix complete multipart too early (#310)
+
 ## [v2.0.17] - 2020-09-15
 
 ### Added
@@ -187,6 +193,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 - QingStor qscamel.
 
+[v2.0.18]: https://github.com/yunify/qscamel/compare/v2.0.17...v2.0.18
 [v2.0.17]: https://github.com/yunify/qscamel/compare/v2.0.16...v2.0.17
 [v2.0.16]: https://github.com/yunify/qscamel/compare/v2.0.15...v2.0.16
 [v2.0.15]: https://github.com/yunify/qscamel/compare/v2.0.14...v2.0.15
