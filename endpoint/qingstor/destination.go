@@ -2,6 +2,7 @@ package qingstor
 
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/pengsrc/go-shared/convert"
@@ -110,6 +111,25 @@ func (c *Client) InitPart(ctx context.Context, p string, size int64) (uploadID s
 func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Reader) (err error) {
 	cp := utils.Join(c.Path, o.Key)
 
+	// o.TotalNumber-1 is the last part number.
+	isLastPart := o.PartNumber == o.TotalNumber-1
+
+	// If the part is the last part, we need to wait for other parts.
+	if isLastPart {
+		// Trick: We need to check from current part number here.
+		next, err := model.NextPartialObject(ctx, o.Key, -1)
+		if err != nil {
+			return err
+		}
+		if next == nil {
+			panic(fmt.Errorf("some thing wrong happened: next partial object %s should not be nil", o.Key))
+		}
+		if next.PartNumber != o.TotalNumber-1 {
+			logrus.Infof("Object %s are other parts to be uploaded, wait for next turn", o.Key)
+			return fmt.Errorf("wait for next turn")
+		}
+	}
+
 	_, err = c.client.UploadMultipart(cp, &service.UploadMultipartInput{
 		// wrap by limitReader to keep body consistent with size
 		Body:          io.LimitReader(r, o.Size),
@@ -121,16 +141,13 @@ func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Re
 		return
 	}
 
-	// Trick: We need to check from current part number here.
-	next, err := model.NextPartialObject(ctx, o.Key, -1)
-	if err != nil {
-		return
-	}
-	// o.TotalNumber-1 is the last part number.
-	if next != nil && next.PartNumber != o.TotalNumber-1 {
-		logrus.Debugf("QingStor wrote partial object %s at %d.", o.Key, o.Offset)
+	logrus.Debugf("QingStor wrote partial object %s at %d.", o.Key, o.Offset)
+	if !isLastPart {
+		// If this part is not the last part, we can return directly.
 		return nil
 	}
+
+	logrus.Infof("Object %s start completing part", o.Key)
 
 	// If we don't have next part or the next's part number is the last part,
 	// we can do complete part here.
