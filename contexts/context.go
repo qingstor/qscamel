@@ -22,6 +22,8 @@ var (
 	Config *config.Config
 	// Client stores the http client used in qscamel.
 	Client *http.Client
+	// Proxy
+	Proxy *url.URL
 )
 
 // SetupContexts will set contexts.
@@ -65,6 +67,7 @@ func SetupContexts(c *config.Config) (err error) {
 			return
 		}
 	}
+	Proxy = proxy
 
 	// Setup http client.
 	Client = &http.Client{
@@ -73,21 +76,25 @@ func SetupContexts(c *config.Config) (err error) {
 		// it's unsuitable for various length of files and network condition.
 		// We provide a wrapper in utils/conn.go of net.Dialer to make io timeout
 		// to the http connection for individual buffer I/O operation,
-		Timeout: 0,
-		Transport: &http.Transport{
-			DialContext: utils.DefaultDialer.DialContext,
-
-			// Client will be used in both source and destination.
-			MaxIdleConns: c.Concurrency * 2,
-			// Max idle conns should be config's concurrency.
-			MaxIdleConnsPerHost: c.Concurrency,
-
-			IdleConnTimeout:       time.Second * 20,
-			TLSHandshakeTimeout:   time.Second * 10,
-			ExpectContinueTimeout: time.Second * 2,
-			Proxy:                 http.ProxyURL(proxy),
-		},
+		Timeout:   0,
+		Transport: NewTransportWithDialContext(c, proxy, utils.DefaultDialer),
 	}
 
 	return nil
+}
+
+func NewTransportWithDialContext(c *config.Config, proxy *url.URL, dialer *utils.Dialer) *http.Transport {
+	return &http.Transport{
+		DialContext: dialer.DialContext,
+		// Client will be used in both source and destination.
+		MaxIdleConns: c.Concurrency * 2,
+		// Max idle conns should be config's concurrency.
+		MaxIdleConnsPerHost: c.Concurrency,
+
+		IdleConnTimeout:       time.Second * 20,
+		TLSHandshakeTimeout:   time.Second * 10,
+		ExpectContinueTimeout: time.Second * 2,
+
+		Proxy: http.ProxyURL(proxy),
+	}
 }
