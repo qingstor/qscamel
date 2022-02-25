@@ -9,6 +9,12 @@ import (
 
 var connPool sync.Pool
 
+const (
+	DEFAULT_CONN_TIMEOUT  = 30
+	DEFAULT_READ_TIMEOUT  = 30
+	DEFAULT_WRITE_TIMEOUT = 30
+)
+
 type netConn net.Conn
 
 // Dialer is wrapped dialer provided by qingstor go sdk.
@@ -138,8 +144,8 @@ func IsTimeoutError(err error) bool {
 var DefaultDialer = &Dialer{
 	&net.Dialer{
 		DualStack: false,
-		Timeout:   time.Second * 30,
+		Timeout:   DEFAULT_CONN_TIMEOUT * time.Second,
 	},
-	time.Second * 30,
-	time.Second * 30,
+	DEFAULT_READ_TIMEOUT * time.Second,
+	DEFAULT_WRITE_TIMEOUT * time.Second,
 }

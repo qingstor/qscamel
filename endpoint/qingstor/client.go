@@ -2,12 +2,14 @@ package qingstor
 
 import (
 	"context"
-	"net/http"
-
 	"github.com/sirupsen/logrus"
 	"github.com/yunify/qingstor-sdk-go/v3/config"
 	"github.com/yunify/qingstor-sdk-go/v3/service"
+	"github.com/yunify/qscamel/contexts"
+	"github.com/yunify/qscamel/utils"
 	"gopkg.in/yaml.v2"
+	"net/http"
+	"time"
 
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/model"
@@ -28,7 +30,15 @@ type Client struct {
 
 	Path string
 
+	TimeoutConfig TimeoutConfig `yaml:"timeout_config"`
+
 	client *service.Bucket
+}
+
+type TimeoutConfig struct {
+	ConnectTimeout int64 `yaml:"connect_timeout"`
+	ReadTimeout    int64 `yaml:"read_timeout"`
+	WriteTimeout   int64 `yaml:"write_timeout" `
 }
 
 // New will create a new QingStor client.
@@ -103,6 +113,30 @@ func New(ctx context.Context, et uint8, hc *http.Client) (c *Client, err error) 
 		logrus.Errorf("QingStor's storage class can't be %s.", c.StorageClass)
 		err = constants.ErrEndpointInvalid
 		return
+	}
+
+	var tc = c.TimeoutConfig
+	var emptyTimeoutConfig TimeoutConfig
+	if tc != emptyTimeoutConfig {
+		if tc.ConnectTimeout == 0 {
+			tc.ConnectTimeout = utils.DEFAULT_CONN_TIMEOUT
+		}
+		if tc.ReadTimeout == 0 {
+			tc.ReadTimeout = utils.DEFAULT_READ_TIMEOUT
+		}
+		if tc.WriteTimeout == 0 {
+			tc.WriteTimeout = utils.DEFAULT_WRITE_TIMEOUT
+		}
+
+		connT := time.Duration(tc.ConnectTimeout) * time.Second
+		readT := time.Duration(tc.ReadTimeout) * time.Second
+		writeT := time.Duration(tc.WriteTimeout) * time.Second
+
+		hc.Transport = contexts.NewTransportWithDialContext(
+			contexts.Config,
+			contexts.Proxy,
+			utils.NewDialer(connT, readT, writeT),
+		)
 	}
 
 	// Set path.
