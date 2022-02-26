@@ -2,6 +2,12 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.20] - 2022-02-26
+
+### Added
+
+- endpoint/qingstor: Added user modification timeout function for qingstor (#316)
+
 ## [v2.0.18] - 2021-03-15
 
 ### Fixed
@@ -193,6 +199,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 - QingStor qscamel.
 
+[v2.0.20]: https://github.com/yunify/qscamel/compare/v2.0.19...v2.0.20
 [v2.0.18]: https://github.com/yunify/qscamel/compare/v2.0.17...v2.0.18
 [v2.0.17]: https://github.com/yunify/qscamel/compare/v2.0.16...v2.0.17
 [v2.0.16]: https://github.com/yunify/qscamel/compare/v2.0.15...v2.0.16
