@@ -20,7 +20,10 @@ func (c *Client) Name(ctx context.Context) (name string) {
 }
 
 // Read implement source.Read
-func (c *Client) Read(ctx context.Context, p string) (r io.Reader, err error) {
+func (c *Client) Read(ctx context.Context, p string, isDir bool) (r io.Reader, err error) {
+	if isDir {
+		return nil, nil
+	}
 	cp := utils.Join(c.Path, p)
 
 	resp, err := c.client.GetObject(cp, nil)
@@ -50,8 +53,11 @@ func (c *Client) ReadRange(
 }
 
 // Stat implement source.Stat and destination.Stat
-func (c *Client) Stat(ctx context.Context, p string) (o *model.SingleObject, err error) {
+func (c *Client) Stat(ctx context.Context, p string, isDir bool) (o *model.SingleObject, err error) {
 	cp := utils.Join(c.Path, p)
+	if isDir {
+		cp += "/"
+	}
 
 	resp, err := c.client.HeadObject(cp, nil)
 	if err != nil {

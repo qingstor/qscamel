@@ -2,6 +2,7 @@ package aliyun
 
 import (
 	"context"
+	"strings"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/sirupsen/logrus"
@@ -32,6 +33,9 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 			return err
 		}
 		for _, v := range resp.Objects {
+			if strings.HasSuffix(v.Key, "/") {
+				continue
+			}
 			object := &model.SingleObject{
 				Key:  utils.Relative(v.Key, c.Path),
 				Size: v.Size,

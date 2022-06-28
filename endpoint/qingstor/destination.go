@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/pengsrc/go-shared/convert"
 	"github.com/sirupsen/logrus"
@@ -42,15 +43,33 @@ func (c *Client) Delete(ctx context.Context, p string) (err error) {
 }
 
 // Write implement destination.Write
-func (c *Client) Write(ctx context.Context, p string, size int64, r io.Reader) (err error) {
+func (c *Client) Write(ctx context.Context, p string, size int64, r io.Reader, isDir bool, meta *map[string]string) (err error) {
 	cp := utils.Join(c.Path, p)
+	var input *service.PutObjectInput
+	if isDir {
+		cp += "/"
+		input = &service.PutObjectInput{
+			XQSStorageClass: convert.String(c.StorageClass),
+		}
+	} else {
+		input = &service.PutObjectInput{
+			// wrap by limitReader to keep body consistent with size
+			Body:            io.LimitReader(r, size),
+			ContentLength:   convert.Int64(size),
+			XQSStorageClass: convert.String(c.StorageClass),
+		}
+	}
 
-	_, err = c.client.PutObject(cp, &service.PutObjectInput{
-		// wrap by limitReader to keep body consistent with size
-		Body:            io.LimitReader(r, size),
-		ContentLength:   convert.Int64(size),
-		XQSStorageClass: convert.String(c.StorageClass),
-	})
+	if c.UserDefineMeta && meta != nil {
+		metadata := make(map[string]string)
+		for k, v := range *meta {
+			metadata[strings.ToLower(k)] = v
+		}
+
+		input.XQSMetaData = &metadata
+	}
+
+	_, err = c.client.PutObject(cp, input)
 	if err != nil {
 		return
 	}
@@ -80,15 +99,22 @@ func (c *Client) Partable() bool {
 }
 
 // InitPart implement destination.InitPart
-func (c *Client) InitPart(ctx context.Context, p string, size int64) (uploadID string, partSize int64, partNumbers int, err error) {
+func (c *Client) InitPart(ctx context.Context, p string, size int64, meta *map[string]string) (uploadID string, partSize int64, partNumbers int, err error) {
 	cp := utils.Join(c.Path, p)
 
-	resp, err := c.client.InitiateMultipartUpload(
-		cp,
-		&service.InitiateMultipartUploadInput{
-			XQSStorageClass: convert.String(c.StorageClass),
-		},
-	)
+	input := &service.InitiateMultipartUploadInput{
+		XQSStorageClass: convert.String(c.StorageClass),
+	}
+	if c.UserDefineMeta && meta != nil {
+		metadata := make(map[string]string)
+		for k, v := range *meta {
+			metadata[strings.ToLower(k)] = v
+		}
+
+		input.XQSMetaData = &metadata
+	}
+
+	resp, err := c.client.InitiateMultipartUpload(cp, input)
 	if err != nil {
 		return
 	}

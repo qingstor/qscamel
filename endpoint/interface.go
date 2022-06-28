@@ -13,10 +13,10 @@ type Base interface {
 	Name(ctx context.Context) (name string)
 
 	// Stat will get the metadata.
-	Stat(ctx context.Context, p string) (o *model.SingleObject, err error)
+	Stat(ctx context.Context, p string, isDir bool) (o *model.SingleObject, err error)
 
 	// Read will return a reader.
-	Read(ctx context.Context, p string) (r io.Reader, err error)
+	Read(ctx context.Context, p string, isDir bool) (r io.Reader, err error)
 	// ReadRange will read content with range [offset, offset+size)
 	ReadRange(ctx context.Context, p string, offset, size int64) (r io.Reader, err error)
 }
@@ -36,14 +36,14 @@ type Destination interface {
 	Fetchable() bool
 
 	// InitPart will inti a multipart upload.
-	InitPart(ctx context.Context, p string, size int64) (uploadID string, partSize int64, partNumbers int, err error)
+	InitPart(ctx context.Context, p string, size int64, meta *map[string]string) (uploadID string, partSize int64, partNumbers int, err error)
 	// UploadPart will upload a part.
 	UploadPart(ctx context.Context, o *model.PartialObject, r io.Reader) (err error)
 	// Partable will return whether current endpoint supports multipart upload.
 	Partable() bool
 
 	// Write will read data from the reader and write to endpoint.
-	Write(ctx context.Context, path string, size int64, r io.Reader) (err error)
+	Write(ctx context.Context, path string, size int64, r io.Reader, isDir bool, meta *map[string]string) (err error)
 	// Writable will return whether current endpoint supports write.
 	Writable() bool
 }

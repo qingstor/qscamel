@@ -19,7 +19,7 @@ func (c *Client) Name(ctx context.Context) (name string) {
 }
 
 // Read implement source.Read
-func (c *Client) Read(ctx context.Context, p string) (r io.Reader, err error) {
+func (c *Client) Read(ctx context.Context, p string, _ bool) (r io.Reader, err error) {
 	cp := utils.Join(c.Path, p)
 
 	resp, err := c.client.GetObject(&s3.GetObjectInput{
@@ -53,7 +53,7 @@ func (c *Client) ReadRange(
 }
 
 // Stat implement source.Stat and destination.Stat
-func (c *Client) Stat(ctx context.Context, p string) (o *model.SingleObject, err error) {
+func (c *Client) Stat(ctx context.Context, p string, _ bool) (o *model.SingleObject, err error) {
 	cp := utils.Join(c.Path, p)
 
 	resp, err := c.client.HeadObject(&s3.HeadObjectInput{
