@@ -28,6 +28,9 @@ type Client struct {
 	StorageClass       string `yaml:"storage_class"`
 	DisableURICleaning bool   `yaml:"disable_uri_cleaning"`
 
+	// Whether to migrate custom metadata
+	UserDefineMeta bool `yaml:"user_define_meta"`
+
 	Path string
 
 	TimeoutConfig TimeoutConfig `yaml:"timeout_config"`

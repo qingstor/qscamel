@@ -33,18 +33,41 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 		}
 
 		for _, v := range resp.Keys {
-			if *v.MimeType == DirectoryContentType {
+			if strings.HasSuffix(*v.Key, "/") {
+				key := utils.Relative(*v.Key, c.Path) + "/"
+				output, err := c.client.HeadObject(key, nil)
+				if err == nil {
+					so := &model.SingleObject{
+						Key:          key,
+						Size:         *v.Size,
+						LastModified: int64(*v.Modified),
+						MD5:          strings.Trim(*v.Etag, "\""),
+						IsDir:        true,
+					}
+					if c.UserDefineMeta {
+						so.QSMetadata = output.XQSMetaData
+					}
+					fn(so)
+				}
 				continue
 			}
 
-			object := &model.SingleObject{
-				Key:          utils.Relative(*v.Key, c.Path),
-				Size:         *v.Size,
-				LastModified: int64(*v.Modified),
-				MD5:          strings.Trim(*v.Etag, "\""),
+			key := utils.Relative(*v.Key, c.Path)
+			output, err := c.client.HeadObject(key, nil)
+			if err == nil {
+				object := &model.SingleObject{
+					Key:          key,
+					Size:         *v.Size,
+					LastModified: int64(*v.Modified),
+					MD5:          strings.Trim(*v.Etag, "\""),
+				}
+				if c.UserDefineMeta {
+					object.QSMetadata = output.XQSMetaData
+				}
+
+				fn(object)
 			}
 
-			fn(object)
 		}
 
 		marker = *resp.NextMarker

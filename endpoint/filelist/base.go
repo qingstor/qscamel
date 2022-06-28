@@ -15,7 +15,7 @@ func (c *Client) Name(ctx context.Context) (name string) {
 }
 
 // Read implement source.Read
-func (c *Client) Read(ctx context.Context, p string) (r io.Reader, err error) {
+func (c *Client) Read(ctx context.Context, p string, _ bool) (r io.Reader, err error) {
 	cp := filepath.Join(c.AbsPath, p)
 
 	r, err = os.Open(cp)
@@ -41,7 +41,7 @@ func (c *Client) ReadRange(
 }
 
 // Stat implement source.Stat and destination.Stat
-func (c *Client) Stat(ctx context.Context, p string) (o *model.SingleObject, err error) {
+func (c *Client) Stat(ctx context.Context, p string, _ bool) (o *model.SingleObject, err error) {
 	cp := filepath.Join(c.AbsPath, p)
 
 	fi, err := os.Stat(cp)

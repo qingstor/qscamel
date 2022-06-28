@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"io"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 
@@ -18,6 +19,8 @@ func listObject(ctx context.Context, j *model.DirectoryObject) (err error) {
 	defer jwg.Done()
 	defer utils.Recover()
 
+	srcName := src.Name(ctx)
+	dstName := dst.Name(ctx)
 	err = src.List(ctx, j, func(o model.Object) {
 		defer utils.Recover()
 
@@ -31,6 +34,9 @@ func listObject(ctx context.Context, j *model.DirectoryObject) (err error) {
 			logrus.Debugf("Directory object %s created.", x.Key)
 			return
 		case *model.SingleObject:
+			if x.IsDir && (!strings.HasPrefix(srcName, "qingstor") || !strings.HasPrefix(dstName, "qingstor")) {
+				return
+			}
 			err = model.CreateObject(ctx, x)
 			if err != nil {
 				utils.CheckClosedDB(err)
@@ -135,12 +141,12 @@ func copyObject(ctx context.Context, o model.Object) (err error) {
 	if so.Size <= multipartBoundarySize || !dst.Partable() {
 		logrus.Infof("Start copying single object %s.", so.Key)
 
-		r, err := src.Read(ctx, so.Key)
+		r, err := src.Read(ctx, so.Key, so.IsDir)
 		if err != nil {
 			logrus.Errorf("Src read %s failed for %v.", so.Key, err)
 			return err
 		}
-		err = dst.Write(ctx, so.Key, so.Size, r)
+		err = dst.Write(ctx, so.Key, so.Size, r, so.IsDir, so.QSMetadata)
 		if err != nil {
 			logrus.Errorf("Dst write %s failed for %v.", so.Key, err)
 			return err
@@ -151,7 +157,7 @@ func copyObject(ctx context.Context, o model.Object) (err error) {
 	}
 
 	// Split single object into part objects.
-	uploadID, partSize, partNumbers, err := dst.InitPart(ctx, so.Key, so.Size)
+	uploadID, partSize, partNumbers, err := dst.InitPart(ctx, so.Key, so.Size, so.QSMetadata)
 	if err != nil {
 		logrus.Errorf("Dst init part %s failed for %v.", so.Key, err)
 		return err
@@ -237,7 +243,7 @@ func fetchObject(ctx context.Context, o model.Object) (err error) {
 func statObject(
 	ctx context.Context, e endpoint.Base, o *model.SingleObject,
 ) (ro *model.SingleObject, err error) {
-	ro, err = e.Stat(ctx, o.Key)
+	ro, err = e.Stat(ctx, o.Key, o.IsDir)
 	if err != nil {
 		logrus.Errorf("%s stat object %s failed for %v.", e.Name(ctx), o.Key, err)
 		return
@@ -269,7 +275,7 @@ func md5SumObject(
 	var r io.Reader
 	switch x := o.(type) {
 	case *model.SingleObject:
-		r, err = e.Read(ctx, x.Key)
+		r, err = e.Read(ctx, x.Key, x.IsDir)
 		if err != nil {
 			logrus.Errorf("%s read single object %s failed for %v.",
 				e.Name(ctx), x.Key, err)

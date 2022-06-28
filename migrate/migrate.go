@@ -140,7 +140,7 @@ func check(ctx context.Context) (err error) {
 			return
 		}
 	default:
-		logrus.Errorf("Type %s is not supported.", t.Src.Type)
+		logrus.Errorf("Type src %s is not supported.", t.Src.Type)
 		err = constants.ErrEndpointNotSupported
 		return
 	}
@@ -163,7 +163,7 @@ func check(ctx context.Context) (err error) {
 			return
 		}
 	default:
-		logrus.Errorf("Type %s is not supported.", t.Src.Type)
+		logrus.Errorf("Type dst %s is not supported.", t.Dst.Type)
 		err = constants.ErrEndpointNotSupported
 		return
 	}
