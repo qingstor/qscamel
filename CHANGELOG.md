@@ -2,6 +2,12 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.21] - 2022-06-29
+
+### Added
+
+- qingstor: Add migration folder and user-defined metadata function (#320)
+
 ## [v2.0.20] - 2022-02-26
 
 ### Added
@@ -199,6 +205,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 - QingStor qscamel.
 
+[v2.0.21]: https://github.com/yunify/qscamel/compare/v2.0.20...v2.0.21
 [v2.0.20]: https://github.com/yunify/qscamel/compare/v2.0.19...v2.0.20
 [v2.0.18]: https://github.com/yunify/qscamel/compare/v2.0.17...v2.0.18
 [v2.0.17]: https://github.com/yunify/qscamel/compare/v2.0.16...v2.0.17
