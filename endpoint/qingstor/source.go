@@ -35,7 +35,7 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 		for _, v := range resp.Keys {
 			if strings.HasSuffix(*v.Key, "/") {
 				key := utils.Relative(*v.Key, c.Path) + "/"
-				output, err := c.client.HeadObject(key, nil)
+				output, err := c.client.HeadObject(*v.Key, nil)
 				if err == nil {
 					so := &model.SingleObject{
 						Key:          key,
@@ -53,7 +53,7 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 			}
 
 			key := utils.Relative(*v.Key, c.Path)
-			output, err := c.client.HeadObject(key, nil)
+			output, err := c.client.HeadObject(*v.Key, nil)
 			if err == nil {
 				object := &model.SingleObject{
 					Key:          key,
