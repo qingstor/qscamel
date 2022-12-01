@@ -45,7 +45,7 @@ func (c *Client) Delete(ctx context.Context, p string) (err error) {
 }
 
 // Write implement destination.Write
-func (c *Client) Write(ctx context.Context, p string, size int64, r io.Reader, _ bool, _ *map[string]string) (err error) {
+func (c *Client) Write(ctx context.Context, p string, size int64, r io.Reader, _ bool, _ map[string]string) (err error) {
 	cp := utils.Join(c.Path, p)
 
 	_, err = c.client.PutObject(&s3.PutObjectInput{
@@ -75,7 +75,7 @@ func (c *Client) Partable() bool {
 }
 
 // InitPart implement destination.InitPart
-func (c *Client) InitPart(ctx context.Context, p string, size int64, _ *map[string]string) (uploadID string, partSize int64, partNumbers int, err error) {
+func (c *Client) InitPart(ctx context.Context, p string, size int64, _ map[string]string) (uploadID string, partSize int64, partNumbers int, err error) {
 	cp := utils.Join(c.Path, p)
 
 	resp, err := c.client.CreateMultipartUpload(&s3.CreateMultipartUploadInput{
