@@ -36,8 +36,8 @@ type SingleObject struct {
 	LastModified int64  `msgpack:"lm"`
 	MD5          string `msgpack:"cm"`
 
-	IsDir      bool               `msgpack:"dir"`
-	QSMetadata *map[string]string `msgpack:"qs_meta"`
+	IsDir      bool              `msgpack:"dir"`
+	QSMetadata map[string]string `msgpack:"qs_meta"`
 }
 
 // Type implement Object.Type

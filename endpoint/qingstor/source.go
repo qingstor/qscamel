@@ -44,8 +44,12 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 						MD5:          strings.Trim(*v.Etag, "\""),
 						IsDir:        true,
 					}
-					if c.UserDefineMeta {
-						so.QSMetadata = output.XQSMetaData
+					so.QSMetadata = make(map[string]string)
+					if c.UserDefineMeta && output.XQSMetaData != nil {
+						so.QSMetadata = *output.XQSMetaData
+					}
+					if output.ContentType != nil {
+						so.QSMetadata["ContentType"] = *output.ContentType
 					}
 					fn(so)
 				}
@@ -61,8 +65,12 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 					LastModified: int64(*v.Modified),
 					MD5:          strings.Trim(*v.Etag, "\""),
 				}
-				if c.UserDefineMeta {
-					object.QSMetadata = output.XQSMetaData
+				object.QSMetadata = make(map[string]string)
+				if c.UserDefineMeta && output.XQSMetaData != nil {
+					object.QSMetadata = *output.XQSMetaData
+				}
+				if output.ContentType != nil {
+					object.QSMetadata["ContentType"] = *output.ContentType
 				}
 
 				fn(object)

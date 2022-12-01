@@ -43,7 +43,7 @@ func (c *Client) Delete(ctx context.Context, p string) (err error) {
 }
 
 // Write implement destination.Write
-func (c *Client) Write(ctx context.Context, p string, size int64, r io.Reader, isDir bool, meta *map[string]string) (err error) {
+func (c *Client) Write(ctx context.Context, p string, size int64, r io.Reader, isDir bool, meta map[string]string) (err error) {
 	cp := utils.Join(c.Path, p)
 	var input *service.PutObjectInput
 	if isDir {
@@ -60,9 +60,18 @@ func (c *Client) Write(ctx context.Context, p string, size int64, r io.Reader, i
 		}
 	}
 
-	if c.UserDefineMeta && meta != nil {
+	var (
+		contentType string
+		ok          bool
+	)
+	if contentType, ok = meta["ContentType"]; ok {
+		input.ContentType = service.String(contentType)
+		delete(meta, "ContentType")
+	}
+
+	if c.UserDefineMeta {
 		metadata := make(map[string]string)
-		for k, v := range *meta {
+		for k, v := range meta {
 			metadata[strings.ToLower(k)] = v
 		}
 
@@ -99,15 +108,25 @@ func (c *Client) Partable() bool {
 }
 
 // InitPart implement destination.InitPart
-func (c *Client) InitPart(ctx context.Context, p string, size int64, meta *map[string]string) (uploadID string, partSize int64, partNumbers int, err error) {
+func (c *Client) InitPart(ctx context.Context, p string, size int64, meta map[string]string) (uploadID string, partSize int64, partNumbers int, err error) {
 	cp := utils.Join(c.Path, p)
 
 	input := &service.InitiateMultipartUploadInput{
 		XQSStorageClass: convert.String(c.StorageClass),
 	}
-	if c.UserDefineMeta && meta != nil {
+
+	var (
+		contentType string
+		ok          bool
+	)
+	if contentType, ok = meta["ContentType"]; ok {
+		input.ContentType = service.String(contentType)
+		delete(meta, "ContentType")
+	}
+
+	if c.UserDefineMeta {
 		metadata := make(map[string]string)
-		for k, v := range *meta {
+		for k, v := range meta {
 			metadata[strings.ToLower(k)] = v
 		}
 
