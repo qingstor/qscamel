@@ -66,8 +66,9 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 		}
 
 		o := &model.SingleObject{
-			Key:  "/" + utils.Join(j.Key, v.Name()), // always use current v's name as key
-			Size: target.Size(),
+			Key:          "/" + utils.Join(j.Key, v.Name()), // always use current v's name as key
+			Size:         target.Size(),
+			LastModified: target.ModTime().Unix(),
 		}
 
 		fn(o)
