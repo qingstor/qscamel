@@ -29,11 +29,15 @@ var RunCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
 
+		var closePrint = make(chan struct{}, 1)
 		sigs := make(chan os.Signal, 1)
 		signal.Notify(sigs, os.Interrupt, os.Kill)
 		go func() {
 			sig := <-sigs
 			logrus.Infof("Signal %v received, exit for now.", sig)
+
+			closePrint <- struct{}{}
+			migrate.SaveTask()
 
 			cleanUp()
 			os.Exit(0)
@@ -57,7 +61,7 @@ var RunCmd = &cobra.Command{
 		logrus.Infof("Current version: %s.", constants.Version)
 		logrus.Infof("Task %s migrate started.", t.Name)
 
-		err = migrate.Execute(ctx)
+		err = migrate.Execute(ctx, closePrint)
 		if err != nil {
 			logrus.Errorf("Migrate failed for %v.", err)
 		}

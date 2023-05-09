@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"io/ioutil"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/syndtr/goleveldb/leveldb"
@@ -26,6 +27,15 @@ type Task struct {
 
 	IgnoreExisting        string `yaml:"ignore_existing" msgpack:"ie"`
 	MultipartBoundarySize int64  `yaml:"multipart_boundary_size" msgpack:"mbs"`
+	// Format: 2006-01-02 15:04:05
+	IgnoreBefore          string `yaml:"ignore_before" msgpack:"ib"`
+	IgnoreBeforeTimestamp int64  `yaml:"-" msgpack:"ibt"`
+	RateLimit             int    `yaml:"rate_limit" msgpack:"rl"`
+
+	// Statistical Information
+	SuccessCount  int64               `yaml:"-" msgpack:"sc"`
+	SuccessSize   int64               `yaml:"-" msgpack:"ss"`
+	FailedObjects map[string]struct{} `yaml:"-" msgpack:"fo"`
 
 	// Data that only stores in database.
 	Name   string `yaml:"-" msgpack:"n"`
@@ -65,6 +75,25 @@ func LoadTask(name, taskPath string) (t *Task, err error) {
 		}
 		return t, nil
 	}
+
+	// Parse ignore before
+	if task.IgnoreBefore != "" {
+		format := "2006-01-02 15:04:05"
+		ignoreBefore, err := time.Parse(format, task.IgnoreBefore)
+		if err != nil {
+			logrus.Errorf("%s is not a valid value for task ignore before", task.IgnoreBefore)
+			return nil, constants.ErrTaskInvalid
+		}
+		task.IgnoreBeforeTimestamp = ignoreBefore.Unix()
+
+	}
+
+	if task.RateLimit == 0 {
+		task.RateLimit = 1000
+	}
+
+	// Init FailedObjects map
+	task.FailedObjects = make(map[string]struct{})
 
 	// If task not in database, set task status to
 	// created and save it.

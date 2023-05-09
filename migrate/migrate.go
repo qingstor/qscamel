@@ -24,6 +24,7 @@ import (
 	"github.com/cenkalti/backoff"
 	"github.com/sirupsen/logrus"
 	"github.com/yunify/qscamel/endpoint/azblob"
+	"go.uber.org/ratelimit"
 
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/contexts"
@@ -54,11 +55,13 @@ var (
 	src endpoint.Source
 	dst endpoint.Destination
 
+	rl ratelimit.Limiter
+
 	multipartBoundarySize int64
 )
 
 // Execute will execute migrate task.
-func Execute(ctx context.Context) (err error) {
+func Execute(ctx context.Context, close chan struct{}) (err error) {
 	t, err = model.GetTask(ctx)
 	if err != nil {
 		return
@@ -72,13 +75,15 @@ func Execute(ctx context.Context) (err error) {
 		multipartBoundarySize = constants.DefaultMultipartBoundarySize
 	}
 
+	rl = ratelimit.New(t.RateLimit)
+
 	err = check(ctx)
 	if err != nil {
 		logrus.Errorf("Pre migrate check failed for %v.", err)
 		return
 	}
 
-	return run(ctx)
+	return run(ctx, close)
 }
 
 func check(ctx context.Context) (err error) {
@@ -172,12 +177,14 @@ func check(ctx context.Context) (err error) {
 }
 
 // run will execute task.
-func run(ctx context.Context) (err error) {
+func run(ctx context.Context, close chan struct{}) (err error) {
 	// Check if task has been finished.
 	if t.Status == constants.TaskStatusFinished {
 		logrus.Infof("Task %s has been finished, skip.", t.Name)
 		return
 	}
+
+	go printStatistics(close)
 
 	switch t.Type {
 	case constants.TaskTypeCopy:
@@ -211,6 +218,8 @@ func run(ctx context.Context) (err error) {
 		return
 	}
 
+	close <- struct{}{}
+
 	logrus.Infof("Task %s has been finished.", t.Name)
 	return
 }
@@ -240,9 +249,18 @@ func migrateWorker(ctx context.Context) {
 		bo.MaxElapsedTime = 2 * time.Second
 
 		err = backoff.Retry(func() error {
+			rl.Take()
+
 			err = t.Handle(ctx, o)
 			if err == nil {
 				return nil
+			}
+
+			switch x := o.(type) {
+			case *model.SingleObject:
+				t.FailedObjects[x.Key] = struct{}{}
+			case *model.PartialObject:
+				t.FailedObjects[x.Key] = struct{}{}
 			}
 
 			logrus.Infof("%s object failed for %v, retried.", t.Type, err)
@@ -257,6 +275,20 @@ func migrateWorker(ctx context.Context) {
 		if err != nil {
 			utils.CheckClosedDB(err)
 			continue
+		}
+
+		t.SuccessCount++
+		switch x := o.(type) {
+		case *model.SingleObject:
+			if _, ok := t.FailedObjects[x.Key]; ok {
+				delete(t.FailedObjects, x.Key)
+			}
+			t.SuccessSize += x.Size
+		case *model.PartialObject:
+			if _, ok := t.FailedObjects[x.Key]; ok {
+				delete(t.FailedObjects, x.Key)
+			}
+			t.SuccessSize += x.Size
 		}
 	}
 }
@@ -291,4 +323,36 @@ func isFinished(ctx context.Context) bool {
 	}
 
 	return true
+}
+
+func printStatistics(close chan struct{}) {
+	timer := time.NewTicker(5 * time.Second)
+	var tmpCount int64
+	for {
+		select {
+		case <-close:
+			logrus.Infof("====Final Success Count: %d  Final Success Size: %d====", t.SuccessCount, t.SuccessSize)
+			filenames := make([]string, 0)
+			for name, _ := range t.FailedObjects {
+				filenames = append(filenames, name)
+			}
+			if len(filenames) > 0 {
+				logrus.Infof("====Final Failed Count: %d  Final Failed filename: %v====", len(filenames), filenames)
+			} else {
+				logrus.Infof("====All objects migrated successfully====")
+			}
+			break
+		case <-timer.C:
+			if tmpCount != t.SuccessCount {
+				logrus.Infof("====Success Count: %d  Success Size: %d====", t.SuccessCount, t.SuccessSize)
+				tmpCount = t.SuccessCount
+			}
+		}
+	}
+}
+
+func SaveTask() {
+	if t.SuccessCount != 0 || len(t.FailedObjects) > 0 {
+		_ = t.Save(nil)
+	}
 }
