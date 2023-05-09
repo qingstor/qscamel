@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
 
@@ -60,7 +61,7 @@ func listObject(ctx context.Context, j *model.DirectoryObject) (err error) {
 
 // checkObject will tell whether an object is ok.
 func checkObject(ctx context.Context, mo model.Object) (ok bool, err error) {
-	if t.IgnoreExisting == "" || mo.Type() == constants.ObjectTypePartial {
+	if (t.IgnoreExisting == "" && t.IgnoreBeforeTimestamp == 0) || mo.Type() == constants.ObjectTypePartial {
 		return false, nil
 	}
 
@@ -94,6 +95,15 @@ func checkObject(ctx context.Context, mo model.Object) (ok bool, err error) {
 	if t.IgnoreExisting == constants.TaskIgnoreExistingLastModified {
 		if so.LastModified > do.LastModified {
 			logrus.Infof("Object %s was modified, execute an operation on it.", o.Key)
+			return
+		}
+		logrus.Infof("Object %s check passed, ignore.", o.Key)
+		return true, nil
+	}
+
+	if t.IgnoreBeforeTimestamp != 0 {
+		if so.LastModified > t.IgnoreBeforeTimestamp {
+			logrus.Infof("Object %s was modified after %s, execute an operation on it.", o.Key, time.Unix(t.IgnoreBeforeTimestamp, 0))
 			return
 		}
 		logrus.Infof("Object %s check passed, ignore.", o.Key)
