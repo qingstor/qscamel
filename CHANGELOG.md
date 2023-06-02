@@ -6,6 +6,14 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 ### Added
 
+- endpoint/qingstor: Add content-type for qingstor migration (#326)
+- endpoint/fs: Add last modified time to the source endpoint (#327)
+- feat: Add ignore_before and speed limit and migrate dynamic printing (#328)
+
+## [v2.0.21] - 2022-06-29
+
+### Added
+
 - qingstor: Add migration folder and user-defined metadata function (#320)
 
 ## [v2.0.20] - 2022-02-26
@@ -205,6 +213,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 - QingStor qscamel.
 
+[v2.0.21]: https://github.com/yunify/qscamel/compare/v2.0.21...v2.0.22
 [v2.0.21]: https://github.com/yunify/qscamel/compare/v2.0.20...v2.0.21
 [v2.0.20]: https://github.com/yunify/qscamel/compare/v2.0.19...v2.0.20
 [v2.0.18]: https://github.com/yunify/qscamel/compare/v2.0.17...v2.0.18
