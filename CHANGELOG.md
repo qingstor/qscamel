@@ -2,7 +2,7 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
-## [v2.0.21] - 2022-06-29
+## [v2.0.22] - 2023-06-02
 
 ### Added
 
