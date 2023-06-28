@@ -247,6 +247,7 @@ func migrateWorker(ctx context.Context) {
 		bo := backoff.NewExponentialBackOff()
 		bo.Multiplier = 2.0
 		bo.MaxElapsedTime = 2 * time.Second
+		backOff := backoff.WithMaxTries(bo, 5)
 
 		err = backoff.Retry(func() error {
 			rl.Take()
@@ -265,8 +266,13 @@ func migrateWorker(ctx context.Context) {
 
 			logrus.Infof("%s object failed for %v, retried.", t.Type, err)
 			return err
-		}, bo)
+		}, backOff)
 		if err != nil {
+			err = model.DeleteObject(ctx, o)
+			if err != nil {
+				utils.CheckClosedDB(err)
+				continue
+			}
 			logrus.Errorf("%s object failed for %v.", t.Type, err)
 			continue
 		}
