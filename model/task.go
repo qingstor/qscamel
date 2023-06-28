@@ -68,6 +68,10 @@ func LoadTask(name, taskPath string) (t *Task, err error) {
 		return
 	}
 
+	if task.RateLimit == 0 {
+		task.RateLimit = 1000
+	}
+
 	// If t is not nil and task path input, we should check the task content.
 	if t != nil {
 		if t.Sum256() != task.Sum256() {
@@ -85,11 +89,6 @@ func LoadTask(name, taskPath string) (t *Task, err error) {
 			return nil, constants.ErrTaskInvalid
 		}
 		task.IgnoreBeforeTimestamp = ignoreBefore.Unix()
-
-	}
-
-	if task.RateLimit == 0 {
-		task.RateLimit = 1000
 	}
 
 	// Init FailedObjects map
