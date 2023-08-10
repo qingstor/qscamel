@@ -31,11 +31,13 @@ type Task struct {
 	IgnoreBefore          string `yaml:"ignore_before" msgpack:"ib"`
 	IgnoreBeforeTimestamp int64  `yaml:"-" msgpack:"ibt"`
 	RateLimit             int    `yaml:"rate_limit" msgpack:"rl"`
+	// The number of workers for multipart uploads, default 100.
+	Workers int `yaml:"workers" msgpack:"wk"`
 
 	// Statistical Information
-	SuccessCount  int64               `yaml:"-" msgpack:"sc"`
-	SuccessSize   int64               `yaml:"-" msgpack:"ss"`
-	FailedObjects map[string]struct{} `yaml:"-" msgpack:"fo"`
+	SuccessCount  int64          `yaml:"-" msgpack:"sc"`
+	SuccessSize   int64          `yaml:"-" msgpack:"ss"`
+	FailedObjects map[string]int `yaml:"-" msgpack:"fo"`
 
 	// Data that only stores in database.
 	Name   string `yaml:"-" msgpack:"n"`
@@ -92,7 +94,7 @@ func LoadTask(name, taskPath string) (t *Task, err error) {
 	}
 
 	// Init FailedObjects map
-	task.FailedObjects = make(map[string]struct{})
+	task.FailedObjects = make(map[string]int)
 
 	// If task not in database, set task status to
 	// created and save it.

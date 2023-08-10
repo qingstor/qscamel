@@ -2,7 +2,6 @@ package qingstor
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"strings"
 
@@ -156,25 +155,6 @@ func (c *Client) InitPart(ctx context.Context, p string, size int64, meta map[st
 func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Reader) (err error) {
 	cp := utils.Join(c.Path, o.Key)
 
-	// o.TotalNumber-1 is the last part number.
-	isLastPart := o.PartNumber == o.TotalNumber-1
-
-	// If the part is the last part, we need to wait for other parts.
-	if isLastPart {
-		// Trick: We need to check from current part number here.
-		next, err := model.NextPartialObject(ctx, o.Key, -1)
-		if err != nil {
-			return err
-		}
-		if next == nil {
-			panic(fmt.Errorf("some thing wrong happened: next partial object %s should not be nil", o.Key))
-		}
-		if next.PartNumber != o.TotalNumber-1 {
-			logrus.Infof("Object %s are other parts to be uploaded, wait for next turn", o.Key)
-			return fmt.Errorf("wait for next turn")
-		}
-	}
-
 	_, err = c.client.UploadMultipart(cp, &service.UploadMultipartInput{
 		// wrap by limitReader to keep body consistent with size
 		Body:          io.LimitReader(r, o.Size),
@@ -187,17 +167,17 @@ func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Re
 	}
 
 	logrus.Debugf("QingStor wrote partial object %s at %d.", o.Key, o.Offset)
-	if !isLastPart {
-		// If this part is not the last part, we can return directly.
-		return nil
-	}
 
-	logrus.Infof("Object %s start completing part", o.Key)
+	return nil
+}
 
-	// If we don't have next part or the next's part number is the last part,
-	// we can do complete part here.
-	parts := make([]*service.ObjectPartType, o.TotalNumber)
-	for i := 0; i < o.TotalNumber; i++ {
+func (c *Client) CompleteParts(ctx context.Context, path string, uploadId string, totalNumber int) (err error) {
+	cp := utils.Join(c.Path, path)
+
+	logrus.Infof("Object %s start completing part", path)
+
+	parts := make([]*service.ObjectPartType, totalNumber)
+	for i := 0; i < totalNumber; i++ {
 		parts[i] = &service.ObjectPartType{
 			PartNumber: convert.Int(i),
 		}
@@ -205,11 +185,12 @@ func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Re
 
 	_, err = c.client.CompleteMultipartUpload(
 		cp, &service.CompleteMultipartUploadInput{
-			UploadID:    convert.String(o.UploadID),
+			UploadID:    convert.String(uploadId),
 			ObjectParts: parts,
 		})
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
