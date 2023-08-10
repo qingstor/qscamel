@@ -87,3 +87,7 @@ func (c *Client) InitPart(ctx context.Context, p string, size int64, _ map[strin
 func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Reader) (err error) {
 	return nil
 }
+
+func (c *Client) CompleteParts(ctx context.Context, path string, uploadId string, totalNumber int) (err error) {
+	return nil
+}

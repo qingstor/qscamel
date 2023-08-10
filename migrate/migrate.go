@@ -22,14 +22,15 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff"
+	"github.com/panjf2000/ants/v2"
 	"github.com/sirupsen/logrus"
-	"github.com/yunify/qscamel/endpoint/azblob"
 	"go.uber.org/ratelimit"
 
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/contexts"
 	"github.com/yunify/qscamel/endpoint"
 	"github.com/yunify/qscamel/endpoint/aliyun"
+	"github.com/yunify/qscamel/endpoint/azblob"
 	"github.com/yunify/qscamel/endpoint/cos"
 	"github.com/yunify/qscamel/endpoint/filelist"
 	"github.com/yunify/qscamel/endpoint/fs"
@@ -57,6 +58,8 @@ var (
 
 	rl ratelimit.Limiter
 
+	pool *ants.Pool
+
 	multipartBoundarySize int64
 )
 
@@ -76,6 +79,18 @@ func Execute(ctx context.Context, close chan struct{}) (err error) {
 	}
 
 	rl = ratelimit.New(t.RateLimit)
+
+	var workers int
+	if t.Workers == 0 {
+		workers = 100
+	} else {
+		workers = t.Workers
+	}
+	pool, err = ants.NewPool(workers)
+	if err != nil {
+		logrus.Errorf("New migrate multipart workers failed for %v.", err)
+		return
+	}
 
 	err = check(ctx)
 	if err != nil {
@@ -246,10 +261,9 @@ func migrateWorker(ctx context.Context) {
 		// Object may be tried in three times.
 		bo := backoff.NewExponentialBackOff()
 		bo.Multiplier = 2.0
-		bo.MaxElapsedTime = 2 * time.Second
-		backOff := backoff.WithMaxTries(bo, 5)
+		backOff := backoff.WithMaxTries(bo, 10)
 
-		err = backoff.Retry(func() error {
+		fn := func() error {
 			rl.Take()
 
 			err = t.Handle(ctx, o)
@@ -259,19 +273,22 @@ func migrateWorker(ctx context.Context) {
 
 			switch x := o.(type) {
 			case *model.SingleObject:
-				t.FailedObjects[x.Key] = struct{}{}
-			case *model.PartialObject:
-				t.FailedObjects[x.Key] = struct{}{}
+				t.FailedObjects[x.Key] = 0
 			}
 
 			logrus.Infof("%s object failed for %v, retried.", t.Type, err)
 			return err
-		}, backOff)
+		}
+
+		err = backoff.Retry(fn, backOff)
 		if err != nil {
-			err = model.DeleteObject(ctx, o)
-			if err != nil {
-				utils.CheckClosedDB(err)
-				continue
+			switch o.(type) {
+			case *model.SingleObject:
+				e := model.DeleteObject(ctx, o)
+				if e != nil {
+					utils.CheckClosedDB(e)
+					continue
+				}
 			}
 			logrus.Errorf("%s object failed for %v.", t.Type, err)
 			continue
@@ -283,17 +300,12 @@ func migrateWorker(ctx context.Context) {
 			continue
 		}
 
-		t.SuccessCount++
 		switch x := o.(type) {
 		case *model.SingleObject:
 			if _, ok := t.FailedObjects[x.Key]; ok {
 				delete(t.FailedObjects, x.Key)
 			}
-			t.SuccessSize += x.Size
-		case *model.PartialObject:
-			if _, ok := t.FailedObjects[x.Key]; ok {
-				delete(t.FailedObjects, x.Key)
-			}
+			t.SuccessCount++
 			t.SuccessSize += x.Size
 		}
 	}

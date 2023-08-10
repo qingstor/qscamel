@@ -12,12 +12,13 @@ require (
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
+	github.com/panjf2000/ants/v2 v2.8.1
 	github.com/pengsrc/go-shared v0.2.1-0.20190131101655-1999055a4a14
 	github.com/qiniu/api.v7 v0.0.0-20190307065957-039fdba59f73
 	github.com/qiniu/x v7.0.8+incompatible
 	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/cobra v0.0.7
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.8.1
 	github.com/syndtr/goleveldb v0.0.0-20180521045021-5d6fca44a948
 	github.com/tencentyun/cos-go-sdk-v5 v0.0.0-20191221060900-c807d39e9045
 	github.com/upyun/go-sdk v2.1.0+incompatible

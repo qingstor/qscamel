@@ -129,8 +129,14 @@ func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Re
 		return nil
 	}
 
-	parts := make([]*s3.CompletedPart, o.TotalNumber)
-	for i := 0; i < o.TotalNumber; i++ {
+	return nil
+}
+
+func (c *Client) CompleteParts(ctx context.Context, path string, uploadId string, totalNumber int) (err error) {
+	cp := utils.Join(c.Path, path)
+
+	parts := make([]*s3.CompletedPart, totalNumber)
+	for i := 0; i < totalNumber; i++ {
 		parts[i] = &s3.CompletedPart{
 			PartNumber: aws.Int64(int64(i)),
 		}
@@ -139,7 +145,7 @@ func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Re
 	_, err = c.client.CompleteMultipartUpload(&s3.CompleteMultipartUploadInput{
 		Bucket:   aws.String(c.BucketName),
 		Key:      aws.String(cp),
-		UploadId: aws.String(o.UploadID),
+		UploadId: aws.String(uploadId),
 		MultipartUpload: &s3.CompletedMultipartUpload{
 			Parts: parts,
 		},
@@ -147,5 +153,6 @@ func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Re
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
