@@ -151,21 +151,20 @@ func copyObject(ctx context.Context, o model.Object) (err error) {
 		return err
 	}
 
-	errch := make(chan *model.EmptyResult, 4)
 	cclCtx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	var e error
+	once := sync.Once{}
+	eQuit := make(chan struct{})
+	quit := make(chan struct{})
 	go func() {
-		defer close(errch)
+		defer close(quit)
+		wg := sync.WaitGroup{}
 
-		wg := &sync.WaitGroup{}
-
-		var index int
 		offset := int64(0)
 		for i := 0; i < partNumbers; i++ {
 			wg.Add(1)
-
-			taskIndex := index
 
 			oo := &model.PartialObject{
 				Key: so.Key,
@@ -174,11 +173,10 @@ func copyObject(ctx context.Context, o model.Object) (err error) {
 				Offset: offset,
 
 				TotalNumber: partNumbers,
-				PartNumber:  taskIndex,
+				PartNumber:  i,
 				UploadID:    uploadID,
 			}
 
-			index++
 			offset += partSize
 			if offset > so.Size {
 				oo.Size = so.Size - offset + partSize
@@ -186,35 +184,43 @@ func copyObject(ctx context.Context, o model.Object) (err error) {
 
 			err = pool.Submit(func() {
 				defer wg.Done()
+
 				logrus.Infof("Start copying partial object %s at %d.", oo.Key, oo.PartNumber)
 
-				for {
-					select {
-					case <-cclCtx.Done():
-						return
-					default:
-						r, err := src.ReadRange(ctx, oo.Key, oo.Offset, oo.Size)
-						if err != nil {
-							logrus.Errorf("Src read partial object %s at %d failed for %v.",
-								oo.Key, oo.Offset, err)
-							errch <- &model.EmptyResult{Error: err}
-							return
-						}
-						err = dst.UploadPart(ctx, oo, r)
-						if err != nil {
-							logrus.Errorf("Dst write partial object %s at %d failed for %v.",
-								oo.Key, oo.Offset, err)
-							errch <- &model.EmptyResult{Error: err}
-							return
-						}
-
-						logrus.Infof("Partial object %s at %d copied.", oo.Key, oo.PartNumber)
-						return
-					}
+				r, err := src.ReadRange(cclCtx, oo.Key, oo.Offset, oo.Size)
+				if err != nil {
+					once.Do(func() {
+						logrus.Errorf("Src read partial object %s at %d failed for %v.",
+							oo.Key, oo.Offset, err)
+						close(eQuit)
+						cancel()
+						e = err
+					})
+					return
 				}
+				err = dst.UploadPart(cclCtx, oo, r)
+				if err != nil {
+					once.Do(func() {
+						logrus.Errorf("Dst write partial object %s at %d failed for %v.",
+							oo.Key, oo.Offset, err)
+						close(eQuit)
+						cancel()
+						e = err
+					})
+					return
+				}
+
+				logrus.Infof("Partial object %s at %d copied.", oo.Key, oo.PartNumber)
+				return
+
 			})
 			if err != nil {
-				errch <- &model.EmptyResult{Error: err}
+				once.Do(func() {
+					logrus.Errorf("Submit Upload partial object %s request failed for %v", so.Key, err)
+					close(eQuit)
+					cancel()
+					e = err
+				})
 				return
 			}
 		}
@@ -222,8 +228,19 @@ func copyObject(ctx context.Context, o model.Object) (err error) {
 		wg.Wait()
 	}()
 
-	for e := range errch {
-		return e.Error
+	select {
+	case <-eQuit:
+		break
+	case <-quit:
+		break
+	}
+
+	if e != nil {
+		err = dst.AbortUploads(ctx, so.Key, uploadID)
+		if err != nil {
+			logrus.Errorf("Abort partial object %s failed for %v", so.Key, err)
+		}
+		return e
 	}
 
 	err = dst.CompleteParts(ctx, so.Key, uploadID, partNumbers)

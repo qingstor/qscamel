@@ -91,3 +91,7 @@ func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Re
 func (c *Client) CompleteParts(ctx context.Context, path string, uploadId string, totalNumber int) (err error) {
 	return nil
 }
+
+func (c *Client) AbortUploads(ctx context.Context, path string, uploadId string) (err error) {
+	return nil
+}

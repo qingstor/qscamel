@@ -40,6 +40,7 @@ type Destination interface {
 	// UploadPart will upload a part.
 	UploadPart(ctx context.Context, o *model.PartialObject, r io.Reader) (err error)
 	CompleteParts(ctx context.Context, path string, uploadId string, totalNumber int) (err error)
+	AbortUploads(ctx context.Context, path string, uploadId string) (err error)
 	// Partable will return whether current endpoint supports multipart upload.
 	Partable() bool
 
