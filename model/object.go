@@ -63,13 +63,6 @@ func (o *PartialObject) Type() string {
 	return constants.ObjectTypePartial
 }
 
-// EmptyResult is the result for empty return.
-// Only Error field will be valid.
-// We will use this type of result as an error channel.
-type EmptyResult struct {
-	Error error
-}
-
 // CreateObject will create an object in db.
 func CreateObject(ctx context.Context, o Object) (err error) {
 	t := utils.FromTaskContext(ctx)

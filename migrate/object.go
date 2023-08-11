@@ -151,12 +151,11 @@ func copyObject(ctx context.Context, o model.Object) (err error) {
 		return err
 	}
 
-	cclCtx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	var e error
 	once := sync.Once{}
+	// error exit
 	eQuit := make(chan struct{})
+	// Normal exit
 	quit := make(chan struct{})
 	go func() {
 		defer close(quit)
@@ -187,24 +186,22 @@ func copyObject(ctx context.Context, o model.Object) (err error) {
 
 				logrus.Infof("Start copying partial object %s at %d.", oo.Key, oo.PartNumber)
 
-				r, err := src.ReadRange(cclCtx, oo.Key, oo.Offset, oo.Size)
+				r, err := src.ReadRange(ctx, oo.Key, oo.Offset, oo.Size)
 				if err != nil {
 					once.Do(func() {
 						logrus.Errorf("Src read partial object %s at %d failed for %v.",
 							oo.Key, oo.Offset, err)
 						close(eQuit)
-						cancel()
 						e = err
 					})
 					return
 				}
-				err = dst.UploadPart(cclCtx, oo, r)
+				err = dst.UploadPart(ctx, oo, r)
 				if err != nil {
 					once.Do(func() {
 						logrus.Errorf("Dst write partial object %s at %d failed for %v.",
 							oo.Key, oo.Offset, err)
 						close(eQuit)
-						cancel()
 						e = err
 					})
 					return
@@ -218,7 +215,6 @@ func copyObject(ctx context.Context, o model.Object) (err error) {
 				once.Do(func() {
 					logrus.Errorf("Submit Upload partial object %s request failed for %v", so.Key, err)
 					close(eQuit)
-					cancel()
 					e = err
 				})
 				return
