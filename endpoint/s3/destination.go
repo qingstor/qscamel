@@ -156,3 +156,18 @@ func (c *Client) CompleteParts(ctx context.Context, path string, uploadId string
 
 	return nil
 }
+
+func (c *Client) AbortUploads(ctx context.Context, path string, uploadId string) (err error) {
+	cp := utils.Join(c.Path, path)
+
+	_, err = c.client.AbortMultipartUpload(&s3.AbortMultipartUploadInput{
+		Bucket:   aws.String(c.BucketName),
+		Key:      aws.String(cp),
+		UploadId: aws.String(uploadId),
+	})
+	if err != nil {
+		return err
+	}
+
+	return
+}

@@ -194,3 +194,18 @@ func (c *Client) CompleteParts(ctx context.Context, path string, uploadId string
 
 	return nil
 }
+
+func (c *Client) AbortUploads(ctx context.Context, path string, uploadId string) (err error) {
+	cp := utils.Join(c.Path, path)
+
+	logrus.Infof("Object %s start abort part", path)
+
+	_, err = c.client.AbortMultipartUpload(cp, &service.AbortMultipartUploadInput{
+		UploadID: service.String(uploadId),
+	})
+	if err != nil {
+		return err
+	}
+
+	return
+}
