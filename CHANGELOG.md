@@ -2,6 +2,12 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.23] - 2023-08-16
+
+### Added
+
+- endpoint(qingstor/s3/fs): Modified the method of multipart upload in the copy task  (#330)
+
 ## [v2.0.22] - 2023-06-02
 
 ### Added
@@ -213,7 +219,8 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 - QingStor qscamel.
 
-[v2.0.21]: https://github.com/yunify/qscamel/compare/v2.0.21...v2.0.22
+[v2.0.23]: https://github.com/yunify/qscamel/compare/v2.0.22...v2.0.23
+[v2.0.22]: https://github.com/yunify/qscamel/compare/v2.0.21...v2.0.22
 [v2.0.21]: https://github.com/yunify/qscamel/compare/v2.0.20...v2.0.21
 [v2.0.20]: https://github.com/yunify/qscamel/compare/v2.0.19...v2.0.20
 [v2.0.18]: https://github.com/yunify/qscamel/compare/v2.0.17...v2.0.18
