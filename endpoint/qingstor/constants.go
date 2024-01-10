@@ -13,7 +13,7 @@ const (
 )
 
 // Multipart related constants.
-// ref: https://docs.qingcloud.com/qingstor/api/object/multipart/index.html
+// ref: https://docsv4.qingcloud.com/user_guide/storage/object_storage/api/object/multipart/
 const (
 	// DefaultMultipartBoundarySize is the default multipart size.
 	// 64 * 1024 * 1024 = 67108864 B = 64 MB
