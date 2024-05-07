@@ -14,6 +14,7 @@ require (
 	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/panjf2000/ants/v2 v2.8.1
 	github.com/pengsrc/go-shared v0.2.1-0.20190131101655-1999055a4a14
+	github.com/qingstor/qingstor-sdk-go/v4 v4.4.0
 	github.com/qiniu/api.v7 v0.0.0-20190307065957-039fdba59f73
 	github.com/qiniu/x v7.0.8+incompatible
 	github.com/sirupsen/logrus v1.7.0
@@ -23,7 +24,6 @@ require (
 	github.com/tencentyun/cos-go-sdk-v5 v0.0.0-20191221060900-c807d39e9045
 	github.com/upyun/go-sdk v2.1.0+incompatible
 	github.com/vmihailenco/msgpack v3.3.3+incompatible
-	github.com/yunify/qingstor-sdk-go/v3 v3.2.1-0.20200318145652-ad14af5b40e4
 	go.uber.org/ratelimit v0.2.0
 	google.golang.org/api v0.32.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0-20170531160350-a96e63847dc3

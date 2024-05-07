@@ -2,17 +2,18 @@ package qingstor
 
 import (
 	"context"
-	"github.com/sirupsen/logrus"
-	"github.com/yunify/qingstor-sdk-go/v3/config"
-	"github.com/yunify/qingstor-sdk-go/v3/service"
-	"github.com/yunify/qscamel/contexts"
-	"github.com/yunify/qscamel/utils"
-	"gopkg.in/yaml.v2"
 	"net/http"
 	"time"
 
+	"github.com/qingstor/qingstor-sdk-go/v4/config"
+	"github.com/qingstor/qingstor-sdk-go/v4/service"
+	"github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v2"
+
 	"github.com/yunify/qscamel/constants"
+	"github.com/yunify/qscamel/contexts"
 	"github.com/yunify/qscamel/model"
+	"github.com/yunify/qscamel/utils"
 )
 
 // Client is the client to visit QingStor service.
@@ -27,6 +28,7 @@ type Client struct {
 
 	StorageClass       string `yaml:"storage_class"`
 	DisableURICleaning bool   `yaml:"disable_uri_cleaning"`
+	EnableVirtualStyle bool   `yaml:"enable_virtual_style"`
 
 	// Whether to migrate custom metadata
 	UserDefineMeta bool `yaml:"user_define_meta"`
@@ -153,6 +155,7 @@ func New(ctx context.Context, et uint8, hc *http.Client) (c *Client, err error) 
 	qc.Connection = hc
 	qc.AdditionalUserAgent = "qscamel " + constants.Version
 	qc.DisableURICleaning = c.DisableURICleaning
+	qc.EnableVirtualHostStyle = c.EnableVirtualStyle
 
 	// Set qingstor service.
 	qs, _ := service.Init(qc)
