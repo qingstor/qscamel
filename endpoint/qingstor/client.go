@@ -2,12 +2,20 @@ package qingstor
 
 import (
 	"context"
+	"fmt"
+	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/qingstor/qingstor-sdk-go/v4/config"
 	"github.com/qingstor/qingstor-sdk-go/v4/service"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/text/encoding"
+	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/encoding/traditionalchinese"
+	"golang.org/x/text/transform"
 	"gopkg.in/yaml.v2"
 
 	"github.com/yunify/qscamel/constants"
@@ -29,6 +37,7 @@ type Client struct {
 	StorageClass       string `yaml:"storage_class"`
 	DisableURICleaning bool   `yaml:"disable_uri_cleaning"`
 	EnableVirtualStyle bool   `yaml:"enable_virtual_style"`
+	Decoding           string `yaml:"decoding" msgpack:"d"`
 
 	// Whether to migrate custom metadata
 	UserDefineMeta bool `yaml:"user_define_meta"`
@@ -38,6 +47,21 @@ type Client struct {
 	TimeoutConfig TimeoutConfig `yaml:"timeout_config"`
 
 	client *service.Bucket
+}
+
+func (c *Client) Check() error {
+	switch c.Decoding {
+	case "":
+	case constants.GBK:
+	case constants.HZGB2312:
+	case constants.Big5:
+	case constants.Windows1252:
+	default:
+		logrus.Errorf("%s is not a valid value for qingstor decoding", c.Decoding)
+		return constants.ErrTaskInvalid
+	}
+
+	return nil
 }
 
 type TimeoutConfig struct {
@@ -65,6 +89,11 @@ func New(ctx context.Context, et uint8, hc *http.Client) (c *Client, err error) 
 		return
 	}
 	err = yaml.Unmarshal(content, c)
+	if err != nil {
+		return
+	}
+
+	err = c.Check()
 	if err != nil {
 		return
 	}
@@ -167,4 +196,39 @@ func New(ctx context.Context, et uint8, hc *http.Client) (c *Client, err error) 
 	}
 	c.client, _ = qs.Bucket(c.BucketName, c.Zone)
 	return
+}
+
+func (c *Client) Decode(key string) (string, error) {
+	if c.Decoding != "" {
+		utf8, err := decode(key, c.Decoding)
+		if err != nil {
+			return "", err
+		}
+		return utf8, nil
+	}
+
+	return key, nil
+}
+
+func decode(input, decodingName string) (string, error) {
+	var enc encoding.Encoding
+	switch strings.ToLower(decodingName) {
+	case constants.GBK:
+		enc = simplifiedchinese.GBK
+	case constants.HZGB2312:
+		enc = simplifiedchinese.HZGB2312
+	case constants.Big5:
+		enc = traditionalchinese.Big5
+	case constants.Windows1252:
+		enc = charmap.Windows1252
+	default:
+		return "", fmt.Errorf("unsupported decoding: %s", decodingName)
+	}
+
+	reader := transform.NewReader(strings.NewReader(input), enc.NewDecoder())
+	utf8Bytes, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return "", err
+	}
+	return string(utf8Bytes), nil
 }

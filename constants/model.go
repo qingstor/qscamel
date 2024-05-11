@@ -25,6 +25,14 @@ const (
 	TaskIgnoreExistingMD5Sum       = "md5sum"
 )
 
+// Constants for task encoding config.
+const (
+	GBK         = "gbk"
+	HZGB2312    = "gb2312"
+	Big5        = "big5"
+	Windows1252 = "cp1252"
+)
+
 // Constants for object types.
 const (
 	ObjectTypeDirectory = "directory"

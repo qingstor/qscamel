@@ -28,12 +28,10 @@ type Task struct {
 	CheckMD5              bool   `yaml:"check_md5" msgpack:"cm"`
 	IgnoreExisting        string `yaml:"ignore_existing" msgpack:"ie"`
 	MultipartBoundarySize int64  `yaml:"multipart_boundary_size" msgpack:"mbs"`
-	// Format: 2006-01-02 15:04:05
-	IgnoreBefore          string `yaml:"ignore_before" msgpack:"ib"`
+	IgnoreBefore          string `yaml:"ignore_before" msgpack:"ib"` // Format: 2006-01-02 15:04:05
 	IgnoreBeforeTimestamp int64  `yaml:"-" msgpack:"ibt"`
 	RateLimit             int    `yaml:"rate_limit" msgpack:"rl"`
-	// The number of workers for multipart uploads, default 100.
-	Workers int `yaml:"workers" msgpack:"wk"`
+	Workers               int    `yaml:"workers" msgpack:"wk"` // The number of workers for multipart uploads, default 100.
 
 	// Statistical Information
 	SuccessCount  int64          `yaml:"-" msgpack:"sc"`

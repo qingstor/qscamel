@@ -25,6 +25,7 @@ require (
 	github.com/upyun/go-sdk v2.1.0+incompatible
 	github.com/vmihailenco/msgpack v3.3.3+incompatible
 	go.uber.org/ratelimit v0.2.0
+	golang.org/x/text v0.3.3
 	google.golang.org/api v0.32.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0-20170531160350-a96e63847dc3
 	gopkg.in/yaml.v2 v2.4.0

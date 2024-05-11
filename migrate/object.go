@@ -5,12 +5,12 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"io"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/yunify/qscamel/constants"
 	"github.com/yunify/qscamel/endpoint"
 	"github.com/yunify/qscamel/model"
