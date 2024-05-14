@@ -72,6 +72,7 @@ func copyTask(ctx context.Context) (err error) {
 		}
 
 		if !isFinished(ctx) {
+			//t.Status = constants.TaskStatusRerun
 			return constants.ErrTaskNotFinished
 		}
 
