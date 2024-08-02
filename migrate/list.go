@@ -27,26 +27,14 @@ func List(ctx context.Context) (err error) {
 		if err != nil {
 			logrus.Panic(err)
 		}
-	}
-
-	// Traverse already running but not finished directory object.
-	p := ""
-	for {
-		do, err := model.NextDirectoryObject(ctx, p)
-		if err != nil {
-			logrus.Panic(err)
-		}
-		if do == nil {
-			break
-		}
 
 		jwg.Add(1)
-		jc <- do
-		p = do.Key
+		jc <- o
+		return nil
 	}
 
 	// Traverse already running but not finished single object.
-	p = ""
+	p := ""
 	for {
 		so, err := model.NextSingleObject(ctx, p)
 		if err != nil {
@@ -75,6 +63,22 @@ func List(ctx context.Context) (err error) {
 		oc <- po
 		p = po.Key
 		pn = po.PartNumber
+	}
+
+	// Traverse already running but not finished directory object.
+	p = ""
+	for {
+		do, err := model.NextDirectoryObject(ctx, p)
+		if err != nil {
+			logrus.Panic(err)
+		}
+		if do == nil {
+			break
+		}
+
+		jwg.Add(1)
+		jc <- do
+		p = do.Key
 	}
 
 	return
