@@ -25,6 +25,7 @@ type Task struct {
 	Src *Endpoint `yaml:"source" msgpack:"src"`
 	Dst *Endpoint `yaml:"destination" msgpack:"dst"`
 
+	CheckMD5              bool   `yaml:"check_md5" msgpack:"cm"`
 	IgnoreExisting        string `yaml:"ignore_existing" msgpack:"ie"`
 	MultipartBoundarySize int64  `yaml:"multipart_boundary_size" msgpack:"mbs"`
 	// Format: 2006-01-02 15:04:05
