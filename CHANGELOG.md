@@ -2,6 +2,22 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.24] - 2024-08-02
+
+### Added
+
+- feat: Added MD5 check after migration (#333)
+- feat(fs/qingstor): Added gbk encoding support (#335)
+
+### Fixed
+
+- fix: Fixed the List method repeatedly placing objects into the channe… (#336)
+
+### Changed
+
+- refactor: Upgrade qingstor SDK to v4 (#334)
+- Updated the official document links (#332)
+
 ## [v2.0.23] - 2023-08-16
 
 ### Added
@@ -219,6 +235,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 - QingStor qscamel.
 
+[v2.0.24]: https://github.com/yunify/qscamel/compare/v2.0.23...v2.0.24
 [v2.0.23]: https://github.com/yunify/qscamel/compare/v2.0.22...v2.0.23
 [v2.0.22]: https://github.com/yunify/qscamel/compare/v2.0.21...v2.0.22
 [v2.0.21]: https://github.com/yunify/qscamel/compare/v2.0.20...v2.0.21
