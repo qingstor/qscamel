@@ -24,7 +24,10 @@ func (c *Client) Read(ctx context.Context, p string, isDir bool) (r io.Reader, e
 	if isDir {
 		return nil, nil
 	}
-	cp := utils.Join(c.Path, p)
+	cp, err := c.Decode(utils.Join(c.Path, p))
+	if err != nil {
+		return
+	}
 
 	resp, err := c.client.GetObject(cp, nil)
 	if err != nil {
@@ -39,7 +42,10 @@ func (c *Client) Read(ctx context.Context, p string, isDir bool) (r io.Reader, e
 func (c *Client) ReadRange(
 	ctx context.Context, p string, offset, size int64,
 ) (r io.Reader, err error) {
-	cp := utils.Join(c.Path, p)
+	cp, err := c.Decode(utils.Join(c.Path, p))
+	if err != nil {
+		return
+	}
 
 	resp, err := c.client.GetObject(cp, &service.GetObjectInput{
 		Range: convert.String(fmt.Sprintf("bytes=%d-%d", offset, offset+size-1)),
@@ -54,7 +60,10 @@ func (c *Client) ReadRange(
 
 // Stat implement source.Stat and destination.Stat
 func (c *Client) Stat(ctx context.Context, p string, isDir bool) (o *model.SingleObject, err error) {
-	cp := utils.Join(c.Path, p)
+	cp, err := c.Decode(utils.Join(c.Path, p))
+	if err != nil {
+		return
+	}
 	if isDir {
 		cp += "/"
 	}

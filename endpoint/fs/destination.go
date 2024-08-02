@@ -42,7 +42,10 @@ func (c *Client) Delete(ctx context.Context, p string) (err error) {
 
 // Write implement destination.Write
 func (c *Client) Write(ctx context.Context, p string, _ int64, r io.Reader, _ bool, _ map[string]string) (err error) {
-	cp := filepath.Join(c.AbsPath, p)
+	cp, err := c.Encode(filepath.Join(c.AbsPath, p))
+	if err != nil {
+		return
+	}
 
 	_, err = os.Stat(filepath.Dir(cp))
 	if os.IsNotExist(err) {
