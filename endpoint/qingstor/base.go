@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/pengsrc/go-shared/convert"
-	qsErrors "github.com/yunify/qingstor-sdk-go/v3/request/errors"
-	"github.com/yunify/qingstor-sdk-go/v3/service"
+	qsErrors "github.com/qingstor/qingstor-sdk-go/v4/request/errors"
+	"github.com/qingstor/qingstor-sdk-go/v4/service"
 
 	"github.com/yunify/qscamel/model"
 	"github.com/yunify/qscamel/utils"

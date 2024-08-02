@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/pengsrc/go-shared/convert"
+	"github.com/qingstor/qingstor-sdk-go/v4/service"
 	"github.com/sirupsen/logrus"
-	"github.com/yunify/qingstor-sdk-go/v3/service"
 
 	"github.com/yunify/qscamel/model"
 	"github.com/yunify/qscamel/utils"
