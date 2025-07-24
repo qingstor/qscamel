@@ -2,6 +2,12 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.25] - 2025-07-24
+
+### Fixed
+
+- fix(copy): Incorrect metadata validation when qingstor-to-qingstor (#338)
+
 ## [v2.0.24] - 2024-08-02
 
 ### Added
@@ -85,7 +91,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 ### Added
 
-- endpoint: Add hdfs support (#59) 
+- endpoint: Add hdfs support (#59)
 - endpoint/qingstor: Add disable uri cleaning support (#72)
 
 ## [v2.0.13] - 2019-11-07
@@ -235,6 +241,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 - QingStor qscamel.
 
+[v2.0.25]: https://github.com/yunify/qscamel/compare/v2.0.24...v2.0.25
 [v2.0.24]: https://github.com/yunify/qscamel/compare/v2.0.23...v2.0.24
 [v2.0.23]: https://github.com/yunify/qscamel/compare/v2.0.22...v2.0.23
 [v2.0.22]: https://github.com/yunify/qscamel/compare/v2.0.21...v2.0.22
