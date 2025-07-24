@@ -57,9 +57,17 @@ release:
 	@GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -tags netgo -o ./bin/linux/qscamel_v${VERSION}_linux_amd64 .
 	@tar -C ./bin/linux/ -czf ./release/qscamel_v${VERSION}_linux_amd64.tar.gz qscamel_v${VERSION}_linux_amd64
 
+	@echo "build for linux arm64"
+	@GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -tags netgo -o ./bin/linux/qscamel_v${VERSION}_linux_arm64 .
+	@tar -C ./bin/linux/ -czf ./release/qscamel_v${VERSION}_linux_arm64.tar.gz qscamel_v${VERSION}_linux_arm64
+
 	@echo "build for macOS"
 	@GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -tags netgo -o ./bin/macos/qscamel_v${VERSION}_macos_amd64 .
 	@tar -C ./bin/macos/ -czf ./release/qscamel_v${VERSION}_macos_amd64.tar.gz qscamel_v${VERSION}_macos_amd64
+
+	@echo "build for macOS arm64"
+	@GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -tags netgo -o ./bin/macos/qscamel_v${VERSION}_macos_arm64 .
+	@tar -C ./bin/macos/ -czf ./release/qscamel_v${VERSION}_macos_arm64.tar.gz qscamel_v${VERSION}_macos_arm64
 
 	@echo "build for windows"
 	@GOOS=windows GOARCH=386 CGO_ENABLED=0 go build -tags netgo -o ./bin/windows/qscamel_v${VERSION}_windows_i386.exe .
