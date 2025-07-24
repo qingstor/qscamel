@@ -260,8 +260,8 @@ github.com/prometheus/procfs v0.0.0-20181005140218-185b4288413d/go.mod h1:c3At6R
 github.com/prometheus/procfs v0.0.0-20190507164030-5867b95ac084/go.mod h1:TjEm7ze935MbeOT/UhFTIMYKhuLP4wbCsTZCD3I8kEA=
 github.com/prometheus/tsdb v0.7.1/go.mod h1:qhTCs0VvXwvX/y3TZrWD7rabWM+ijKTux40TwIPHuXU=
 github.com/qingstor/qingstor-sdk-go/v4 v4.0.0/go.mod h1:WM7DpsJxaOLCAX1K7R4KOBvzEpM4gfAjyN45IIV6rZ0=
-github.com/qingstor/qingstor-sdk-go/v4 v4.4.0 h1:tbItWtGB1TDfYzqK8dtm6tV+xWU5iYMwL37C6AL5dDs=
-github.com/qingstor/qingstor-sdk-go/v4 v4.4.0/go.mod h1:mDVFtA7+bXQ5xoELTWkoFy1Ad13wtp8jtlnl/RU+zzM=
+github.com/qingstor/qingstor-sdk-go/v4 v4.4.1 h1:DeoKecl+Ls8GhfXVWB0mQ0Qiy1HtmzgFCkeAi9v7ydw=
+github.com/qingstor/qingstor-sdk-go/v4 v4.4.1/go.mod h1:mDVFtA7+bXQ5xoELTWkoFy1Ad13wtp8jtlnl/RU+zzM=
 github.com/qiniu/api.v7 v0.0.0-20190307065957-039fdba59f73 h1:lM0aBYHZAd9BsDd/LYO54QsUY9f6U/Ro0Qf/Q7Jqt+U=
 github.com/qiniu/api.v7 v0.0.0-20190307065957-039fdba59f73/go.mod h1:V8/EzlTgLN6q0s0CJmg/I81ytsvldSF22F7h6MI02+c=
 github.com/qiniu/api.v7/v7 v7.4.1/go.mod h1:VE5oC5rkE1xul0u1S2N0b2Uxq9/6hZzhyqjgK25XDcM=

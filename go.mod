@@ -14,7 +14,7 @@ require (
 	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/panjf2000/ants/v2 v2.8.1
 	github.com/pengsrc/go-shared v0.2.1-0.20190131101655-1999055a4a14
-	github.com/qingstor/qingstor-sdk-go/v4 v4.4.0
+	github.com/qingstor/qingstor-sdk-go/v4 v4.4.1
 	github.com/qiniu/api.v7 v0.0.0-20190307065957-039fdba59f73
 	github.com/qiniu/x v7.0.8+incompatible
 	github.com/sirupsen/logrus v1.7.0
