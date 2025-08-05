@@ -14,7 +14,7 @@ import (
 func List(ctx context.Context) (err error) {
 	if t.Status == constants.TaskStatusCreated {
 		o := &model.DirectoryObject{
-			Key:    "/",
+			Key:    "",
 			Marker: "",
 		}
 		err = model.CreateObject(ctx, o)

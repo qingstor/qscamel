@@ -36,7 +36,9 @@ func listObject(ctx context.Context, j *model.DirectoryObject) (err error) {
 			logrus.Debugf("Directory object %s created.", x.Key)
 			return
 		case *model.SingleObject:
-			if x.IsDir && (!strings.HasPrefix(srcName, "qingstor") || !strings.HasPrefix(dstName, "qingstor")) {
+			if x.IsDir &&
+				(!strings.Contains(srcName, "qingstor") && !strings.Contains(srcName, "s3")) &&
+				(!strings.Contains(dstName, "qingstor") && !strings.Contains(dstName, "s3")) {
 				return
 			}
 			err = model.CreateObject(ctx, x)
@@ -92,11 +94,22 @@ func checkObject(ctx context.Context, mo model.Object) (ok bool, err error) {
 		return
 	}
 
+	if t.IgnoreBeforeTimestamp != 0 && t.IgnoreExisting == constants.TaskIgnoreExistingLastModified {
+		if so.LastModified > t.IgnoreBeforeTimestamp && so.LastModified > do.LastModified {
+			logrus.Infof("Object %s was modified, execute an operation on it.", o.Key)
+			return
+		}
+		logrus.Infof("Object %s check passed, ignore.", o.Key)
+		return true, nil
+	}
+
 	if t.IgnoreBeforeTimestamp != 0 {
 		if so.LastModified > t.IgnoreBeforeTimestamp {
 			logrus.Infof("Object %s was modified after %s, execute an operation on it.", o.Key, time.Unix(t.IgnoreBeforeTimestamp, 0))
 			return
 		}
+		logrus.Infof("Object %s check passed, ignore.", o.Key)
+		return true, nil
 	}
 
 	// Check last modified

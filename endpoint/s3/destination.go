@@ -30,7 +30,7 @@ func (c *Client) Writable() bool {
 
 // Delete implement destination.Delete
 func (c *Client) Delete(ctx context.Context, p string) (err error) {
-	cp := utils.Join(c.Path, p)
+	cp := utils.RebuildPath(c.Path, p)
 
 	_, err = c.client.DeleteObject(&s3.DeleteObjectInput{
 		Bucket: aws.String(c.BucketName),
@@ -45,16 +45,25 @@ func (c *Client) Delete(ctx context.Context, p string) (err error) {
 }
 
 // Write implement destination.Write
-func (c *Client) Write(ctx context.Context, p string, size int64, r io.Reader, _ bool, _ map[string]string) (err error) {
-	cp := utils.Join(c.Path, p)
+func (c *Client) Write(ctx context.Context, p string, size int64, r io.Reader, isDir bool, _ map[string]string) (err error) {
+	cp := utils.RebuildPath(c.Path, p)
 
-	_, err = c.client.PutObject(&s3.PutObjectInput{
-		Bucket: aws.String(c.BucketName),
-		Key:    aws.String(cp),
-		// wrap by limitReader to keep body consistent with size
-		Body:          aws.ReadSeekCloser(io.LimitReader(r, size)),
-		ContentLength: aws.Int64(size),
-	})
+	var input *s3.PutObjectInput
+	if isDir {
+		input = &s3.PutObjectInput{
+			Bucket: aws.String(c.BucketName),
+			Key:    aws.String(cp),
+		}
+	} else {
+		input = &s3.PutObjectInput{
+			Bucket: aws.String(c.BucketName),
+			Key:    aws.String(cp),
+			// wrap by limitReader to keep body consistent with size
+			Body:          aws.ReadSeekCloser(io.LimitReader(r, size)),
+			ContentLength: aws.Int64(size),
+		}
+	}
+	_, err = c.client.PutObject(input)
 
 	if err != nil {
 		return
@@ -76,7 +85,7 @@ func (c *Client) Partable() bool {
 
 // InitPart implement destination.InitPart
 func (c *Client) InitPart(ctx context.Context, p string, size int64, _ map[string]string) (uploadID string, partSize int64, partNumbers int, err error) {
-	cp := utils.Join(c.Path, p)
+	cp := utils.RebuildPath(c.Path, p)
 
 	resp, err := c.client.CreateMultipartUpload(&s3.CreateMultipartUploadInput{
 		Bucket: aws.String(c.BucketName),
@@ -103,7 +112,7 @@ func (c *Client) InitPart(ctx context.Context, p string, size int64, _ map[strin
 
 // UploadPart implement destination.UploadPart
 func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Reader) (err error) {
-	cp := utils.Join(c.Path, o.Key)
+	cp := utils.RebuildPath(c.Path, o.Key)
 
 	_, err = c.client.UploadPart(&s3.UploadPartInput{
 		Bucket:        aws.String(c.BucketName),
@@ -133,7 +142,7 @@ func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Re
 }
 
 func (c *Client) CompleteParts(ctx context.Context, path string, uploadId string, totalNumber int) (err error) {
-	cp := utils.Join(c.Path, path)
+	cp := utils.RebuildPath(c.Path, path)
 
 	parts := make([]*s3.CompletedPart, totalNumber)
 	for i := 0; i < totalNumber; i++ {
@@ -158,7 +167,7 @@ func (c *Client) CompleteParts(ctx context.Context, path string, uploadId string
 }
 
 func (c *Client) AbortUploads(ctx context.Context, path string, uploadId string) (err error) {
-	cp := utils.Join(c.Path, path)
+	cp := utils.RebuildPath(c.Path, path)
 
 	_, err = c.client.AbortMultipartUpload(&s3.AbortMultipartUploadInput{
 		Bucket:   aws.String(c.BucketName),

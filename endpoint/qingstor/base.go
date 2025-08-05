@@ -24,7 +24,7 @@ func (c *Client) Read(ctx context.Context, p string, isDir bool) (r io.Reader, e
 	if isDir {
 		return nil, nil
 	}
-	cp, err := c.Decode(utils.Join(c.Path, p))
+	cp, err := c.Decode(utils.RebuildPath(c.Path, p))
 	if err != nil {
 		return
 	}
@@ -42,7 +42,7 @@ func (c *Client) Read(ctx context.Context, p string, isDir bool) (r io.Reader, e
 func (c *Client) ReadRange(
 	ctx context.Context, p string, offset, size int64,
 ) (r io.Reader, err error) {
-	cp, err := c.Decode(utils.Join(c.Path, p))
+	cp, err := c.Decode(utils.RebuildPath(c.Path, p))
 	if err != nil {
 		return
 	}
@@ -60,12 +60,9 @@ func (c *Client) ReadRange(
 
 // Stat implement source.Stat and destination.Stat
 func (c *Client) Stat(ctx context.Context, p string, isDir bool) (o *model.SingleObject, err error) {
-	cp, err := c.Decode(utils.Join(c.Path, p))
+	cp, err := c.Decode(utils.RebuildPath(c.Path, p))
 	if err != nil {
 		return
-	}
-	if isDir {
-		cp += "/"
 	}
 
 	resp, err := c.client.HeadObject(cp, nil)

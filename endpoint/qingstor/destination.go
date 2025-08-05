@@ -2,6 +2,7 @@ package qingstor
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"strings"
 
@@ -30,7 +31,7 @@ func (c *Client) Writable() bool {
 
 // Delete implement destination.Delete
 func (c *Client) Delete(ctx context.Context, p string) (err error) {
-	cp := utils.Join(c.Path, p)
+	cp := utils.RebuildPath(c.Path, p)
 
 	_, err = c.client.DeleteObject(cp)
 	if err != nil {
@@ -43,13 +44,12 @@ func (c *Client) Delete(ctx context.Context, p string) (err error) {
 
 // Write implement destination.Write
 func (c *Client) Write(ctx context.Context, p string, size int64, r io.Reader, isDir bool, meta map[string]string) (err error) {
-	cp, err := c.Decode(utils.Join(c.Path, p))
+	cp, err := c.Decode(utils.RebuildPath(c.Path, p))
 	if err != nil {
 		return
 	}
 	var input *service.PutObjectInput
 	if isDir {
-		cp += "/"
 		input = &service.PutObjectInput{
 			XQSStorageClass: convert.String(c.StorageClass),
 		}
@@ -61,6 +61,7 @@ func (c *Client) Write(ctx context.Context, p string, size int64, r io.Reader, i
 			XQSStorageClass: convert.String(c.StorageClass),
 		}
 	}
+	fmt.Println("write cp: ", cp, " path: ", p)
 
 	var (
 		contentType string
@@ -91,7 +92,7 @@ func (c *Client) Write(ctx context.Context, p string, size int64, r io.Reader, i
 
 // Fetch implement destination.Fetch
 func (c *Client) Fetch(ctx context.Context, p, url string) (err error) {
-	cp := utils.Join(c.Path, p)
+	cp := utils.RebuildPath(c.Path, p)
 
 	_, err = c.client.PutObject(cp, &service.PutObjectInput{
 		XQSFetchSource: convert.String(url),
@@ -111,7 +112,7 @@ func (c *Client) Partable() bool {
 
 // InitPart implement destination.InitPart
 func (c *Client) InitPart(ctx context.Context, p string, size int64, meta map[string]string) (uploadID string, partSize int64, partNumbers int, err error) {
-	cp, err := c.Decode(utils.Join(c.Path, p))
+	cp, err := c.Decode(utils.RebuildPath(c.Path, p))
 	if err != nil {
 		return
 	}
@@ -159,7 +160,7 @@ func (c *Client) InitPart(ctx context.Context, p string, size int64, meta map[st
 
 // UploadPart implement destination.UploadPart
 func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Reader) (err error) {
-	cp, err := c.Decode(utils.Join(c.Path, o.Key))
+	cp, err := c.Decode(utils.RebuildPath(c.Path, o.Key))
 	if err != nil {
 		return
 	}
@@ -181,7 +182,7 @@ func (c *Client) UploadPart(ctx context.Context, o *model.PartialObject, r io.Re
 }
 
 func (c *Client) CompleteParts(ctx context.Context, path string, uploadId string, totalNumber int) (err error) {
-	cp, err := c.Decode(utils.Join(c.Path, path))
+	cp, err := c.Decode(utils.RebuildPath(c.Path, path))
 	if err != nil {
 		return
 	}
@@ -208,7 +209,7 @@ func (c *Client) CompleteParts(ctx context.Context, path string, uploadId string
 }
 
 func (c *Client) AbortUploads(ctx context.Context, path string, uploadId string) (err error) {
-	cp, err := c.Decode(utils.Join(c.Path, path))
+	cp, err := c.Decode(utils.RebuildPath(c.Path, path))
 	if err != nil {
 		return
 	}
