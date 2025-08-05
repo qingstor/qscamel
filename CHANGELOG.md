@@ -7,6 +7,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 ### Added
 
 - feat(s3/qingstor): Supports migration of empty directory files under the root directory (#341)
+- chore: Delete unnecessary log printouts (#346)
 
 ## [v2.0.25] - 2025-07-24
 
