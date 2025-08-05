@@ -19,9 +19,11 @@ func (c *Client) Name(ctx context.Context) (name string) {
 }
 
 // Read implement source.Read
-func (c *Client) Read(ctx context.Context, p string, _ bool) (r io.Reader, err error) {
-	cp := utils.Join(c.Path, p)
-
+func (c *Client) Read(ctx context.Context, p string, isDir bool) (r io.Reader, err error) {
+	if isDir {
+		return nil, nil
+	}
+	cp := utils.RebuildPath(c.Path, p)
 	resp, err := c.client.GetObject(&s3.GetObjectInput{
 		Key:    aws.String(cp),
 		Bucket: aws.String(c.BucketName),
@@ -38,7 +40,7 @@ func (c *Client) Read(ctx context.Context, p string, _ bool) (r io.Reader, err e
 func (c *Client) ReadRange(
 	ctx context.Context, p string, offset, size int64,
 ) (r io.Reader, err error) {
-	cp := utils.Join(c.Path, p)
+	cp := utils.RebuildPath(c.Path, p)
 
 	resp, err := c.client.GetObject(&s3.GetObjectInput{
 		Key:    aws.String(cp),
@@ -53,8 +55,8 @@ func (c *Client) ReadRange(
 }
 
 // Stat implement source.Stat and destination.Stat
-func (c *Client) Stat(ctx context.Context, p string, _ bool) (o *model.SingleObject, err error) {
-	cp := utils.Join(c.Path, p)
+func (c *Client) Stat(ctx context.Context, p string, isDir bool) (o *model.SingleObject, err error) {
+	cp := utils.RebuildPath(c.Path, p)
 
 	resp, err := c.client.HeadObject(&s3.HeadObjectInput{
 		Bucket: aws.String(c.BucketName),

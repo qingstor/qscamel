@@ -2,6 +2,7 @@ package qingstor
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/pengsrc/go-shared/convert"
@@ -14,10 +15,9 @@ import (
 
 // List implement source.List
 func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o model.Object)) (err error) {
-	cp := utils.Join(c.Path, j.Key) + "/"
-	if cp == "/" {
-		cp = ""
-	}
+	cp := utils.RebuildPath(c.Path, j.Key)
+
+	fmt.Println("list cp: ", cp)
 
 	marker := j.Marker
 
@@ -34,7 +34,8 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 
 		for _, v := range resp.Keys {
 			if strings.HasSuffix(*v.Key, "/") {
-				key := utils.Relative(*v.Key, c.Path) + "/"
+				key := utils.GetRelativePathStrict(c.Path, *v.Key)
+				fmt.Println("key: ", key, " object: ", *v.Key)
 				output, err := c.client.HeadObject(*v.Key, nil)
 				if err == nil {
 					so := &model.SingleObject{
@@ -56,7 +57,8 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 				continue
 			}
 
-			key := utils.Relative(*v.Key, c.Path)
+			key := utils.GetRelativePathStrict(c.Path, *v.Key)
+			fmt.Println("key: ", key, " object: ", *v.Key)
 			output, err := c.client.HeadObject(*v.Key, nil)
 			if err == nil {
 				object := &model.SingleObject{
@@ -98,7 +100,7 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 
 // Reach implement source.Fetch
 func (c *Client) Reach(ctx context.Context, p string) (url string, err error) {
-	cp := utils.Join(c.Path, p)
+	cp := utils.RebuildPath(c.Path, p)
 
 	r, _, err := c.client.GetObjectRequest(cp, nil)
 	if err != nil {

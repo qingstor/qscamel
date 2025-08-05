@@ -2,6 +2,8 @@ package s3
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -19,10 +21,9 @@ func (c *Client) Reachable() bool {
 
 // List implement source.List
 func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o model.Object)) (err error) {
-	cp := utils.Join(c.Path, j.Key) + "/"
-	if cp == "/" {
-		cp = ""
-	}
+	cp := utils.RebuildPath(c.Path, j.Key)
+
+	fmt.Println("list cp: ", cp)
 
 	marker := j.Marker
 
@@ -40,8 +41,26 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 				return err
 			}
 			for _, v := range resp.Contents {
+				if strings.HasSuffix(*v.Key, "/") {
+					key := utils.GetRelativePathStrict(c.Path, *v.Key)
+					_, err := c.client.HeadObject(&s3.HeadObjectInput{
+						Bucket: aws.String(c.BucketName),
+						Key:    aws.String(*v.Key),
+					})
+					if err == nil {
+						so := &model.SingleObject{
+							Key:          key,
+							Size:         *v.Size,
+							LastModified: v.LastModified.Unix(),
+							MD5:          strings.Trim(*v.ETag, "\""),
+							IsDir:        true,
+						}
+						fn(so)
+					}
+					continue
+				}
 				object := &model.SingleObject{
-					Key:  utils.Relative(*v.Key, c.Path),
+					Key:  utils.GetRelativePathStrict(c.Path, *v.Key),
 					Size: *v.Size,
 				}
 
@@ -81,8 +100,26 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 			return err
 		}
 		for _, v := range resp.Contents {
+			if strings.HasSuffix(*v.Key, "/") {
+				key := utils.GetRelativePathStrict(c.Path, *v.Key)
+				_, err := c.client.HeadObject(&s3.HeadObjectInput{
+					Bucket: aws.String(c.BucketName),
+					Key:    aws.String(*v.Key),
+				})
+				if err == nil {
+					so := &model.SingleObject{
+						Key:          key,
+						Size:         *v.Size,
+						LastModified: v.LastModified.Unix(),
+						MD5:          strings.Trim(*v.ETag, "\""),
+						IsDir:        true,
+					}
+					fn(so)
+				}
+				continue
+			}
 			object := &model.SingleObject{
-				Key:  utils.Relative(*v.Key, c.Path),
+				Key:  utils.GetRelativePathStrict(c.Path, *v.Key),
 				Size: *v.Size,
 			}
 
