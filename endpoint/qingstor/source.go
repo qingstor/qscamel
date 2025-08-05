@@ -17,6 +17,8 @@ import (
 func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o model.Object)) (err error) {
 	cp := utils.RebuildPath(c.Path, j.Key)
 
+	fmt.Println("list cp: ", cp)
+
 	marker := j.Marker
 
 	for {
@@ -33,6 +35,7 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 		for _, v := range resp.Keys {
 			if strings.HasSuffix(*v.Key, "/") {
 				key := utils.GetRelativePathStrict(c.Path, *v.Key)
+				fmt.Println("key: ", key, " object: ", *v.Key)
 				output, err := c.client.HeadObject(*v.Key, nil)
 				if err == nil {
 					so := &model.SingleObject{
@@ -55,6 +58,7 @@ func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o m
 			}
 
 			key := utils.GetRelativePathStrict(c.Path, *v.Key)
+			fmt.Println("key: ", key, " object: ", *v.Key)
 			output, err := c.client.HeadObject(*v.Key, nil)
 			if err == nil {
 				object := &model.SingleObject{

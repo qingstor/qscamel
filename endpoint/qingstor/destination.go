@@ -61,6 +61,7 @@ func (c *Client) Write(ctx context.Context, p string, size int64, r io.Reader, i
 			XQSStorageClass: convert.String(c.StorageClass),
 		}
 	}
+	fmt.Println("write cp: ", cp, " path: ", p)
 
 	var (
 		contentType string
