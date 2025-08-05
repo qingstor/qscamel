@@ -2,6 +2,12 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.26] - 2025-08-05
+
+### Added
+
+- feat(s3/qingstor): Supports migration of empty directory files under the root directory (#341)
+
 ## [v2.0.25] - 2025-07-24
 
 ### Fixed
@@ -241,6 +247,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 - QingStor qscamel.
 
+[v2.0.25]: https://github.com/yunify/qscamel/compare/v2.0.25...v2.0.26
 [v2.0.25]: https://github.com/yunify/qscamel/compare/v2.0.24...v2.0.25
 [v2.0.24]: https://github.com/yunify/qscamel/compare/v2.0.23...v2.0.24
 [v2.0.23]: https://github.com/yunify/qscamel/compare/v2.0.22...v2.0.23
