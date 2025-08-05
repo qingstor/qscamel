@@ -2,7 +2,6 @@ package s3
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -22,8 +21,6 @@ func (c *Client) Reachable() bool {
 // List implement source.List
 func (c *Client) List(ctx context.Context, j *model.DirectoryObject, fn func(o model.Object)) (err error) {
 	cp := utils.RebuildPath(c.Path, j.Key)
-
-	fmt.Println("list cp: ", cp)
 
 	marker := j.Marker
 
