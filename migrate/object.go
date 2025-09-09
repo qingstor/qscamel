@@ -89,25 +89,35 @@ func checkObject(ctx context.Context, mo model.Object) (ok bool, err error) {
 		return
 	}
 	// Check size.
-	if so.Size != do.Size {
-		logrus.Infof("Object %s size is not match, execute an operation on it.", o.Key)
-		return
-	}
-
-	if t.IgnoreBeforeTimestamp != 0 && t.IgnoreExisting == constants.TaskIgnoreExistingLastModified {
-		if so.LastModified > t.IgnoreBeforeTimestamp && so.LastModified > do.LastModified {
-			logrus.Infof("Object %s was modified, execute an operation on it.", o.Key)
-			return
-		}
-		logrus.Infof("Object %s check passed, ignore.", o.Key)
-		return true, nil
-	}
+	//if so.Size != do.Size {
+	//	logrus.Infof("Object %s size is not match, execute an operation on it.", o.Key)
+	//	return
+	//}
 
 	if t.IgnoreBeforeTimestamp != 0 {
-		if so.LastModified > t.IgnoreBeforeTimestamp {
-			logrus.Infof("Object %s was modified after %s, execute an operation on it.", o.Key, time.Unix(t.IgnoreBeforeTimestamp, 0))
-			return
+		ignoreTs := t.IgnoreBeforeTimestamp
+
+		switch t.IgnoreExisting {
+		case constants.TaskIgnoreExistingLastModified:
+			if so.LastModified > ignoreTs && so.LastModified > do.LastModified {
+				logrus.Infof("Object %s was modified, execute an operation on it.", o.Key)
+				return
+			}
+
+		case constants.TaskIgnoreExistingMD5Sum:
+			if so.LastModified > ignoreTs && so.MD5 != do.MD5 {
+				logrus.Infof("Object %s was modified, execute an operation on it.", o.Key)
+				return
+			}
+
+		default:
+			if so.LastModified > ignoreTs {
+				logrus.Infof("Object %s was modified after %s, execute an operation on it.",
+					o.Key, time.Unix(ignoreTs, 0))
+				return
+			}
 		}
+
 		logrus.Infof("Object %s check passed, ignore.", o.Key)
 		return true, nil
 	}
