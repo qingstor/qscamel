@@ -2,6 +2,12 @@
 
 All notable changes to QingStor qscamel will be documented in this file.
 
+## [v2.0.27] - 2025-09-09
+
+### Fixed
+
+- fix: Comment out the size check before migration (#347)
+
 ## [v2.0.26] - 2025-08-05
 
 ### Added
@@ -248,6 +254,7 @@ All notable changes to QingStor qscamel will be documented in this file.
 
 - QingStor qscamel.
 
+[v2.0.25]: https://github.com/yunify/qscamel/compare/v2.0.26...v2.0.27
 [v2.0.25]: https://github.com/yunify/qscamel/compare/v2.0.25...v2.0.26
 [v2.0.25]: https://github.com/yunify/qscamel/compare/v2.0.24...v2.0.25
 [v2.0.24]: https://github.com/yunify/qscamel/compare/v2.0.23...v2.0.24
